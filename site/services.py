@@ -47,7 +47,7 @@ SERVICES = {}
 SERVICES["it-betreuung"] = dict(
     name="IT-Betreuung &amp; Support",
     title="IT-Betreuung und Support für Betriebe in Wien | HORANiQ",
-    description="IT-Support per Fernwartung oder vor Ort, Einrichtung neuer Arbeitsplätze und laufende Wartung für Praxen, Kanzleien und Büros in Wien und Umgebung.",
+    description="IT-Support per Fernwartung oder vor Ort, Einrichtung neuer Arbeitsplätze und laufende Wartung für Praxen und Büros in Wien und Umgebung.",
     h1="IT, die einfach läuft, und ein Ansprechpartner, der antwortet",
     lead="Wir betreuen Computer, Laptops, Drucker und Benutzer in Ihrem Betrieb. Bei Störungen per Fernwartung oder vor Ort, und im Alltag so, dass Probleme gar nicht erst entstehen.",
     assure=["Fernwartung oder Vor-Ort-Termin", "Antwort am selben Werktag", "Ein fester Ansprechpartner"],
@@ -82,7 +82,7 @@ SERVICES["it-betreuung"] = dict(
 SERVICES["microsoft-365"] = dict(
     name="Microsoft 365",
     title="Microsoft 365 einrichten und betreuen in Wien | HORANiQ",
-    description="Microsoft 365 Einrichtung, E-Mail-Umzug, Teams, OneDrive, MFA und laufende Betreuung für kleine Betriebe, Praxen und Kanzleien in Wien.",
+    description="Microsoft 365 Einrichtung, E-Mail-Umzug, Teams, OneDrive, MFA und laufende Betreuung für kleine Betriebe, Praxen und Büros in Wien.",
     h1="Microsoft 365, sauber eingerichtet und sicher angemeldet",
     lead="E-Mail, Kalender, Teams und Dateien, aufgesetzt für Ihren Betrieb. Mit Anmeldung über einen zweiten Faktor, klaren Berechtigungen und jemandem, der bei Fragen erreichbar ist.",
     assure=["Umzug bestehender Postfächer", "Anmeldung mit MFA", "Betreuung nach der Einrichtung"],
@@ -117,7 +117,7 @@ SERVICES["microsoft-365"] = dict(
 SERVICES["backup"] = dict(
     name="Backup, NAS &amp; Daten",
     title="Backup und NAS für Betriebe in Wien | HORANiQ",
-    description="Datensicherung, NAS und getestete Wiederherstellung für Praxen, Kanzleien und Büros in Wien und Umgebung. Damit Ihre Daten im Ernstfall zurückkommen.",
+    description="Datensicherung, NAS und getestete Wiederherstellung für Praxen und Büros in Wien und Umgebung. Damit Ihre Daten im Ernstfall zurückkommen.",
     h1="Ein Backup ist erst gut, wenn die Wiederherstellung funktioniert",
     lead="Wir richten Datensicherung und zentrale Ablage ein und prüfen regelmäßig, dass sich Ihre Daten im Ernstfall zurückholen lassen.",
     assure=["Sicherung und Wiederherstellung getestet", "NAS und Cloud möglich", "Verständliche Berichte"],
@@ -596,7 +596,7 @@ def render_hub():
     <div class="split-head"><h2>Für Ihre Branche</h2><p>Die Leistungen, die für Ihren Betrieb am häufigsten wichtig sind, zuerst.</p></div>
     <div class="rows">
       <div class="row quiet"><p class="row-h"><a href="/arztpraxis/">Arztpraxen</a></p><p>IT-Betreuung für Ordinationen, dazu Praxiswebsite auf Wunsch.</p></div>
-      <div class="row quiet"><p class="row-h"><a href="/unternehmen/">Büros, Kanzleien und Betriebe</a></p><p>Microsoft 365, Datensicherung, Netzwerk und Zugriffsrechte für Ihr Team.</p></div>
+      <div class="row quiet"><p class="row-h"><a href="/unternehmen/">Büros und Betriebe</a></p><p>Microsoft 365, Datensicherung, Netzwerk und Zugriffsrechte für Ihr Team.</p></div>
       <div class="row quiet"><p class="row-h"><a href="/ar/">بالعربية</a></p><p>دعم IT للشركات والعيادات في فيينا، بالعربية والألمانية.</p></div>
     </div>
   </div>
