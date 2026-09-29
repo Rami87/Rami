@@ -11,6 +11,7 @@ on every page.
 """
 import html
 import json
+import os
 import re
 import shutil
 import sys
@@ -30,6 +31,10 @@ PHONE = ""            # e.g. "+43 660 1234567". Empty hides every call button.
 WHATSAPP = ""         # digits only with country code, e.g. "436601234567". Empty hides it.
 FORM_ENDPOINT = ""    # e.g. a Formspree or own endpoint. Empty falls back to a prefilled e-mail.
 SAME_AS = []          # public profile URLs (Google Business, LinkedIn) for JSON-LD
+
+# Preview builds (GitHub Pages under /repo-name/): PREVIEW=1 BASE_PATH=/Rami python3 site/build.py
+PREVIEW = os.environ.get("PREVIEW") == "1"
+BASE_PATH = os.environ.get("BASE_PATH", "").rstrip("/")
 # -----------------------------------------------------------------------------
 
 I18N = {
@@ -123,12 +128,15 @@ def form_html(t, sector):
 </form>'''
 
 
-def header_html(t, path, cta="#kontakt"):
+def header_html(t, path, cta="#kontakt", switch=None):
     links = ""
     for label, href in t["nav"]:
+        if t is I18N["ar"] and href.startswith("#") and path != "/ar/":
+            href = "/ar/" + href
         cur = ' aria-current="page"' if href == path else ""
         links += f'<a href="{href}"{cur}>{label}</a>'
     ll, lh, lc = t["lang_label"]
+    lh = switch or lh
     links += f'<a class="lang" href="{lh}" hreflang="{lc}" lang="{lc}">{ll}</a>'
     links += f'<a class="btn btn-primary btn-sm" href="{cta}" data-track="nav-cta">{t["cta"]}</a>'
     home = "/ar/" if t is I18N["ar"] else "/"
@@ -143,10 +151,11 @@ def header_html(t, path, cta="#kontakt"):
 def footer_html(t):
     cols = ""
     for title, items in t["foot_cols"]:
-        cols += f"<div><h3>{title}</h3><ul>" + "".join(f'<li><a href="{h}">{l}</a></li>' for l, h in items) + "</ul></div>"
+        fix = lambda h: "/ar/" + h if (t is I18N["ar"] and h.startswith("#")) else h
+        cols += f"<div><h3>{title}</h3><ul>" + "".join(f'<li><a href="{fix(h)}">{l}</a></li>' for l, h in items) + "</ul></div>"
     return f'''<footer class="site-footer"><div class="wrap">
   <div class="foot">
-    <div><a class="logo" href="/" aria-label="HORANiQ">HORAN<i>i</i>Q</a><p>{t["foot_tag"]}</p><p><a href="mailto:{EMAIL}">{EMAIL}</a></p></div>
+    <div><a class="logo" href="{"/ar/" if t is I18N["ar"] else "/"}" aria-label="HORANiQ">HORAN<i>i</i>Q</a><p>{t["foot_tag"]}</p><p><a href="mailto:{EMAIL}">{EMAIL}</a></p></div>
     {cols}
   </div>
   <p class="legal">© 2026 HORANiQ, Rami Horani, Wien. {t["legal"]}</p>
@@ -203,6 +212,18 @@ def schema_graph(meta, body, url, t):
 
 
 def render(meta, body):
+    return finalize(_render(meta, body))
+
+
+def finalize(page):
+    if PREVIEW:
+        page = re.sub(r'<meta name="robots" content="[^"]*">', '<meta name="robots" content="noindex, nofollow">', page)
+    if BASE_PATH:
+        page = re.sub(r'(href|src)="/(?!/)', lambda m: f'{m.group(1)}="{BASE_PATH}/', page)
+    return page
+
+
+def _render(meta, body):
     t = I18N[meta["lang"]]
     url = DOMAIN + meta["path"]
     sector = meta.get("sector", "home")
@@ -221,8 +242,10 @@ def render(meta, body):
     robots = meta.get("robots", "index")
     cta = "#kontakt" if 'id="kontakt"' in body else ("/#kontakt" if meta["lang"] == "de" else "/ar/#kontakt")
     alt = ""
+    switch = None
     if meta.get("alt"):
         pairs = dict(p.split("=", 1) for p in meta["alt"].split(","))
+        switch = pairs.get("de" if meta["lang"] == "ar" else "ar")
         for code, p in pairs.items():
             alt += f'<link rel="alternate" hreflang="{code}" href="{DOMAIN}{p}">\n'
         alt += f'<link rel="alternate" hreflang="x-default" href="{DOMAIN}{pairs.get("de", "/")}">\n'
@@ -255,7 +278,7 @@ def render(meta, body):
 </script>
 </head>
 <body>
-{header_html(t, meta["path"], cta)}
+{header_html(t, meta["path"], cta, switch)}
 <main id="main">
 {crumbs}
 {body}
@@ -274,8 +297,12 @@ def main():
     shutil.copytree(ROOT / "assets", OUT / "assets")
     sitemap = []
     pages = [parse(f) for f in sorted(SRC.glob("*.html"))]
+    import services_ar
     for slug, s in services.SERVICES.items():
-        pages.append(({"lang": "de", "path": f"/{slug}/", "title": s["title"], "description": s["description"], "sector": slug, "breadcrumb": s["name"], "alt": f"de=/{slug}/"}, services.render_fragment(slug)))
+        alt = f"de=/{slug}/" + (f",ar=/ar/{slug}/" if slug in services_ar.SERVICES_AR else "")
+        pages.append(({"lang": "de", "path": f"/{slug}/", "title": s["title"], "description": s["description"], "sector": slug, "breadcrumb": s["name"], "alt": alt}, services.render_fragment(slug)))
+    for slug, s in services_ar.SERVICES_AR.items():
+        pages.append(({"lang": "ar", "path": f"/ar/{slug}/", "title": s["title"], "description": s["description"], "sector": f"ar-{slug}", "breadcrumb": s["name"], "alt": f"de=/{slug}/,ar=/ar/{slug}/"}, services.render_fragment(slug, "ar")))
     pages.append(({"lang": "de", "path": "/leistungen/", "title": "Leistungen: IT, Netzwerk, Sicherheit und mehr in Wien | HORANiQ", "description": "Alle Leistungen von HORANiQ: IT-Betreuung, Microsoft 365, Netzwerk, Backup, Sicherheit, Smart Building, Websites und Wartung für Betriebe in Wien und Umgebung.", "sector": "leistungen", "breadcrumb": "Leistungen", "alt": "de=/leistungen/"}, services.render_hub()))
     for meta, body in pages:
         out = OUT / meta["path"].strip("/") / "index.html"
@@ -286,7 +313,7 @@ def main():
         print("built", meta["path"])
     urls = "".join(f"  <url><loc>{DOMAIN}{p}</loc></url>\n" for p in sitemap)
     (OUT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n', encoding="utf-8")
-    (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n", encoding="utf-8")
+    (OUT / "robots.txt").write_text("User-agent: *\nDisallow: /\n" if PREVIEW else f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

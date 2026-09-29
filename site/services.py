@@ -361,46 +361,68 @@ SERVICES["care"] = dict(
 )
 
 
-def pill(state):
-    return f'<span class="pill {state}">{PILL[state]}</span>'
+LABELS_DE = {
+    "example": "Beispiel",
+    "primary": "Kostenloses Erstgespräch",
+    "secondary_check": "IT-Check ansehen",
+    "secondary_plain": "So gehen wir vor",
+    "pains": "Kennen Sie das?",
+    "rows": "Was wir für Sie übernehmen",
+    "rows_sub": "Nur so viel Technik, wie Ihr Betrieb braucht.",
+    "check_h3": "Darauf achten wir",
+    "steps": "So arbeiten wir",
+    "faq": "Häufige Fragen",
+    "related": "Weitere Leistungen",
+    "all": "Alle Leistungen ansehen",
+    "contact_h2": "Sprechen wir über {name}",
+    "contact_lead": "Kostenloses Erstgespräch, unverbindlich und ohne Fachchinesisch.",
+    "price_offer": f'<p class="price">€99 <small>zzgl. USt.</small></p><p class="muted">{CHECK_NOTE}</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta">IT-Check anfragen</a></div>',
+    "plain_offer": '<p class="muted">Das Erstgespräch ist kostenlos. Danach erhalten Sie ein klares Angebot, mit Festpreis wo möglich.</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta">Erstgespräch anfragen</a></div>',
+    "legend_check": "Ergebnis mit Ampel: <strong>OK</strong>, <strong>Verbesserung empfohlen</strong> oder <strong>Kritisch</strong>.",
+    "legend_plain": "Das besprechen wir gemeinsam, bevor wir ein Angebot machen.",
+}
 
 
-def render_fragment(slug):
-    s = SERVICES[slug]
-    name = {sl: n for _, sl, n, _ in INDEX}
-    rtitle, rrows, rfoot = s["report"]
+def render_fragment(slug, lang="de"):
+    import services_ar as ar
+    if lang == "ar":
+        s, L, pills, generic = ar.SERVICES_AR[slug], ar.LABELS_AR, ar.PILL_AR, ar.GENERIC_FAQ_AR
+        names = {k: v[0] for k, v in ar.INDEX_AR.items()}
+        blurbs = {k: v[1] for k, v in ar.INDEX_AR.items()}
+        prefix, all_href = "/ar", "/ar/#leistungen"
+    else:
+        s, L, pills, generic = SERVICES[slug], LABELS_DE, PILL, GENERIC_FAQ
+        names = {sl: n for _, sl, n, _ in INDEX}
+        blurbs = {sl: d for _, sl, _, d in INDEX}
+        prefix, all_href = "", "/leistungen/"
+    rtitle, _, rfoot = s["report"]
     rows_html = "".join(
-        f'<li data-s="{st}"><span class="lamp"></span><div class="item"><b>{t}</b><span>{sub}</span></div>{pill(st)}</li>'
+        f'<li data-s="{st}"><span class="lamp"></span><div class="item"><b>{t}</b><span>{sub}</span></div><span class="pill {st}">{pills[st]}</span></li>'
         for st, t, sub in s["report"][1])
     assure = "".join(f"<li>{a}</li>" for a in s["assure"])
     pains = "".join(f"<li>{p}</li>" for p in s["pains"])
     rows = "".join(f'<div class="row"><h3>{t}</h3><p>{d}</p></div>' for t, d in s["rows"])
     steps = "".join(f"<li><div><h3>{t}</h3><p>{d}</p></div></li>" for t, d in s["steps"])
-    faqs = "".join(f"<details><summary>{q}</summary><p>{a}</p></details>" for q, a in s["faq"] + GENERIC_FAQ)
+    faqs = "".join(f"<details><summary>{q}</summary><p>{a}</p></details>" for q, a in s["faq"] + generic)
     b = s["band"]
     checks = "".join(f"<li>{c}</li>" for c in b["checks"])
-    if b["price"]:
-        offer = f'<p class="price">€99 <small>zzgl. USt.</small></p><p class="muted">{CHECK_NOTE}</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta">IT-Check anfragen</a></div>'
-        legend = 'Ergebnis mit Ampel: <strong>OK</strong>, <strong>Verbesserung empfohlen</strong> oder <strong>Kritisch</strong>.'
-        hero_secondary = "IT-Check ansehen"
-    else:
-        offer = '<p class="muted">Das Erstgespräch ist kostenlos. Danach erhalten Sie ein klares Angebot, mit Festpreis wo möglich.</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta">Erstgespräch anfragen</a></div>'
-        legend = "Das besprechen wir gemeinsam, bevor wir ein Angebot machen."
-        hero_secondary = "So gehen wir vor"
-    related = "".join(f'<div class="row quiet"><h3><a href="/{sl}/">{name[sl]}</a></h3><p>{dict((x[1], x[3]) for x in INDEX)[sl]}</p></div>' for sl in s["related"])
+    offer = L["price_offer"] if b["price"] else L["plain_offer"]
+    legend = L["legend_check"] if b["price"] else L["legend_plain"]
+    secondary = L["secondary_check"] if b["price"] else L["secondary_plain"]
+    related = "".join(f'<div class="row quiet"><h3><a href="{prefix}/{sl}/">{names[sl]}</a></h3><p>{blurbs[sl]}</p></div>' for sl in s["related"])
     return f'''<section class="hero">
   <div class="wrap hero-grid">
     <div>
       <h1>{s["h1"]}</h1>
       <p class="lead">{s["lead"]}</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="#kontakt" data-track="hero-primary">Kostenloses Erstgespräch</a>
-        <a class="btn btn-ghost" href="#check" data-track="hero-secondary">{hero_secondary}</a>
+        <a class="btn btn-primary" href="#kontakt" data-track="hero-primary">{L["primary"]}</a>
+        <a class="btn btn-ghost" href="#it-check" data-track="hero-secondary">{secondary}</a>
       </div>
       <ul class="assure">{assure}</ul>
     </div>
-    <div class="report" aria-label="Beispiel: {rtitle}">
-      <div class="report-head"><strong>{rtitle}</strong><span>Beispiel</span></div>
+    <div class="report" aria-label="{L["example"]}: {rtitle}">
+      <div class="report-head"><strong>{rtitle}</strong><span>{L["example"]}</span></div>
       <ul>{rows_html}</ul>
       <div class="report-foot">{rfoot}</div>
     </div>
@@ -409,19 +431,19 @@ def render_fragment(slug):
 
 <section class="s">
   <div class="wrap split">
-    <div class="split-head"><h2>Kennen Sie das?</h2></div>
+    <div class="split-head"><h2>{L["pains"]}</h2></div>
     <ul class="pains">{pains}</ul>
   </div>
 </section>
 
 <section class="s" id="leistungen">
   <div class="wrap split">
-    <div class="split-head"><h2>Was wir für Sie übernehmen</h2><p>Nur so viel Technik, wie Ihr Betrieb braucht.</p></div>
+    <div class="split-head"><h2>{L["rows"]}</h2><p>{L["rows_sub"]}</p></div>
     <div class="rows">{rows}</div>
   </div>
 </section>
 {s.get("extra", "")}
-<section class="s band" id="check">
+<section class="s band" id="it-check">
   <div class="wrap split">
     <div class="split-head">
       <h2>{b["title"]}</h2>
@@ -429,7 +451,7 @@ def render_fragment(slug):
       {offer}
     </div>
     <div>
-      <h3>Darauf achten wir</h3>
+      <h3>{L["check_h3"]}</h3>
       <ul class="checks">{checks}</ul>
       <p style="margin-top:26px">{legend}</p>
     </div>
@@ -438,21 +460,21 @@ def render_fragment(slug):
 
 <section class="s" id="ablauf">
   <div class="wrap split">
-    <div class="split-head"><h2>So arbeiten wir</h2></div>
+    <div class="split-head"><h2>{L["steps"]}</h2></div>
     <ol class="steps">{steps}</ol>
   </div>
 </section>
 
 <section class="s" id="faq">
   <div class="wrap split">
-    <div class="split-head"><h2>Häufige Fragen</h2></div>
+    <div class="split-head"><h2>{L["faq"]}</h2></div>
     <div class="faq">{faqs}</div>
   </div>
 </section>
 
 <section class="s">
   <div class="wrap split">
-    <div class="split-head"><h2>Weitere Leistungen</h2><p><a href="/leistungen/">Alle Leistungen ansehen</a></p></div>
+    <div class="split-head"><h2>{L["related"]}</h2><p><a href="{all_href}">{L["all"]}</a></p></div>
     <div class="rows">{related}</div>
   </div>
 </section>
@@ -460,12 +482,12 @@ def render_fragment(slug):
 <section class="s" id="kontakt">
   <div class="wrap contact">
     <div>
-      <h2>Sprechen wir über {s["name"]}</h2>
-      <p class="lead">Kostenloses Erstgespräch, unverbindlich und ohne Fachchinesisch.</p>
+      <h2>{L["contact_h2"].format(name=s["name"])}</h2>
+      <p class="lead">{L["contact_lead"]}</p>
       <div class="contact-direct">
         {{{{PHONE_LINE}}}}
         {{{{WA_LINE}}}}
-        <a href="mailto:{{{{EMAIL}}}}" data-track="contact-mail">{{{{EMAIL}}}}</a>
+        <a href="mailto:{{{{EMAIL}}}}" data-track="contact-mail"{' dir="ltr"' if lang == "ar" else ""}>{{{{EMAIL}}}}</a>
       </div>
     </div>
     {{{{FORM}}}}
