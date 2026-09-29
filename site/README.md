@@ -37,3 +37,6 @@ The header and footer use the approved logo (`assets/img/horaniq-logo.webp`, a r
 
 ## Service inventory
 `SERVICE-INVENTORY.md` lists every service, where it appeared before, its target page and what changed. It is an internal file and is not published.
+
+## Service icons
+`icons.py` is the single source for the 13 service icons (64 px grid, navy line work, one technology-blue accent, status colours only where they carry meaning). `build.py` writes the sprite `assets/img/icons.svg` (used on the site via `<use>`) and standalone files `assets/icons/<service>.svg` (for LinkedIn, offers, print). Use `{{ICON:<slug>[:sm|lg|xl]}}` in page sources to place one. Icons are decorative (`aria-hidden`); the visible service name is always next to them.

@@ -20,6 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 import services
 import services_ar
+import icons
 
 ROOT = Path(__file__).parent
 SRC = ROOT / "src" / "pages"
@@ -200,11 +201,19 @@ def form_html(t, sector, default_interest="erstgespraech"):
 </form>'''
 
 
+def icon_svg(slug, size=""):
+    cls = "ico" + (f" ico-{size}" if size else "")
+    return f'<svg class="{cls}" aria-hidden="true" focusable="false"><use href="/assets/img/icons.svg#i-{slug}"/></svg>'
+
+
+ICON_RE = re.compile(r"\{\{ICON:([a-z0-9-]+)(?::(sm|lg|xl))?\}\}")
+
+
 def services_menu_html(label, href, cur):
     """Leistungen with a submenu that lists every service, grouped. The parent stays a normal link to /leistungen/."""
     cols = ""
     for name, _, slugs in services.GROUPS:
-        items = "".join(f'<li><a href="/{sl}/">{services.SVC[sl][0]}</a></li>' for sl in slugs)
+        items = "".join(f'<li><a href="/{sl}/">{icon_svg(sl, "sm")}<span>{services.SVC[sl][0]}</span></a></li>' for sl in slugs)
         cols += f'<div class="sub-col"><p class="sub-h">{name}</p><ul>{items}</ul></div>'
     return (f'<div class="nav-item has-sub"><a href="{href}"{cur}>{label}</a>'
             f'<button type="button" class="sub-toggle" aria-expanded="false" aria-controls="sub-leistungen"><span class="sr-only">Untermenü Leistungen</span></button>'
@@ -334,6 +343,7 @@ def _render(meta, body):
     sector = meta.get("sector", "home")
     body = body.replace("{{SERVICE_GROUPS}}", services.groups_html("h3"))
     body = body.replace("{{SERVICE_GROUPS_AR}}", services_ar.groups_ar("h3"))
+    body = ICON_RE.sub(lambda m: icon_svg(m.group(1), m.group(2) or ""), body)
     body = body.replace("{{FORM}}", form_html(t, sector, meta.get("interest", "erstgespraech")))
     body = body.replace("{{CALL}}", call_buttons(t))
     body = body.replace("{{EMAIL}}", EMAIL)
@@ -403,6 +413,10 @@ def main():
     if OUT.exists():
         shutil.rmtree(OUT)
     shutil.copytree(ROOT / "assets", OUT / "assets")
+    (OUT / "assets" / "img" / "icons.svg").write_text(icons.sprite(), encoding="utf-8")
+    (OUT / "assets" / "icons").mkdir(exist_ok=True)
+    for slug in icons.ICONS:
+        (OUT / "assets" / "icons" / f"{slug}.svg").write_text(icons.standalone(slug), encoding="utf-8")
     sitemap = []
     pages = [parse(f) for f in sorted(SRC.glob("*.html"))]
     import services_ar

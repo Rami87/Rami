@@ -61,7 +61,8 @@ WEBSITE_TEXT_AR = "مواقع احترافية للشركات ومتاجر إل�
 
 def feature_ar(level="h3"):
     return f'''<div class="feature">
-  <div>
+  {{{{ICON:website-shop:xl}}}}
+  <div class="feature-body">
     <{level} class="feature-title">مواقع ومتاجر إلكترونية</{level}>
     <p>{WEBSITE_TEXT_AR}</p>
     <ul class="feature-points"><li>مواقع للشركات</li><li>متاجر إلكترونية بـ WooCommerce أو Shopify</li><li>العناية بعد الإطلاق بحسب الاتفاق</li></ul>
@@ -76,7 +77,7 @@ def groups_ar(level="h3"):
         if slugs == ["website-shop"]:
             out += f'<div class="svc-group" id="grp-websites">{feature_ar(level)}</div>\n'
             continue
-        rows = "".join(f'<div class="row"><p class="row-h"><a href="/ar/{sl}/">{INDEX_AR[sl][0]}</a></p><p>{INDEX_AR[sl][1]}</p></div>' for sl in slugs)
+        rows = "".join(f'<div class="row row-ico">{{{{ICON:{sl}}}}}<div><p class="row-h"><a href="/ar/{sl}/">{INDEX_AR[sl][0]}</a></p><p>{INDEX_AR[sl][1]}</p></div></div>' for sl in slugs)
         out += f'<div class="svc-group split"><div class="split-head"><{level}>{name}</{level}><p>{blurb}</p></div><div class="rows">{rows}</div></div>\n'
     return out
 

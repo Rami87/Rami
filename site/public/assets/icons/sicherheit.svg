@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Kameras, Alarm &amp; Zutritt"><g fill="none" stroke="#0F2E40" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+<path d="M8 8v30" fill="none"/>
+<path d="M8 16h9" fill="none"/>
+<rect x="17" y="18" width="30" height="16" rx="3.500" fill="rgba(51,161,194,0.18)"/>
+<rect x="47" y="21" width="9" height="10" rx="2" fill="#33A1C2"/>
+<path d="M8 40h6" fill="none"/>
+<circle cx="24" cy="26" r="2.200" fill="#33A1C2" stroke="none"/></g></svg>

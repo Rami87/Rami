@@ -345,3 +345,16 @@ p { margin: 0 0 1em; max-width: 62ch; }
 .btn-link { font-weight: 650; color: var(--teal-deep); display: inline-flex; align-items: center; min-height: 44px; }
 .row-h a, .row h3 a { text-underline-offset: 3px; }
 .row h3 a { color: inherit; }
+
+/* Service icons: sprite in assets/img/icons.svg, defined in icons.py */
+.ico { width: 56px; height: 56px; flex: none; display: block; color: var(--ink); --ico-blue: var(--brand-blue); }
+.ico-sm { width: 28px; height: 28px; }
+.ico-lg { width: 64px; height: 64px; }
+.ico-xl { width: 76px; height: 76px; }
+.row-ico > .ico { width: 64px; height: 64px; margin: 0 0 14px; }
+.hero-ico { width: 88px; height: 88px; border-radius: 20px; background: #fff; border: 1px solid var(--line); display: grid; place-items: center; margin-block-end: 20px; }
+.feature > .ico { padding: 10px; width: 96px; height: 96px; border-radius: 20px; background: var(--paper); border: 1px solid var(--line); }
+.feature-body { flex: 1 1 auto; min-width: 0; }
+.sub a { display: flex; align-items: center; gap: 10px; }
+.sub a .ico-sm { flex: none; }
+@media (max-width: 960px) { .feature > .ico { width: 76px; height: 76px; padding: 8px; } }

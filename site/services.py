@@ -460,10 +460,11 @@ def render_fragment(slug, lang="de"):
     offer = L["price_offer"] if b["price"] else L["plain_offer"]
     legend = L["legend_check"] if b["price"] else L["legend_plain"]
     secondary = L["secondary_check"] if b["price"] else L["secondary_plain"]
-    related = "".join(f'<div class="row quiet"><h3><a href="{prefix}/{sl}/">{names[sl]}</a></h3><p>{blurbs[sl]}</p></div>' for sl in s["related"])
+    related = "".join(f'<div class="row quiet row-ico">{{{{ICON:{sl}}}}}<div><h3><a href="{prefix}/{sl}/">{names[sl]}</a></h3><p>{blurbs[sl]}</p></div></div>' for sl in s["related"])
     return f'''<section class="hero">
   <div class="wrap hero-grid">
     <div>
+      <div class="hero-ico">{{{{ICON:{slug}:lg}}}}</div>
       <h1>{s["h1"]}</h1>
       <p class="lead">{s["lead"]}</p>
       <div class="btn-row">
@@ -553,7 +554,8 @@ WEBSITE_TEXT = "Professionelle Websites für Unternehmen und Onlineshops mit Woo
 def feature_html(level="h3"):
     """Prominent service card for Websites & Onlineshops (home page and services page)."""
     return f'''<div class="feature">
-  <div>
+  {{{{ICON:website-shop:xl}}}}
+  <div class="feature-body">
     <{level} class="feature-title">Websites &amp; Onlineshops</{level}>
     <p>{WEBSITE_TEXT}</p>
     <ul class="feature-points"><li>Unternehmenswebsites</li><li>Onlineshops mit WooCommerce oder Shopify</li><li>Betreuung nach dem Start nach Vereinbarung</li></ul>
@@ -569,7 +571,7 @@ def groups_html(level="h3"):
         if slugs == ["website-shop"]:
             out += f'<div class="svc-group" id="grp-websites">{feature_html(level)}</div>\n'
             continue
-        rows = "".join(f'<div class="row"><p class="row-h"><a href="/{sl}/">{SVC[sl][0]}</a></p><p>{SVC[sl][1]}</p></div>' for sl in slugs)
+        rows = "".join(f'<div class="row row-ico">{{{{ICON:{sl}}}}}<div><p class="row-h"><a href="/{sl}/">{SVC[sl][0]}</a></p><p>{SVC[sl][1]}</p></div></div>' for sl in slugs)
         out += f'<div class="svc-group split"><div class="split-head"><{level}>{name}</{level}><p>{blurb}</p></div><div class="rows">{rows}</div></div>\n'
     return out
 
