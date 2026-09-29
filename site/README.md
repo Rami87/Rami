@@ -21,7 +21,7 @@ python3 -m http.server -d site/public 8000
 `build.py` adds header, footer, contact form, JSON-LD (LocalBusiness, WebPage, BreadcrumbList, FAQPage from the `<details>` blocks), hreflang, sitemap and robots.txt.
 
 ## Before going live
-1. Fill `PHONE`, `WHATSAPP`, `FORM_ENDPOINT`, `SAME_AS` at the top of `build.py`. Without a form endpoint the form opens a prefilled e-mail. Without a phone number, call buttons are hidden.
+1. Set `PHONE`, `WHATSAPP`, `FORM_ENDPOINT` as environment variables at build time (or fill the constants), `SAME_AS` at the top of `build.py`. Without a form endpoint the form opens a prefilled e-mail. Without a phone number, call buttons are hidden.
 2. Complete `impressum` and `datenschutz` with real data and have them reviewed. Move Google Fonts to local files if you want no third-party requests.
 3. Add a real photo of Rami and real reviews once they exist. Nothing here is invented, so there are no testimonials yet.
 4. Point the domain at `site/public/`, then verify structured data in Google's Rich Results Test and add the site to Search Console and Google Business Profile.

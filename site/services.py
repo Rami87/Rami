@@ -50,7 +50,7 @@ SERVICES["it-betreuung"] = dict(
     description="IT-Support per Fernwartung oder vor Ort, Einrichtung neuer Arbeitsplätze und laufende Wartung für Praxen und Büros in Wien und Umgebung.",
     h1="IT, die einfach läuft, und ein Ansprechpartner, der antwortet",
     lead="Wir betreuen Computer, Laptops, Drucker und Benutzer in Ihrem Betrieb. Bei Störungen per Fernwartung oder vor Ort, und im Alltag so, dass Probleme gar nicht erst entstehen.",
-    assure=["Fernwartung oder Vor-Ort-Termin", "Antwort am selben Werktag", "Ein fester Ansprechpartner"],
+    assure=["Fernwartung oder Vor-Ort-Termin", "Schnelle Rückmeldung auf Ihre Anfrage", "Ein fester Ansprechpartner"],
     report=("IT-Betreuung im Überblick", [
         ("ok", "Arbeitsplätze", "Alle Geräte mit aktuellen Updates"),
         ("warn", "Drucker im Empfang", "Verbindung bricht gelegentlich ab"),
@@ -73,7 +73,7 @@ SERVICES["it-betreuung"] = dict(
            ("Bestandsaufnahme", "Wir sehen uns Geräte, Zugänge und Abläufe an."),
            ("Angebot", "Einmalige Hilfe, Projekt oder laufende Betreuung. Sie entscheiden."),
            ("Betreuung", "Support, Wartung und Änderungen aus einer Hand, auf Wunsch mit HORANiQ Care.")],
-    faq=[("Wie schnell bekomme ich Hilfe?", "Anfragen beantworten wir am selben Werktag. Für Care-Kunden vereinbaren wir feste Reaktionszeiten."),
+    faq=[("Wie schnell bekomme ich Hilfe?", "Wir melden uns zeitnah auf jede Anfrage. Für Care-Kunden vereinbaren wir feste Reaktionszeiten."),
          ("Muss ich meine IT umstellen?", "Nein. Wir prüfen zuerst, was vorhanden ist, und verbessern nur, was nötig ist."),
          ("Kann ich auch einmalig Hilfe buchen?", "Ja. Sie können mit einem einzelnen Auftrag beginnen und später in eine laufende Betreuung wechseln.")],
     related=["microsoft-365", "netzwerk", "care"],

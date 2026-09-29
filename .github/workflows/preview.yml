@@ -17,6 +17,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build preview (noindex)
+        env:
+          FORM_ENDPOINT: ${{ vars.FORM_ENDPOINT }}
+          PHONE: ${{ vars.PHONE }}
+          WHATSAPP: ${{ vars.WHATSAPP }}
         run: PREVIEW=1 BASE_PATH=/${{ github.event.repository.name }} python3 site/build.py
       - name: Publish to gh-pages
         run: |

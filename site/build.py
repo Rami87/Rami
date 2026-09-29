@@ -29,8 +29,8 @@ OUT = ROOT / "public"
 # ---- Configuration: fill these in before going live -------------------------
 DOMAIN = "https://horaniq.at"
 EMAIL = "rami@horaniq.at"
-PHONE = ""            # e.g. "+43 660 1234567". Empty hides every call button.
-WHATSAPP = ""         # digits only with country code, e.g. "436601234567". Empty hides it.
+PHONE = os.environ.get("PHONE", "")            # e.g. "+43 660 1234567". Empty hides every call button.
+WHATSAPP = os.environ.get("WHATSAPP", "")         # digits only with country code, e.g. "436601234567". Empty hides it.
 FORM_ENDPOINT = os.environ.get("FORM_ENDPOINT", "")    # e.g. a Formspree or own endpoint. Empty falls back to a prefilled e-mail.
 SAME_AS = []          # public profile URLs (Google Business, LinkedIn) for JSON-LD
 
@@ -373,7 +373,6 @@ def _render(meta, body):
     og_locale = "ar_AR" if meta["lang"] == "ar" else "de_AT"
     title = html.escape(meta["title"])
     desc = html.escape(meta["description"])
-    fonts = "https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700" + ("&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700" if meta["lang"] == "ar" else "") + "&display=swap"
     return f'''<!doctype html>
 <html lang="{meta["lang"]}" dir="{t["dir"]}">
 <head>
@@ -385,11 +384,11 @@ def _render(meta, body):
 <link rel="canonical" href="{url}">
 {alt}<meta name="theme-color" content="#0f2e40">
 <meta property="og:type" content="website"><meta property="og:site_name" content="HORANiQ"><meta property="og:locale" content="{og_locale}">
-<meta property="og:title" content="{title}"><meta property="og:description" content="{desc}"><meta property="og:url" content="{url}">
-<link rel="icon" href="/assets/img/favicon-48.png" sizes="48x48" type="image/png">
+<meta property="og:title" content="{title}"><meta property="og:description" content="{desc}"><meta property="og:url" content="{url}"><meta property="og:image" content="{DOMAIN}/assets/img/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="HORANiQ: IT, Netzwerk und Sicherheit für Betriebe in Wien">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" href="/assets/img/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="{fonts}">
+<link rel="preload" href="/assets/fonts/{"ibm-plex-sans-arabic-arabic-400" if meta["lang"] == "ar" else "instrument-sans-latin-400"}-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css">
 <script type="application/ld+json">
 {schema_graph(meta, body, url, t)}
@@ -417,6 +416,7 @@ def main():
     (OUT / "assets" / "icons").mkdir(exist_ok=True)
     for slug in icons.ICONS:
         (OUT / "assets" / "icons" / f"{slug}.svg").write_text(icons.standalone(slug), encoding="utf-8")
+    shutil.copy(ROOT / "assets" / "favicon.ico", OUT / "favicon.ico")
     sitemap = []
     pages = [parse(f) for f in sorted(SRC.glob("*.html"))]
     import services_ar
@@ -434,6 +434,8 @@ def main():
         if meta.get("robots", "index") == "index":
             sitemap.append(meta["path"])
         print("built", meta["path"])
+    nf = ({"lang": "de", "path": "/404/", "title": "Seite nicht gefunden | HORANiQ", "description": "Diese Seite gibt es nicht.", "sector": "legal", "robots": "noindex, follow"}, '<section class="s"><div class="wrap prose"><h1>Seite nicht gefunden</h1><p>Diese Adresse gibt es nicht (mehr). Hier geht es weiter:</p><div class="btn-row"><a class="btn btn-primary" href="/">Zur Startseite</a><a class="btn btn-ghost" href="/leistungen/">Alle Leistungen</a><a class="btn btn-ghost" href="/#kontakt">Kontakt</a></div></div></section>')
+    (OUT / "404.html").write_text(render(*nf), encoding="utf-8")
     urls = "".join(f"  <url><loc>{DOMAIN}{p}</loc></url>\n" for p in sitemap)
     (OUT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n', encoding="utf-8")
     (OUT / "robots.txt").write_text("User-agent: *\nDisallow: /\n" if PREVIEW else f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n", encoding="utf-8")
