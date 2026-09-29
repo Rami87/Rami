@@ -242,7 +242,7 @@ Regelmäßige Systemchecks, Backup-Kontrolle, Updates, Fernwartung und bevorzugt
 8. Wien und Umgebung
 
 **Beschreibungen**
-1. Vertrauliche Daten brauchen zuverlässige Technik. Microsoft 365, Backup, Netzwerk, Support.
+1. Vertrauliche Daten brauchen zuverlässige Technik. M365, Backup, Netzwerk und Support.
 2. Kostenloses Erstgespräch. IT-Check €99 netto, bei Auftrag voll angerechnet.
 
 **Final URL:** `/kanzlei` (vor Livegang erstellen, analog zu `/arztpraxis`)
