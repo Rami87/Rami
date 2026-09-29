@@ -44,7 +44,7 @@ I18N = {
         "dir": "ltr",
         "skip": "Zum Inhalt springen",
         "menu": "Menü",
-        "nav": [("Leistungen", "/leistungen/"), ("Für Praxen", "/arztpraxis/"), ("Für Kanzleien", "/kanzlei/"), ("IT-Check", "/#it-check"), ("Kontakt", "/#kontakt")],
+        "nav": [("Leistungen", "/leistungen/"), ("Für Praxen", "/arztpraxis/"), ("Für Büros", "/unternehmen/"), ("IT-Check", "/#it-check"), ("Kontakt", "/#kontakt")],
         "cta": "Kostenloses Erstgespräch anfragen",
         "lang_label": ("العربية", "/ar/", "ar"),
         "call": "Anrufen",
@@ -54,7 +54,7 @@ I18N = {
         "foot_tag": "IT, Netzwerk und Sicherheit für Betriebe in Wien und Umgebung. Persönlich, verständlich und aus einer Hand.",
         "foot_cols": [
             ("Leistungen", [("IT-Betreuung", "/it-betreuung/"), ("Netzwerk und WLAN", "/netzwerk/"), ("Sicherheit", "/sicherheit/"), ("Alle Leistungen", "/leistungen/")]),
-            ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Kanzleien", "/kanzlei/"), ("Büros und Betriebe", "/unternehmen/"), ("Deutsch und Arabisch", "/ar/")]),
+            ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Büros und Kanzleien", "/unternehmen/"), ("Deutsch und Arabisch", "/ar/")]),
             ("Rechtliches", [("Impressum", "/impressum/"), ("Datenschutz", "/datenschutz/")]),
         ],
         "legal": "Alle Preise netto zuzüglich USt. Angaben ohne Gewähr.",
@@ -108,7 +108,7 @@ I18N = {
         "foot_cols": [
             ("الخدمات", [(services_ar.INDEX_AR[s][0], f"/ar/{s}/") for s in ["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"]]),
             ("المزيد", [(services_ar.INDEX_AR[s][0], f"/ar/{s}/") for s in ["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]] + [("كل الخدمات", "/ar/leistungen/")]),
-            ("القطاعات", [("العيادات (بالألمانية)", "/arztpraxis/"), ("مكاتب المحاماة (بالألمانية)", "/kanzlei/"), ("الشركات (بالألمانية)", "/unternehmen/")]),
+            ("القطاعات", [("العيادات (بالألمانية)", "/arztpraxis/"), ("المكاتب ومكاتب المحاماة والشركات (بالألمانية)", "/unternehmen/")]),
             ("قانوني", [("بيانات الشركة (Impressum)", "/impressum/"), ("الخصوصية (Datenschutz)", "/datenschutz/")]),
         ],
         "legal": "جميع الأسعار صافية دون ضريبة القيمة المضافة. المعلومات غير ملزمة.",
@@ -255,7 +255,7 @@ def de_foot_cols():
     return [
         ("Leistungen", links(["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"])),
         ("Weitere Leistungen", links(["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]) + [("Alle Leistungen", "/leistungen/")]),
-        ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Kanzleien", "/kanzlei/"), ("Büros und Betriebe", "/unternehmen/"), ("Deutsch und Arabisch", "/ar/")]),
+        ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Büros und Kanzleien", "/unternehmen/"), ("Deutsch und Arabisch", "/ar/")]),
         ("Rechtliches", [("Impressum", "/impressum/"), ("Datenschutz", "/datenschutz/")]),
     ]
 
@@ -434,6 +434,12 @@ def main():
         if meta.get("robots", "index") == "index":
             sitemap.append(meta["path"])
         print("built", meta["path"])
+    # /kanzlei/ was merged into /unternehmen/: keep the old URL alive as a redirect (noindex, canonical to the target)
+    (OUT / "kanzlei").mkdir(exist_ok=True)
+    (OUT / "kanzlei" / "index.html").write_text(
+        f'<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Weiterleitung | HORANiQ</title><meta name="robots" content="noindex">'
+        f'<link rel="canonical" href="{DOMAIN}/unternehmen/"><meta http-equiv="refresh" content="0; url={BASE_PATH}/unternehmen/"></head>'
+        f'<body><p><a href="{BASE_PATH}/unternehmen/">Weiter zu Büros und Kanzleien</a></p></body></html>\n', encoding="utf-8")
     urls = "".join(f"  <url><loc>{DOMAIN}{p}</loc></url>\n" for p in sitemap)
     (OUT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n', encoding="utf-8")
     (OUT / "robots.txt").write_text("User-agent: *\nDisallow: /\n" if PREVIEW else f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n", encoding="utf-8")

@@ -367,7 +367,7 @@ SERVICES["it-beratung"] = dict(
 SERVICES["care"] = dict(
     name="HORANiQ Care",
     title="HORANiQ Care: IT-Wartungsverträge in Wien | HORANiQ",
-    description="Wartungspakete für kleine und mittlere Betriebe in Wien: regelmäßige Checks, Backup-Kontrolle, Fernwartung und bevorzugter Support. Damit Probleme gar nicht erst entstehen.",
+    description="Wartungspakete für kleine und mittlere Betriebe in Wien: regelmäßige Checks, Backup-Kontrolle, Fernwartung und bevorzugter Support.",
     h1="Betreuung, die planbar ist, statt Hilfe erst im Notfall",
     lead="Mit HORANiQ Care prüfen wir Ihre Technik regelmäßig, halten sie aktuell und sind erreichbar, wenn etwas nicht läuft. Der Umfang richtet sich nach Ihrem Betrieb.",
     assure=["Regelmäßige Checks", "Bevorzugter Support", "Klare Leistungen, klarer Preis"],
@@ -596,8 +596,7 @@ def render_hub():
     <div class="split-head"><h2>Für Ihre Branche</h2><p>Die Leistungen, die für Ihren Betrieb am häufigsten wichtig sind, zuerst.</p></div>
     <div class="rows">
       <div class="row quiet"><p class="row-h"><a href="/arztpraxis/">Arztpraxen</a></p><p>IT-Betreuung für Ordinationen, dazu Praxiswebsite auf Wunsch.</p></div>
-      <div class="row quiet"><p class="row-h"><a href="/kanzlei/">Kanzleien und Steuerberater</a></p><p>Microsoft 365, Datensicherung und Zugriffsrechte für vertrauliche Daten.</p></div>
-      <div class="row quiet"><p class="row-h"><a href="/unternehmen/">Büros und Betriebe</a></p><p>Netzwerk, Kameras, Geräte, Websites und Shops aus einer Hand.</p></div>
+      <div class="row quiet"><p class="row-h"><a href="/unternehmen/">Büros, Kanzleien und Betriebe</a></p><p>Microsoft 365, Datensicherung, Netzwerk und Zugriffsrechte für Ihr Team.</p></div>
       <div class="row quiet"><p class="row-h"><a href="/ar/">بالعربية</a></p><p>دعم IT للشركات والعيادات في فيينا، بالعربية والألمانية.</p></div>
     </div>
   </div>
