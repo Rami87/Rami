@@ -269,7 +269,7 @@ def de_foot_cols():
         ("Leistungen", links(["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"])),
         ("Weitere Leistungen", links(["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]) + [("Alle Leistungen", "/leistungen/")]),
         ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Büros und Betriebe", "/unternehmen/"), ("Deutsch und Arabisch", "/ar/")]),
-        ("Unternehmen", [("Über uns", "/ueber-uns/"), ("Preise", "/preise/"), ("Impressum", "/impressum/"), ("Datenschutz", "/datenschutz/")]),
+        ("Unternehmen", [("Über uns", "/ueber-uns/"), ("Preise", "/preise/"), ("Ratgeber", "/ratgeber/"), ("Einsatzgebiet Wien", "/wien/"), ("Impressum", "/impressum/"), ("Datenschutz", "/datenschutz/")]),
     ]
 
 
@@ -425,6 +425,19 @@ def _render(meta, body):
 '''
 
 
+def llms_txt(paths):
+    names = {"/": "Startseite", "/leistungen/": "Alle Leistungen", "/arztpraxis/": "IT für Arztpraxen", "/unternehmen/": "IT für Büros und Betriebe", "/preise/": "Preise", "/ueber-uns/": "Über uns", "/ratgeber/": "Ratgeber", "/wien/": "Einsatzgebiet Wien", "/ratgeber/it-sicherheit-arztpraxis/": "Checkliste IT-Sicherheit in der Arztpraxis", "/ratgeber/backup-testen/": "Backup testen in fünf Schritten", "/ratgeber/microsoft-365-mfa/": "Microsoft 365 absichern mit MFA"}
+    lines = ["# HORANiQ", "", "> IT-Betreuung, Netzwerk und Sicherheit für Arztpraxen, Büros und Betriebe in Wien und Umgebung. Persönlicher Ansprechpartner, Beratung auf Deutsch und Arabisch. Gründer: Rami Horani.", "", "## Seiten (Deutsch)"]
+    for p in paths:
+        if p.startswith("/ar/"):
+            continue
+        slug = p.strip("/").split("/")[-1]
+        label = names.get(p) or (services.SVC[slug][0] if slug in services.SVC else slug.replace("-", " ").title())
+        lines.append(f"- [{html.unescape(re.sub(r'<[^>]+>', '', label))}]({DOMAIN}{p})")
+    lines += ["", "## Arabisch", f"- [HORANiQ بالعربية]({DOMAIN}/ar/)", "", "## Fakten", "- Einsatzgebiet: Wien und Umgebung, bis etwa eine Stunde Fahrzeit, Fernwartung darüber hinaus", "- Erstgespräch kostenlos; IT-Check €99 zzgl. USt., bei Auftrag angerechnet", "- Alle Preise netto"]
+    return "\n".join(lines) + "\n"
+
+
 def main():
     if OUT.exists():
         shutil.rmtree(OUT)
@@ -453,6 +466,7 @@ def main():
         print("built", meta["path"])
     nf = ({"lang": "de", "path": "/404/", "title": "Seite nicht gefunden | HORANiQ", "description": "Diese Seite gibt es nicht.", "sector": "legal", "robots": "noindex, follow"}, '<section class="s"><div class="wrap prose"><h1>Seite nicht gefunden</h1><p>Diese Adresse gibt es nicht (mehr). Hier geht es weiter:</p><div class="btn-row"><a class="btn btn-primary" href="/">Zur Startseite</a><a class="btn btn-ghost" href="/leistungen/">Alle Leistungen</a><a class="btn btn-ghost" href="/#kontakt">Kontakt</a></div></div></section>')
     (OUT / "404.html").write_text(render(*nf), encoding="utf-8")
+    (OUT / "llms.txt").write_text(llms_txt(sitemap), encoding="utf-8")
     urls = "".join(f"  <url><loc>{DOMAIN}{p}</loc></url>\n" for p in sitemap)
     (OUT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n', encoding="utf-8")
     (OUT / "robots.txt").write_text("User-agent: *\nDisallow: /\n" if PREVIEW else f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n", encoding="utf-8")
