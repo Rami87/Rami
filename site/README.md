@@ -11,7 +11,6 @@ python3 -m http.server -d site/public 8000
 |---|---|
 | `/` | `src/pages/index.html` |
 | `/arztpraxis/` | `src/pages/arztpraxis.html` |
-| `/kanzlei/` | redirect to `/unternehmen/` (written by `build.py`); law and tax offices are now part of `src/pages/unternehmen.html` |
 | `/netzwerk/`, `/unternehmen/` | `src/pages/netzwerk.html`, `src/pages/unternehmen.html` |
 | `/leistungen/` and service pages `/it-betreuung/`, `/microsoft-365/`, `/backup/`, `/it-sicherheit/`, `/sicherheit/` (Kameras, Alarm, Zutritt), `/wartung-reparatur/`, `/smart-building/`, `/it-beratung/`, `/crm-archivierung/`, `/care/` | generated from `services.py` (groups and names in `SVC`/`GROUPS`) |
 | `/website-shop/`, `/it-check/` | `src/pages/website-shop.html`, `src/pages/it-check.html` (hand-written) |

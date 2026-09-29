@@ -434,12 +434,6 @@ def main():
         if meta.get("robots", "index") == "index":
             sitemap.append(meta["path"])
         print("built", meta["path"])
-    # /kanzlei/ was merged into /unternehmen/: keep the old URL alive as a redirect (noindex, canonical to the target)
-    (OUT / "kanzlei").mkdir(exist_ok=True)
-    (OUT / "kanzlei" / "index.html").write_text(
-        f'<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Weiterleitung | HORANiQ</title><meta name="robots" content="noindex">'
-        f'<link rel="canonical" href="{DOMAIN}/unternehmen/"><meta http-equiv="refresh" content="0; url={BASE_PATH}/unternehmen/"></head>'
-        f'<body><p><a href="{BASE_PATH}/unternehmen/">Weiter zu Büros und Betriebe</a></p></body></html>\n', encoding="utf-8")
     urls = "".join(f"  <url><loc>{DOMAIN}{p}</loc></url>\n" for p in sitemap)
     (OUT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n', encoding="utf-8")
     (OUT / "robots.txt").write_text("User-agent: *\nDisallow: /\n" if PREVIEW else f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n", encoding="utf-8")
