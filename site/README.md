@@ -13,7 +13,8 @@ python3 -m http.server -d site/public 8000
 | `/arztpraxis/` | `src/pages/arztpraxis.html` |
 | `/kanzlei/` | `src/pages/kanzlei.html` |
 | `/netzwerk/`, `/unternehmen/` | `src/pages/netzwerk.html`, `src/pages/unternehmen.html` |
-| `/leistungen/` and one page per service (`/it-betreuung/`, `/microsoft-365/`, `/backup/`, `/sicherheit/`, `/wartung-reparatur/`, `/smart-building/`, `/website-shop/`, `/crm-archivierung/`, `/care/`) | generated from `services.py` |
+| `/leistungen/` and service pages `/it-betreuung/`, `/microsoft-365/`, `/backup/`, `/it-sicherheit/`, `/sicherheit/` (Kameras, Alarm, Zutritt), `/wartung-reparatur/`, `/smart-building/`, `/it-beratung/`, `/crm-archivierung/`, `/care/` | generated from `services.py` (groups and names in `SVC`/`GROUPS`) |
+| `/website-shop/`, `/it-check/` | `src/pages/website-shop.html`, `src/pages/it-check.html` (hand-written) |
 | `/ar/` | `src/pages/ar.html` (RTL, Arabic) |
 | `/impressum/`, `/datenschutz/` | drafts, `noindex` |
 
@@ -32,3 +33,6 @@ The header and footer use the approved logo (`assets/img/horaniq-logo.webp`, a r
 
 ## Contact form
 `FORM_ENDPOINT` (env var or the constant in `build.py`) must point to a receiving service. Until then the form opens a prefilled e-mail and says so; it never shows a success message it cannot confirm.
+
+## Service inventory
+`SERVICE-INVENTORY.md` lists every service, where it appeared before, its target page and what changed. It is an internal file and is not published.

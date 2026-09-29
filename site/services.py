@@ -6,19 +6,33 @@ Report rows are illustrative examples and are labelled "Beispiel" on the page.
 
 PILL = {"ok": "OK", "warn": "Verbesserung empfohlen", "crit": "Kritisch"}
 
-# group, slug, name, one-line summary. Order defines the hub page.
-INDEX = [
-    ("IT", "it-betreuung", "IT-Betreuung", "Support per Fernwartung oder vor Ort, neue Arbeitsplätze, laufende Wartung."),
-    ("IT", "microsoft-365", "Microsoft 365", "E-Mail, Teams, OneDrive und sichere Anmeldung, sauber eingerichtet."),
-    ("Infrastruktur", "netzwerk", "Netzwerk und WLAN", "Planung, Installation und Betreuung Ihres Netzwerks."),
-    ("Infrastruktur", "backup", "Backup und NAS", "Datensicherung und die Kontrolle, dass sich alles wiederherstellen lässt."),
-    ("Sicherheit", "sicherheit", "Kameras, Alarm und Zutritt", "Mehr Überblick und Kontrolle für Ihre Räume."),
-    ("Geräte", "wartung-reparatur", "Wartung und Reparatur", "Geräte prüfen, reparieren, aufrüsten oder ersetzen."),
-    ("Smart Building", "smart-building", "Smart Building", "Licht, Heizung und Beschattung praktisch steuern."),
-    ("Digital", "website-shop", "Website und Online-Shop", "Geschäftsseiten und Shops mit WordPress und WooCommerce."),
-    ("Digital", "crm-archivierung", "CRM und digitale Ablage", "Kunden, Dokumente und Abläufe übersichtlich organisieren."),
-    ("Betreuung", "care", "HORANiQ Care", "Wartungspakete mit regelmäßigen Checks und Support."),
+# Service catalogue. Names are HTML (with &amp;). Order inside GROUPS defines the hub page, home page, dropdown and footer.
+SVC = {
+    "it-betreuung": ("IT-Betreuung &amp; Support", "Support per Fernwartung oder vor Ort, Arbeitsplätze einrichten, Störungen beheben."),
+    "wartung-reparatur": ("Computer, Geräte &amp; Wartung", "PCs, Laptops und Drucker warten, reparieren und aufrüsten."),
+    "microsoft-365": ("Microsoft 365", "E-Mail, Benutzer und sichere Anmeldung einrichten und betreuen."),
+    "crm-archivierung": ("CRM und digitale Ablage", "Kunden, Dokumente und Abläufe übersichtlich organisieren."),
+    "netzwerk": ("Netzwerk &amp; WLAN", "Netzwerk und WLAN planen, installieren und verbessern."),
+    "backup": ("Backup, NAS &amp; Daten", "Datensicherung und zentrale Ablage, mit Blick auf die Wiederherstellbarkeit im vereinbarten Umfang."),
+    "it-sicherheit": ("IT-Sicherheit", "Firewall, Benutzerrechte, Zugriffsschutz und sichere Anmeldung mit MFA."),
+    "sicherheit": ("Kameras, Alarm &amp; Zutritt", "Kameras, Alarmanlagen und Zutrittssysteme für Ihre Räume."),
+    "smart-building": ("Smart Building", "Licht, Heizung und Beschattung praktisch steuern."),
+    "website-shop": ("Websites &amp; Onlineshops", "Professionelle Websites für Unternehmen und Onlineshops mit WordPress und WooCommerce."),
+    "it-beratung": ("IT-Beratung &amp; Projektumsetzung", "Beraten, planen, umsetzen, dokumentieren und mit Anbietern abstimmen."),
+    "it-check": ("HORANiQ IT-Check", "Ein Überblick über Ihre IT als verständlicher Bericht mit Prioritäten."),
+    "care": ("HORANiQ Care", "Wartungspakete mit regelmäßigen Checks und Support."),
+}
+
+GROUPS = [
+    ("IT &amp; Arbeitsplätze", "Support, Geräte, Microsoft 365 und digitale Abläufe.", ["it-betreuung", "wartung-reparatur", "microsoft-365", "crm-archivierung"]),
+    ("Netzwerk, Daten &amp; Sicherheit", "Netzwerk, Datensicherung und der Schutz Ihrer Systeme.", ["netzwerk", "backup", "it-sicherheit"]),
+    ("Gebäudetechnik", "Kameras, Alarm, Zutritt und Smart Building.", ["sicherheit", "smart-building"]),
+    ("Websites &amp; Onlineshops", "Ihr Auftritt im Netz.", ["website-shop"]),
+    ("Beratung &amp; laufende Betreuung", "Planen, prüfen und dauerhaft betreuen.", ["it-beratung", "it-check", "care"]),
 ]
+
+# compatibility view used by render_fragment: (group, slug, name, summary)
+INDEX = [(g, sl, SVC[sl][0], SVC[sl][1]) for g, _, sls in GROUPS for sl in sls]
 
 GENERIC_FAQ = [
     ("Was kostet das?", "Das hängt von Umfang, Geräten und gewünschter Reaktionszeit ab. Nach dem Erstgespräch erhalten Sie ein klares Angebot, mit Festpreis wo möglich. Alle Preise verstehen sich netto."),
@@ -31,7 +45,7 @@ CHECK_NOTE = "Bei Auftrag für ein Projekt oder einen Wartungsvertrag wird der B
 SERVICES = {}
 
 SERVICES["it-betreuung"] = dict(
-    name="IT-Betreuung",
+    name="IT-Betreuung &amp; Support",
     title="IT-Betreuung und Support für Betriebe in Wien | HORANiQ",
     description="IT-Support per Fernwartung oder vor Ort, Einrichtung neuer Arbeitsplätze und laufende Wartung für Praxen, Kanzleien und Büros in Wien und Umgebung.",
     h1="IT, die einfach läuft, und ein Ansprechpartner, der antwortet",
@@ -101,7 +115,7 @@ SERVICES["microsoft-365"] = dict(
 )
 
 SERVICES["backup"] = dict(
-    name="Backup und NAS",
+    name="Backup, NAS &amp; Daten",
     title="Backup und NAS für Betriebe in Wien | HORANiQ",
     description="Datensicherung, NAS und getestete Wiederherstellung für Praxen, Kanzleien und Büros in Wien und Umgebung. Damit Ihre Daten im Ernstfall zurückkommen.",
     h1="Ein Backup ist erst gut, wenn die Wiederherstellung funktioniert",
@@ -136,7 +150,7 @@ SERVICES["backup"] = dict(
 )
 
 SERVICES["sicherheit"] = dict(
-    name="Kameras, Alarm und Zutritt",
+    name="Kameras, Alarm &amp; Zutritt",
     title="Kameras, Alarmanlagen und Zutrittssysteme in Wien | HORANiQ",
     description="Kamerasysteme, Alarm und Zutrittskontrolle für Praxen, Büros, Geschäfte, Werkstätten und Lager in Wien und Umgebung. Installation, Wartung und Support.",
     h1="Mehr Überblick, mehr Kontrolle, mehr Sicherheit",
@@ -172,7 +186,7 @@ SERVICES["sicherheit"] = dict(
 )
 
 SERVICES["wartung-reparatur"] = dict(
-    name="Wartung und Reparatur",
+    name="Computer, Geräte &amp; Wartung",
     title="PC und Laptop Wartung, Reparatur und Aufrüstung in Wien | HORANiQ",
     description="Wartung, Reparatur, SSD- und RAM-Upgrades sowie generalüberholte PCs und Laptops für Betriebe in Wien. Geräte länger nutzen, weniger Elektroschrott.",
     h1="Mehr Leben für Ihre Technik",
@@ -243,42 +257,6 @@ SERVICES["smart-building"] = dict(
     related=["sicherheit", "netzwerk", "care"],
 )
 
-SERVICES["website-shop"] = dict(
-    name="Website und Online-Shop",
-    title="Website und Online-Shop für kleine Betriebe in Wien | HORANiQ",
-    description="Business-Websites, Landingpages und Online-Shops mit WordPress und WooCommerce für kleine und mittlere Betriebe in Wien, inklusive Pflege und Support.",
-    h1="Eine Website, die Ihr Geschäft zeigt und Anfragen bringt",
-    lead="Wir bauen und betreuen Websites und Online-Shops mit WordPress und WooCommerce. Klar aufgebaut, schnell und passend zu Ihrem Betrieb.",
-    assure=["WordPress und WooCommerce", "Pflege und Support danach", "Zusammen mit Ihrer IT gedacht"],
-    report=("Website-Check", [
-        ("ok", "Darstellung auf dem Handy", "Übersichtlich und gut bedienbar"),
-        ("warn", "Ladezeit", "Große Bilder verlangsamen die Startseite"),
-        ("crit", "Rechtliche Angaben", "Impressum oder Datenschutzerklärung fehlt"),
-    ], "Sie sehen, was Ihre Seite Besuchern zeigt."),
-    pains=["Die Website ist alt und sieht auf dem Handy schlecht aus.",
-           "Besucher finden nicht, was Sie anbieten oder wie sie Sie erreichen.",
-           "Niemand aktualisiert die Seite, und sie ist ein Sicherheitsrisiko.",
-           "Der Shop läuft, aber Bestellungen und Zahlungen sind umständlich.",
-           "Die Person, die die Seite gebaut hat, ist nicht mehr erreichbar."],
-    rows=[("Business-Website", "Klare Seiten für Leistungen, Team, Kontakt und Anfragen."),
-          ("Landingpages", "Einzelne Seiten für ein Angebot oder eine Werbekampagne."),
-          ("Online-Shop", "WooCommerce mit Produkten, Bezahlung und Versand, passend zu Ihrem Ablauf."),
-          ("Pflege und Updates", "Regelmäßige Aktualisierung und Sicherung Ihrer Seite."),
-          ("Inhalte ändern", "Texte, Bilder und Angebote aktualisieren, wenn Sie es brauchen."),
-          ("Grundlegende Optimierung", "Schnelle Ladezeit, mobile Darstellung und gut auffindbare Inhalte.")],
-    band=dict(title="Wir beginnen mit Ihren Kunden", lead="Erst klären wir, wer Ihre Seite besucht und was diese Menschen tun sollen.", price=False,
-              checks=["Zielgruppe", "Angebot und Texte", "Aufbau und Seiten", "Kontaktwege", "Rechtliche Angaben", "Ladezeit", "Handy-Darstellung", "Pflege"]),
-    steps=[("Erstgespräch", "Wir klären Ziel, Zielgruppe und Umfang."),
-           ("Konzept und Angebot", "Aufbau, Inhalte und Festpreis, bevor wir starten."),
-           ("Umsetzung", "Wir bauen die Seite oder den Shop und testen sie auf Handy und Rechner."),
-           ("Start und Pflege", "Veröffentlichung und auf Wunsch laufende Betreuung.")],
-    faq=[("Sind Sie eine Webagentur?", "Wir sind ein IT-Partner für Betriebe. Websites gehören zu unserem Angebot, damit Sie Technik aus einer Hand bekommen. Für aufwendige Markenauftritte empfehlen wir bei Bedarf Partneragenturen."),
-         ("Kann ich die Seite selbst bearbeiten?", "Ja. Mit WordPress können Sie Texte und Bilder selbst ändern. Wir zeigen Ihnen, wie, oder übernehmen es für Sie."),
-         ("Kümmern Sie sich um Impressum und Datenschutz?", "Wir binden die Seiten ein. Die rechtlichen Inhalte sollten Sie oder eine Rechtsberatung prüfen."),
-         ("Betreuen Sie eine bestehende Website?", "Ja, wir übernehmen Pflege, Updates und Änderungen an vorhandenen WordPress-Seiten und WooCommerce-Shops.")],
-    related=["it-betreuung", "crm-archivierung", "care"],
-)
-
 SERVICES["crm-archivierung"] = dict(
     name="CRM und digitale Ablage",
     title="CRM und digitale Archivierung für kleine Betriebe in Wien | HORANiQ",
@@ -312,6 +290,78 @@ SERVICES["crm-archivierung"] = dict(
          ("Können Sie Papierakten digitalisieren?", "Wir organisieren die digitale Ablage und begleiten die Umstellung. Ob wir selbst scannen oder einen Partner einbinden, klären wir im Angebot."),
          ("Ist das schon lange Teil Ihres Angebots?", "Nein, es ist ein neuer Bereich. Wir bauen ihn gemeinsam mit unseren ersten Kunden auf und beginnen bewusst klein.")],
     related=["microsoft-365", "website-shop", "care"],
+)
+
+SERVICES["it-sicherheit"] = dict(
+    name="IT-Sicherheit",
+    title="IT-Sicherheit für Betriebe in Wien: Firewall, Zugriffsrechte, MFA | HORANiQ",
+    description="Firewall, Benutzerrechte, Zugriffsschutz und sichere Anmeldung mit MFA für kleine und mittlere Betriebe in Wien und Umgebung. Sachlich und verständlich.",
+    h1="Klare Zugriffsrechte und sichere Anmeldung für Ihren Betrieb",
+    lead="Wir sorgen dafür, dass nur die richtigen Personen auf Ihre Systeme und Daten zugreifen. Mit Firewall, sauberen Benutzerrechten, Zugriffsschutz und sicherer Anmeldung. Sachlich, ohne Angstmache.",
+    assure=["Firewall und Zugriffsschutz", "Benutzerrechte und MFA", "Verständlich erklärt"],
+    report=("IT-Sicherheit im Überblick", [
+        ("ok", "Firewall", "Aktuell und mit klaren Regeln"),
+        ("warn", "Benutzerrechte", "Einige Konten haben mehr Zugriff als nötig"),
+        ("crit", "Anmeldung", "Wichtige Konten ohne zweiten Faktor (MFA)"),
+    ], "Sie sehen, was zuerst geregelt werden sollte."),
+    pains=["Alle Mitarbeiter haben Zugriff auf alles, weil Rechte nie geregelt wurden.",
+           "Ausgeschiedene Mitarbeiter haben noch aktive Zugänge.",
+           "Wichtige Konten sind nur mit einem Passwort geschützt.",
+           "Die Firewall ist alt oder wurde nie richtig eingerichtet.",
+           "Niemand weiß genau, wer worauf zugreifen darf."],
+    rows=[("Firewall", "Sichere Verbindung ins Internet mit Regeln, die zu Ihrem Betrieb passen."),
+          ("Benutzerrechte", "Wer darf was: Zugriffe nach Aufgabe vergeben und bei Austritten sauber entziehen."),
+          ("Zugriffsschutz", "Geräte, Ordner und Konten so absichern, dass nur berechtigte Personen herankommen."),
+          ("Sichere Anmeldung mit MFA", "Anmeldung über einen zweiten Faktor für wichtige Konten wie E-Mail und Microsoft 365."),
+          ("Bestandsaufnahme", "Wir sehen uns an, wie Ihre Systeme heute abgesichert sind, und zeigen die wichtigsten Lücken."),
+          ("Dokumentation", "Sie erhalten festgehalten, was eingerichtet wurde und wer welche Rechte hat.")],
+    band=dict(title="Wo steht Ihre IT-Sicherheit?", lead="Der IT-Check gibt einen ersten Überblick über Zugriffe, Anmeldung und Firewall. Er ersetzt kein umfassendes Sicherheitsaudit.", price=True,
+              checks=["Firewall", "Benutzerzugriffe", "Microsoft 365 und MFA", "PCs und Updates", "Backup und NAS", "Netzwerk und WLAN", "Router und Switches", "Sicherheitsgrundlagen"]),
+    steps=[("Erstgespräch", "Wir klären, welche Systeme und Daten für Ihren Betrieb wichtig sind."),
+           ("Bestandsaufnahme", "Wir prüfen Zugriffe, Anmeldung und Firewall."),
+           ("Angebot", "Sie erhalten klare Maßnahmen in sinnvoller Reihenfolge."),
+           ("Umsetzung und Dokumentation", "Wir richten ein, dokumentieren und erklären es Ihrem Team.")],
+    faq=[("Sind wir danach vollständig geschützt?", "Absolute Sicherheit gibt es nicht. Wir reduzieren Risiken durch klare Rechte, sichere Anmeldung und aktuelle Systeme und sagen Ihnen offen, was wir prüfen können und was nicht."),
+         ("Was ist MFA?", "Bei der Anmeldung braucht es zusätzlich zum Passwort einen zweiten Faktor, zum Beispiel eine Bestätigung am Handy. Das schützt Konten deutlich besser."),
+         ("Ist das nur etwas für große Unternehmen?", "Nein. Auch kleine Betriebe profitieren von klaren Zugriffsrechten und sicherer Anmeldung. Wir passen Umfang und Aufwand an Ihre Größe an."),
+         ("Gehören Kameras und Alarmanlagen auch dazu?", 'Das ist ein eigener Bereich: <a href="/sicherheit/">Kameras, Alarm und Zutritt</a>.')],
+    related=["microsoft-365", "netzwerk", "backup"],
+)
+
+SERVICES["it-beratung"] = dict(
+    name="IT-Beratung &amp; Projektumsetzung",
+    title="IT-Beratung und Projektumsetzung für Betriebe in Wien | HORANiQ",
+    description="IT-Beratung, Planung, Umsetzung und Dokumentation aus einer Hand. Wir stimmen uns mit Ihren Anbietern ab. Für kleine und mittlere Betriebe in Wien und Umgebung.",
+    h1="Von der Idee bis zur laufenden Lösung, aus einer Hand",
+    lead="Sie wissen, was in Ihrem Betrieb besser laufen soll, aber nicht, wie? Wir beraten, planen, setzen um, dokumentieren und stimmen uns mit Ihren Anbietern ab.",
+    assure=["Beratung, Planung und Umsetzung", "Abstimmung mit Ihren Anbietern", "Dokumentation zum Schluss"],
+    report=("Projektüberblick", [
+        ("ok", "Ziel und Umfang", "Gemeinsam festgelegt"),
+        ("warn", "Zuständigkeiten", "Noch nicht mit dem Softwareanbieter geklärt"),
+        ("crit", "Dokumentation", "Bisher nirgends festgehalten"),
+    ], "Sie sehen, was vor dem Start zu klären ist."),
+    pains=["Mehrere Anbieter sind beteiligt, und niemand hat den Gesamtüberblick.",
+           "Sie wissen nicht, welche Lösung zu Ihrem Betrieb passt.",
+           "Angebote sind schwer zu vergleichen.",
+           "Ein Umbau oder Umzug steht an, und die IT wird dabei vergessen.",
+           "Was eingerichtet wurde, ist nirgends festgehalten."],
+    rows=[("Beratung", "Wir klären Bedarf und Ist-Zustand und sagen ehrlich, was nötig ist und was nicht."),
+          ("Planung", "Ein verständlicher Plan mit Umfang, Reihenfolge und Kosten."),
+          ("Umsetzung", "Wir setzen die Maßnahmen um oder steuern die Umsetzung mit den beteiligten Anbietern."),
+          ("Abstimmung mit Anbietern", "Wir sprechen mit Softwareherstellern, Providern und Lieferanten, damit nichts zwischen den Stühlen landet."),
+          ("Auswahl passender Geräte", "Wir empfehlen Geräte, die zu Ihren Anforderungen und Ihrem Bestand passen."),
+          ("Dokumentation", "Am Ende ist festgehalten, was eingerichtet wurde und wie es zusammenhängt.")],
+    band=dict(title="Wir beginnen mit Ihrem Vorhaben", lead="Erst klären wir, was Sie erreichen wollen. Danach entscheiden wir, was dafür nötig ist.", price=False,
+              checks=["Ziel des Vorhabens", "Vorhandene Technik", "Beteiligte Anbieter", "Zeitplan", "Budget", "Zuständigkeiten", "Risiken", "Dokumentation"]),
+    steps=[("Erstgespräch", "Wir klären Ihr Vorhaben und Ihre Rahmenbedingungen."),
+           ("Konzept und Angebot", "Sie erhalten einen klaren Plan mit Umfang und Kosten."),
+           ("Umsetzung", "Wir setzen um und koordinieren die Beteiligten."),
+           ("Dokumentation und Übergabe", "Sie erhalten festgehalten, was eingerichtet wurde.")],
+    faq=[("Brauche ich vorher einen IT-Check?", "Nein. Ein IT-Check ist eine Möglichkeit, den Ausgangszustand zu sehen, aber keine Voraussetzung für Beratung oder ein Projekt."),
+         ("Arbeiten Sie mit meinen bestehenden Anbietern zusammen?", "Ja. Wir stimmen uns mit den zuständigen Anbietern ab und klären Zuständigkeiten vor Beginn."),
+         ("Lassen sich auch einzelne Teile eines Projekts beauftragen?", "Ja. Sie können mit einem Teil beginnen und später erweitern.")],
+    related=["it-check", "netzwerk", "care"],
+    interest="beratung",
 )
 
 SERVICES["care"] = dict(
@@ -358,6 +408,7 @@ SERVICES["care"] = dict(
          ("Warum kostet ein Paket für Praxen mehr?", "Nicht, weil Sie Ärztin oder Arzt sind, sondern weil kürzere Reaktionszeiten, engere Backup-Kontrolle und mehr Dokumentation mehr Aufwand bedeuten."),
          ("Was ist bei einem Notfall enthalten?", "Das hängt vom Paket ab. Reaktionszeiten und Leistungsumfang stehen im Vertrag, damit es keine Überraschungen gibt.")],
     related=["it-betreuung", "backup", "microsoft-365"],
+    interest="betreuung",
 )
 
 
@@ -376,8 +427,8 @@ LABELS_DE = {
     "all": "Alle Leistungen ansehen",
     "contact_h2": "Sprechen wir über {name}",
     "contact_lead": "Kostenloses Erstgespräch, unverbindlich und ohne Fachchinesisch.",
-    "price_offer": f'<p class="price">€99 <small>zzgl. USt.</small></p><p class="muted">{CHECK_NOTE}</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta">IT-Check anfragen</a></div>',
-    "plain_offer": '<p class="muted">Das Erstgespräch ist kostenlos. Danach erhalten Sie ein klares Angebot, mit Festpreis wo möglich.</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta">Erstgespräch anfragen</a></div>',
+    "price_offer": f'<p class="price">€99 <small>zzgl. USt.</small></p><p class="muted">{CHECK_NOTE}</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta" data-interest="it-check">IT-Check anfragen</a></div>',
+    "plain_offer": '<p class="muted">Das Erstgespräch ist kostenlos. Danach erhalten Sie ein klares Angebot, mit Festpreis wo möglich.</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta" data-interest="erstgespraech">Erstgespräch anfragen</a></div>',
     "legend_check": "Ergebnis mit Ampel: <strong>OK</strong>, <strong>Verbesserung empfohlen</strong> oder <strong>Kritisch</strong>.",
     "legend_plain": "Das besprechen wir gemeinsam, bevor wir ein Angebot machen.",
 }
@@ -416,7 +467,7 @@ def render_fragment(slug, lang="de"):
       <h1>{s["h1"]}</h1>
       <p class="lead">{s["lead"]}</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="#kontakt" data-track="hero-primary">{L["primary"]}</a>
+        <a class="btn btn-primary" href="#kontakt" data-track="hero-primary" data-interest="erstgespraech">{L["primary"]}</a>
         <a class="btn btn-ghost" href="#it-check" data-track="hero-secondary">{secondary}</a>
       </div>
       <ul class="assure">{assure}</ul>
@@ -496,27 +547,65 @@ def render_fragment(slug, lang="de"):
 '''
 
 
+WEBSITE_TEXT = "Professionelle Websites für Unternehmen und Onlineshops mit WordPress und WooCommerce. Klar gestaltet, mobil nutzbar und auf Ihre Angebote und Kontaktanfragen ausgerichtet."
+
+
+def feature_html(level="h3"):
+    """Prominent service card for Websites & Onlineshops (home page and services page)."""
+    return f'''<div class="feature">
+  <div>
+    <{level} class="feature-title">Websites &amp; Onlineshops</{level}>
+    <p>{WEBSITE_TEXT}</p>
+    <ul class="feature-points"><li>Unternehmenswebsites</li><li>Onlineshops mit WooCommerce</li><li>Betreuung nach dem Start nach Vereinbarung</li></ul>
+  </div>
+  <a class="btn btn-primary" href="/website-shop/" data-track="feature-websites">Websites &amp; Onlineshops ansehen</a>
+</div>'''
+
+
+def groups_html(level="h3"):
+    """The five service groups. Groups only organise; every service keeps its own visible name and link."""
+    out = ""
+    for name, blurb, slugs in GROUPS:
+        if slugs == ["website-shop"]:
+            out += f'<div class="svc-group" id="grp-websites">{feature_html(level)}</div>\n'
+            continue
+        rows = "".join(f'<div class="row"><p class="row-h"><a href="/{sl}/">{SVC[sl][0]}</a></p><p>{SVC[sl][1]}</p></div>' for sl in slugs)
+        out += f'<div class="svc-group split"><div class="split-head"><{level}>{name}</{level}><p>{blurb}</p></div><div class="rows">{rows}</div></div>\n'
+    return out
+
+
 def render_hub():
-    groups = {}
-    for g, sl, n, d in INDEX:
-        groups.setdefault(g, []).append((sl, n, d))
-    blocks = ""
-    for g, items in groups.items():
-        rows = "".join(f'<div class="row"><h3><a href="/{sl}/">{n}</a></h3><p>{d}</p></div>' for sl, n, d in items)
-        blocks += f'<section class="s"><div class="wrap split"><div class="split-head"><h2>{g}</h2></div><div class="rows">{rows}</div></div></section>\n'
     return f'''<section class="hero">
   <div class="wrap">
     <h1>Alle Leistungen aus einer Hand</h1>
-    <p class="lead">IT, Netzwerk, Sicherheit, Smart Building und digitale Lösungen für kleine und mittlere Betriebe in Wien und Umgebung. Ein Ansprechpartner, der das Ganze kennt.</p>
-    <div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="hero-primary">Kostenloses Erstgespräch anfragen</a></div>
+    <p class="lead">IT, Netzwerk, Sicherheit, Gebäudetechnik und digitale Lösungen wie Websites und Onlineshops für Unternehmen in Wien und Umgebung. Ein Ansprechpartner, der das Ganze kennt.</p>
+    <div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="hero-primary" data-interest="erstgespraech">Kostenloses Erstgespräch anfragen</a></div>
   </div>
 </section>
-{blocks}
+
+<section class="s" id="leistungen">
+  <div class="wrap svc-groups">
+{groups_html("h2")}
+  </div>
+</section>
+
+<section class="s">
+  <div class="wrap split">
+    <div class="split-head"><h2>Für Ihre Branche</h2><p>Die Leistungen, die für Ihren Betrieb am häufigsten wichtig sind, zuerst.</p></div>
+    <div class="rows">
+      <div class="row quiet"><p class="row-h"><a href="/arztpraxis/">Arztpraxen</a></p><p>IT-Betreuung für Ordinationen, dazu Praxiswebsite auf Wunsch.</p></div>
+      <div class="row quiet"><p class="row-h"><a href="/kanzlei/">Kanzleien und Steuerberater</a></p><p>Microsoft 365, Datensicherung und Zugriffsrechte für vertrauliche Daten.</p></div>
+      <div class="row quiet"><p class="row-h"><a href="/unternehmen/">Büros und Betriebe</a></p><p>Netzwerk, Kameras, Geräte, Websites und Shops aus einer Hand.</p></div>
+      <div class="row quiet"><p class="row-h"><a href="/ar/">بالعربية</a></p><p>دعم IT للشركات والعيادات في فيينا، بالعربية والألمانية.</p></div>
+    </div>
+  </div>
+</section>
+
 <section class="s" id="kontakt">
   <div class="wrap contact">
     <div>
       <h2>Was brauchen Sie zuerst?</h2>
-      <p class="lead">Sagen Sie uns kurz, worum es geht. Wir melden uns am selben Werktag.</p>
+      <p class="lead">Sagen Sie uns kurz, worum es geht. Wir melden uns bei Ihnen.</p>
       <div class="contact-direct">
         {{{{PHONE_LINE}}}}
         {{{{WA_LINE}}}}

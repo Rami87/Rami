@@ -19,6 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 import services
+import services_ar
 
 ROOT = Path(__file__).parent
 SRC = ROOT / "src" / "pages"
@@ -75,7 +76,20 @@ I18N = {
         "f_praxis": "Ihre Praxis",
         "types_praxis": ["Arztpraxis", "Zahnarztpraxis", "Therapiepraxis", "Gruppenpraxis", "Andere medizinische Einrichtung"],
         "f_interest": "Wofür interessieren Sie sich?",
-        "interests": [("erstgespraech", "Kostenloses Erstgespräch", "Erstgespräch anfragen"), ("it-check", "IT-Check für €99 zzgl. USt.", "IT-Check anfragen"), ("betreuung", "Laufende IT-Betreuung", "Betreuung anfragen")],
+        "interests_general": [
+            ("erstgespraech", "Kostenloses Erstgespräch", "Erstgespräch anfragen", ""),
+            ("it-check", "IT-Check für €99 zzgl. USt.", "IT-Check anfragen", ""),
+            ("betreuung", "Laufende IT-Betreuung", "Betreuung anfragen", ""),
+            ("website", "Website", "Website-Projekt anfragen", "Für Website- und Shop-Projekte brauchen Sie keinen IT-Check."),
+            ("onlineshop", "Onlineshop", "Onlineshop anfragen", "Für Website- und Shop-Projekte brauchen Sie keinen IT-Check."),
+            ("beratung", "IT-Beratung / anderes Anliegen", "Anfrage senden", ""),
+        ],
+        "interests_praxis": [
+            ("erstgespraech", "Kostenloses Erstgespräch", "Erstgespräch anfragen", ""),
+            ("it-check", "IT-Check für €99 zzgl. USt.", "IT-Check anfragen", ""),
+            ("betreuung", "Laufende IT-Betreuung", "Betreuung anfragen", ""),
+            ("praxiswebsite", "Praxiswebsite", "Praxiswebsite anfragen", "Für eine Praxiswebsite brauchen Sie keinen IT-Check."),
+        ],
         "f_msg_notice": "Bitte keine Patientendaten oder Passwörter über dieses Formular senden.",
     },
     "ar": {
@@ -133,7 +147,7 @@ def call_buttons(t, cls="btn btn-ghost", track="call"):
     return out
 
 
-def form_html(t, sector):
+def form_html(t, sector, default_interest="erstgespraech"):
     """Shared contact form. The Arztpraxis page adds a request-type field and practice-specific options."""
     praxis = sector == "arztpraxis"
     types = t["types_praxis"] if praxis else t["types"]
@@ -144,10 +158,22 @@ def form_html(t, sector):
     mailto = t["f_mailto"] % EMAIL
     interest = ""
     submit_label = t["f_submit"]
-    if praxis:
-        io = f'<option value="">{t["f_choose"]}</option>' + "".join(
-            f'<option value="{v}" data-submit="{esc(s)}">{esc(l)}</option>' for v, l, s in t["interests"])
-        interest = f'''<div class="field" data-error="{esc(t["e_type"])}"><label for="f-interest">{t["f_interest"]}</label><select id="f-interest" name="interest" required aria-describedby="err-interest">{io}</select><p class="err" id="err-interest"></p></div>'''
+    ilist = t.get("interests_praxis") if praxis else t.get("interests_general")
+    if ilist:
+        if praxis:
+            io = f'<option value="">{t["f_choose"]}</option>'
+        else:
+            io = ""
+        chosen_hint = ""
+        for v, l, s, h in ilist:
+            sel = ""
+            if not praxis and v == default_interest:
+                sel = " selected"
+                submit_label = s
+                chosen_hint = h
+            io += f'<option value="{v}" data-submit="{esc(s)}" data-hint="{esc(h)}"{sel}>{esc(l)}</option>'
+        hint_html = f'<p class="hint" id="interest-hint"{"" if chosen_hint else " hidden"}>{esc(chosen_hint)}</p>'
+        interest = f'''<div class="field" data-error="{esc(t["e_type"])}"><label for="f-interest">{t["f_interest"]}</label><select id="f-interest" name="interest" required aria-describedby="interest-hint err-interest">{io}</select>{hint_html}<p class="err" id="err-interest"></p></div>'''
     notice = f'<p class="hint" id="msg-hint">{t["f_msg_notice"]}</p>' if praxis else ""
     return f'''<form class="form" id="contact-form" novalidate data-endpoint="{esc(FORM_ENDPOINT)}" data-email="{EMAIL}" data-subject="{esc(t["f_subject"])}" data-msg-ok="{esc(t["f_ok"])}" data-msg-err="{esc(err)}" data-msg-mailto="{esc(mailto)}" data-msg-sending="{esc(t["f_sending"])}" data-msg-invalid="{esc(t["f_invalid"])}" data-e-contact-invalid="{esc(t["e_contact_invalid"])}" data-default-label="{esc(submit_label)}">
   <input type="hidden" name="sector" value="{sector}">
@@ -164,6 +190,17 @@ def form_html(t, sector):
 </form>'''
 
 
+def services_menu_html(label, href, cur):
+    """Leistungen with a submenu that lists every service, grouped. The parent stays a normal link to /leistungen/."""
+    cols = ""
+    for name, _, slugs in services.GROUPS:
+        items = "".join(f'<li><a href="/{sl}/">{services.SVC[sl][0]}</a></li>' for sl in slugs)
+        cols += f'<div class="sub-col"><p class="sub-h">{name}</p><ul>{items}</ul></div>'
+    return (f'<div class="nav-item has-sub"><a href="{href}"{cur}>{label}</a>'
+            f'<button type="button" class="sub-toggle" aria-expanded="false" aria-controls="sub-leistungen"><span class="sr-only">Untermenü Leistungen</span></button>'
+            f'<div class="sub" id="sub-leistungen">{cols}<p class="sub-all"><a href="{href}">Alle Leistungen ansehen</a></p></div></div>')
+
+
 def logo_html(t, cls="logo"):
     home = "/ar/" if t is I18N["ar"] else "/"
     return f'<a class="{cls}" href="{home}" aria-label="HORANiQ"><img src="/assets/img/horaniq-logo.webp" alt="HORANiQ" width="145" height="44"></a>'
@@ -177,7 +214,10 @@ def header_html(t, path, cta="#kontakt", switch=None, ids=()):
         if href.startswith("/#") and href[2:] in ids:
             href = href[1:]  # target exists on this page: stay on the page
         cur = ' aria-current="page"' if href == path else ""
-        links += f'<a href="{href}"{cur}>{label}</a>'
+        if t is I18N["de"] and href == "/leistungen/":
+            links += services_menu_html(label, href, cur)
+        else:
+            links += f'<a href="{href}"{cur}>{label}</a>'
     ll, lh, lc = t["lang_label"]
     lh = switch or lh
     links += f'<a class="lang" href="{lh}" hreflang="{lc}" lang="{lc}">{ll}</a>'
@@ -190,9 +230,20 @@ def header_html(t, path, cta="#kontakt", switch=None, ids=()):
 </div></header>'''
 
 
+def de_foot_cols():
+    def links(slugs):
+        return [(services.SVC[s][0], f"/{s}/") for s in slugs]
+    return [
+        ("Leistungen", links(["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"])),
+        ("Weitere Leistungen", links(["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]) + [("Alle Leistungen", "/leistungen/")]),
+        ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Kanzleien", "/kanzlei/"), ("Büros und Betriebe", "/unternehmen/"), ("Deutsch und Arabisch", "/ar/")]),
+        ("Rechtliches", [("Impressum", "/impressum/"), ("Datenschutz", "/datenschutz/")]),
+    ]
+
+
 def footer_html(t):
     cols = ""
-    for title, items in t["foot_cols"]:
+    for title, items in (de_foot_cols() if t is I18N["de"] else t["foot_cols"]):
         fix = lambda h: "/ar/" + h if (t is I18N["ar"] and h.startswith("#")) else h
         cols += f"<div><h3>{title}</h3><ul>" + "".join(f'<li><a href="{fix(h)}">{l}</a></li>' for l, h in items) + "</ul></div>"
     return f'''<footer class="site-footer"><div class="wrap">
@@ -233,6 +284,7 @@ def schema_graph(meta, body, url, t):
         "address": {"@type": "PostalAddress", "addressLocality": "Wien", "addressCountry": "AT"},
         "areaServed": [{"@type": "City", "name": "Wien"}, {"@type": "AdministrativeArea", "name": "Wien und Umgebung"}],
         "knowsLanguage": ["de", "ar", "en"],
+        "hasOfferCatalog": {"@type": "OfferCatalog", "name": "Leistungen", "itemListElement": [{"@type": "Offer", "itemOffered": {"@type": "Service", "name": re.sub(r"&amp;", "&", services.SVC[sl][0]), "url": f"{DOMAIN}/{sl}/"}} for _, _, sls in services.GROUPS for sl in sls]},
         "makesOffer": {"@type": "Offer", "price": "99", "priceCurrency": "EUR", "description": "IT-Check, Preis zuzüglich USt., bei Auftrag vollständig angerechnet", "itemOffered": {"@type": "Service", "name": "IT-Check"}},
     }
     if PHONE:
@@ -270,7 +322,8 @@ def _render(meta, body):
     t = I18N[meta["lang"]]
     url = DOMAIN + meta["path"]
     sector = meta.get("sector", "home")
-    body = body.replace("{{FORM}}", form_html(t, sector))
+    body = body.replace("{{SERVICE_GROUPS}}", services.groups_html("h3"))
+    body = body.replace("{{FORM}}", form_html(t, sector, meta.get("interest", "erstgespraech")))
     body = body.replace("{{CALL}}", call_buttons(t))
     body = body.replace("{{EMAIL}}", EMAIL)
     if PHONE:
@@ -344,7 +397,7 @@ def main():
     import services_ar
     for slug, s in services.SERVICES.items():
         alt = f"de=/{slug}/" + (f",ar=/ar/{slug}/" if slug in services_ar.SERVICES_AR else "")
-        pages.append(({"lang": "de", "path": f"/{slug}/", "title": s["title"], "description": s["description"], "sector": slug, "breadcrumb": s["name"], "alt": alt}, services.render_fragment(slug)))
+        pages.append(({"lang": "de", "path": f"/{slug}/", "title": s["title"], "description": s["description"], "sector": slug, "breadcrumb": html.unescape(s["name"]), "alt": alt, "interest": s.get("interest", "erstgespraech")}, services.render_fragment(slug)))
     for slug, s in services_ar.SERVICES_AR.items():
         pages.append(({"lang": "ar", "path": f"/ar/{slug}/", "title": s["title"], "description": s["description"], "sector": f"ar-{slug}", "breadcrumb": s["name"], "alt": f"de=/{slug}/,ar=/ar/{slug}/"}, services.render_fragment(slug, "ar")))
     pages.append(({"lang": "de", "path": "/leistungen/", "title": "Leistungen: IT, Netzwerk, Sicherheit und mehr in Wien | HORANiQ", "description": "Alle Leistungen von HORANiQ: IT-Betreuung, Microsoft 365, Netzwerk, Backup, Sicherheit, Smart Building, Websites und Wartung für Betriebe in Wien und Umgebung.", "sector": "leistungen", "breadcrumb": "Leistungen", "alt": "de=/leistungen/"}, services.render_hub()))

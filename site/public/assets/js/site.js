@@ -11,12 +11,14 @@
   function closeMenu(focusBtn) {
     if (!nav) return;
     nav.classList.remove("open");
+    document.body.classList.remove("menu-open");
     btn.setAttribute("aria-expanded", "false");
     if (focusBtn) btn.focus();
   }
   if (btn && nav) {
     btn.addEventListener("click", function () {
       var open = nav.classList.toggle("open");
+      document.body.classList.toggle("menu-open", open);
       btn.setAttribute("aria-expanded", open ? "true" : "false");
     });
     nav.addEventListener("click", function (e) { if (e.target.closest("a")) closeMenu(false); });
@@ -24,6 +26,30 @@
       if (e.key === "Escape" && nav.classList.contains("open")) closeMenu(true);
     });
   }
+
+  /* Leistungen submenu: hover and keyboard focus open it via CSS; the toggle button serves touch and screen readers. */
+  var subItems = document.querySelectorAll(".has-sub");
+  function closeSubs(except) {
+    subItems.forEach(function (item) {
+      if (item === except) return;
+      item.classList.remove("open");
+      item.querySelector(".sub-toggle").setAttribute("aria-expanded", "false");
+    });
+  }
+  subItems.forEach(function (item) {
+    var toggle = item.querySelector(".sub-toggle");
+    toggle.addEventListener("click", function () {
+      var open = item.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      closeSubs(item);
+    });
+  });
+  document.addEventListener("click", function (e) { if (!e.target.closest(".has-sub")) closeSubs(null); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    var openItem = document.querySelector(".has-sub.open");
+    if (openItem) { closeSubs(null); openItem.querySelector(".sub-toggle").focus(); }
+  });
 
   /* The one animation: lamps in the example report switch on one after another. */
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -73,9 +99,15 @@
   var sending = false;
 
   function say(text, cls) { note.textContent = text; note.className = "form-note " + (cls || ""); }
+  var interestHint = form.querySelector("#interest-hint");
   function syncLabel() {
     var opt = interest && interest.options[interest.selectedIndex];
     submitBtn.textContent = (opt && opt.dataset.submit) || defaultLabel;
+    if (interestHint) {
+      var hint = (opt && opt.dataset.hint) || "";
+      interestHint.textContent = hint;
+      interestHint.hidden = !hint;
+    }
   }
 
   /* Buttons with data-interest preselect the request type and keep it when the visitor arrives at the form. */
@@ -88,6 +120,7 @@
       syncLabel();
     });
     interest.addEventListener("change", syncLabel);
+    syncLabel();
   }
 
   /* Validation with inline German (or Arabic) messages */
