@@ -29,7 +29,7 @@ DOMAIN = "https://horaniq.at"
 EMAIL = "rami@horaniq.at"
 PHONE = ""            # e.g. "+43 660 1234567". Empty hides every call button.
 WHATSAPP = ""         # digits only with country code, e.g. "436601234567". Empty hides it.
-FORM_ENDPOINT = ""    # e.g. a Formspree or own endpoint. Empty falls back to a prefilled e-mail.
+FORM_ENDPOINT = os.environ.get("FORM_ENDPOINT", "")    # e.g. a Formspree or own endpoint. Empty falls back to a prefilled e-mail.
 SAME_AS = []          # public profile URLs (Google Business, LinkedIn) for JSON-LD
 
 # Preview builds (GitHub Pages under /repo-name/): PREVIEW=1 BASE_PATH=/Rami python3 site/build.py
@@ -43,11 +43,11 @@ I18N = {
         "skip": "Zum Inhalt springen",
         "menu": "Menü",
         "nav": [("Leistungen", "/leistungen/"), ("Für Praxen", "/arztpraxis/"), ("Für Kanzleien", "/kanzlei/"), ("IT-Check", "/#it-check"), ("Kontakt", "/#kontakt")],
-        "cta": "Erstgespräch",
+        "cta": "Kostenloses Erstgespräch anfragen",
         "lang_label": ("العربية", "/ar/", "ar"),
         "call": "Anrufen",
         "whatsapp": "WhatsApp",
-        "mbar_cta": "Erstgespräch anfragen",
+        "mbar_cta": "Kostenloses Erstgespräch anfragen",
         "crumb_home": "Start",
         "foot_tag": "IT, Netzwerk und Sicherheit für Betriebe in Wien und Umgebung. Persönlich, verständlich und aus einer Hand.",
         "foot_cols": [
@@ -61,9 +61,22 @@ I18N = {
         "types": ["Arztpraxis", "Zahnarztpraxis", "Therapiepraxis", "Kanzlei", "Steuerberatung oder Buchhaltung", "Büro", "Geschäft", "Werkstatt oder Lager", "Anderes"],
         "f_consent": 'Ich habe die <a href="/datenschutz/">Datenschutzerklärung</a> gelesen und bin einverstanden, dass HORANiQ mich zu meiner Anfrage kontaktiert.',
         "f_submit": "Erstgespräch anfragen",
-        "f_ok": "Danke. Wir melden uns am selben Werktag.", "f_err": "Das hat nicht geklappt. Bitte schreiben Sie uns direkt an %s.",
-        "f_sending": "Wird gesendet…", "f_invalid": "Bitte füllen Sie die markierten Felder aus.",
+        "f_ok": "Vielen Dank für Ihre Anfrage. Wir melden uns über die von Ihnen angegebene Kontaktmöglichkeit.",
+        "f_err": "Ihre Anfrage konnte nicht gesendet werden. Ihre Angaben sind noch vorhanden. Bitte versuchen Sie es erneut oder schreiben Sie an %s.",
+        "f_mailto": "Ihr E-Mail-Programm wurde geöffnet. Bitte senden Sie die vorbereitete Nachricht dort ab. Falls sich nichts geöffnet hat, schreiben Sie an %s.",
+        "f_sending": "Wird gesendet…", "f_invalid": "Bitte prüfen Sie die markierten Felder.",
         "f_subject": "Anfrage Erstgespräch",
+        "f_choose": "Bitte wählen",
+        "e_name": "Bitte geben Sie Ihren Namen an.",
+        "e_contact": "Bitte geben Sie eine Telefonnummer oder E-Mail-Adresse an.",
+        "e_contact_invalid": "Bitte prüfen Sie Ihre Telefonnummer oder E-Mail-Adresse.",
+        "e_type": "Bitte wählen Sie eine Option.",
+        "e_consent": "Bitte bestätigen Sie die Datenschutzerklärung.",
+        "f_praxis": "Ihre Praxis",
+        "types_praxis": ["Arztpraxis", "Zahnarztpraxis", "Therapiepraxis", "Gruppenpraxis", "Andere medizinische Einrichtung"],
+        "f_interest": "Wofür interessieren Sie sich?",
+        "interests": [("erstgespraech", "Kostenloses Erstgespräch", "Erstgespräch anfragen"), ("it-check", "IT-Check für €99 zzgl. USt.", "IT-Check anfragen"), ("betreuung", "Laufende IT-Betreuung", "Betreuung anfragen")],
+        "f_msg_notice": "Bitte keine Patientendaten oder Passwörter über dieses Formular senden.",
     },
     "ar": {
         "dir": "rtl",
@@ -88,9 +101,17 @@ I18N = {
         "types": ["عيادة طبية", "عيادة أسنان", "عيادة علاج", "مكتب محاماة", "محاسبة أو استشارات ضريبية", "مكتب", "محل تجاري", "ورشة أو مستودع", "أخرى"],
         "f_consent": 'قرأت <a href="/datenschutz/">سياسة الخصوصية</a> (بالألمانية) وأوافق على أن تتواصل HORANiQ معي بخصوص طلبي.',
         "f_submit": "احجز استشارة مجانية",
-        "f_ok": "شكراً لك. سنتواصل معك في يوم العمل نفسه.", "f_err": "لم يتم الإرسال. يرجى مراسلتنا مباشرة على %s.",
-        "f_sending": "جارٍ الإرسال…", "f_invalid": "يرجى تعبئة الحقول المطلوبة.",
+        "f_ok": "شكراً لك على طلبك. سنتواصل معك عبر وسيلة الاتصال التي أدخلتها.",
+        "f_err": "تعذّر إرسال طلبك. بياناتك ما زالت محفوظة. حاول مرة أخرى أو راسلنا على %s.",
+        "f_mailto": "فُتح برنامج البريد لديك. يرجى إرسال الرسالة الجاهزة من هناك. وإن لم يُفتح شيء فراسلنا على %s.",
+        "f_sending": "جارٍ الإرسال…", "f_invalid": "يرجى مراجعة الحقول المحددة.",
         "f_subject": "طلب استشارة أولى",
+        "f_choose": "اختر",
+        "e_name": "يرجى إدخال اسمك.",
+        "e_contact": "يرجى إدخال رقم هاتف أو بريد إلكتروني.",
+        "e_contact_invalid": "يرجى التحقق من رقم الهاتف أو البريد الإلكتروني.",
+        "e_type": "يرجى اختيار أحد الخيارات.",
+        "e_consent": "يرجى تأكيد قراءة سياسة الخصوصية.",
     },
 }
 
@@ -113,36 +134,57 @@ def call_buttons(t, cls="btn btn-ghost", track="call"):
 
 
 def form_html(t, sector):
-    opts = "".join(f"<option>{html.escape(o)}</option>" for o in t["types"])
+    """Shared contact form. The Arztpraxis page adds a request-type field and practice-specific options."""
+    praxis = sector == "arztpraxis"
+    types = t["types_praxis"] if praxis else t["types"]
+    label_type = t["f_praxis"] if praxis else t["f_type"]
+    esc = html.escape
+    opts = f'<option value="">{t["f_choose"]}</option>' + "".join(f"<option>{esc(o)}</option>" for o in types)
     err = t["f_err"] % EMAIL
-    return f'''<form class="form" id="contact-form" novalidate data-endpoint="{html.escape(FORM_ENDPOINT)}" data-email="{EMAIL}" data-subject="{html.escape(t["f_subject"])}" data-msg-ok="{html.escape(t["f_ok"])}" data-msg-err="{html.escape(err)}" data-msg-sending="{html.escape(t["f_sending"])}" data-msg-invalid="{html.escape(t["f_invalid"])}">
+    mailto = t["f_mailto"] % EMAIL
+    interest = ""
+    submit_label = t["f_submit"]
+    if praxis:
+        io = f'<option value="">{t["f_choose"]}</option>' + "".join(
+            f'<option value="{v}" data-submit="{esc(s)}">{esc(l)}</option>' for v, l, s in t["interests"])
+        interest = f'''<div class="field" data-error="{esc(t["e_type"])}"><label for="f-interest">{t["f_interest"]}</label><select id="f-interest" name="interest" required aria-describedby="err-interest">{io}</select><p class="err" id="err-interest"></p></div>'''
+    notice = f'<p class="hint" id="msg-hint">{t["f_msg_notice"]}</p>' if praxis else ""
+    return f'''<form class="form" id="contact-form" novalidate data-endpoint="{esc(FORM_ENDPOINT)}" data-email="{EMAIL}" data-subject="{esc(t["f_subject"])}" data-msg-ok="{esc(t["f_ok"])}" data-msg-err="{esc(err)}" data-msg-mailto="{esc(mailto)}" data-msg-sending="{esc(t["f_sending"])}" data-msg-invalid="{esc(t["f_invalid"])}" data-e-contact-invalid="{esc(t["e_contact_invalid"])}" data-default-label="{esc(submit_label)}">
   <input type="hidden" name="sector" value="{sector}">
   <div class="hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
-  <div class="field"><label for="f-name">{t["f_name"]}</label><input type="text" id="f-name" name="name" autocomplete="name" required></div>
-  <div class="field"><label for="f-contact">{t["f_contact"]}</label><input type="text" id="f-contact" name="contact" autocomplete="email" required><p class="hint">{t["f_contact_hint"]}</p></div>
-  <div class="field"><label for="f-type">{t["f_type"]}</label><select id="f-type" name="business" required>{opts}</select></div>
-  <div class="field"><label for="f-msg">{t["f_msg"]}</label><textarea id="f-msg" name="message"></textarea></div>
-  <label class="consent"><input type="checkbox" name="consent" required><span>{t["f_consent"]}</span></label>
-  <button class="btn btn-primary" type="submit" data-track="form-{sector}">{t["f_submit"]}</button>
+  <div class="field" data-error="{esc(t["e_name"])}"><label for="f-name">{t["f_name"]}</label><input type="text" id="f-name" name="name" autocomplete="name" required aria-describedby="err-name"><p class="err" id="err-name"></p></div>
+  <div class="field" data-error="{esc(t["e_contact"])}"><label for="f-contact">{t["f_contact"]}</label><input type="text" id="f-contact" name="contact" autocomplete="email" required aria-describedby="hint-contact err-contact"><p class="hint" id="hint-contact">{t["f_contact_hint"]}</p><p class="err" id="err-contact"></p></div>
+  <div class="field" data-error="{esc(t["e_type"])}"><label for="f-type">{label_type}</label><select id="f-type" name="business" required aria-describedby="err-type">{opts}</select><p class="err" id="err-type"></p></div>
+  {interest}
+  <div class="field"><label for="f-msg">{t["f_msg"]}</label><textarea id="f-msg" name="message"{' aria-describedby="msg-hint"' if praxis else ''}></textarea>{notice}</div>
+  <div class="field consent-wrap" data-error="{esc(t["e_consent"])}"><label class="consent"><input type="checkbox" name="consent" required aria-describedby="err-consent"><span>{t["f_consent"]}</span></label><p class="err" id="err-consent"></p></div>
+  <button class="btn btn-primary" type="submit" data-track="form-{sector}">{submit_label}</button>
   <p class="form-note" role="status" aria-live="polite"></p>
+  <noscript><p class="form-note info">{t["f_mailto"] % EMAIL}</p></noscript>
 </form>'''
 
 
-def header_html(t, path, cta="#kontakt", switch=None):
+def logo_html(t, cls="logo"):
+    home = "/ar/" if t is I18N["ar"] else "/"
+    return f'<a class="{cls}" href="{home}" aria-label="HORANiQ"><img src="/assets/img/horaniq-logo.webp" alt="HORANiQ" width="145" height="44"></a>'
+
+
+def header_html(t, path, cta="#kontakt", switch=None, ids=()):
     links = ""
     for label, href in t["nav"]:
-        if t is I18N["ar"] and href.startswith("#") and path != "/ar/":
+        if t is I18N["ar"] and href.startswith("#") and href[1:] not in ids:
             href = "/ar/" + href
+        if href.startswith("/#") and href[2:] in ids:
+            href = href[1:]  # target exists on this page: stay on the page
         cur = ' aria-current="page"' if href == path else ""
         links += f'<a href="{href}"{cur}>{label}</a>'
     ll, lh, lc = t["lang_label"]
     lh = switch or lh
     links += f'<a class="lang" href="{lh}" hreflang="{lc}" lang="{lc}">{ll}</a>'
-    links += f'<a class="btn btn-primary btn-sm" href="{cta}" data-track="nav-cta">{t["cta"]}</a>'
-    home = "/ar/" if t is I18N["ar"] else "/"
+    links += f'<a class="btn btn-primary btn-sm" href="{cta}" data-track="nav-cta" data-interest="erstgespraech">{t["cta"]}</a>'
     return f'''<a class="skip" href="#main">{t["skip"]}</a>
 <header class="site-header"><div class="wrap bar">
-  <a class="logo" href="{home}" aria-label="HORANiQ">HORAN<i>i</i>Q</a>
+  {logo_html(t)}
   <button class="menu-btn" aria-expanded="false" aria-controls="nav">{t["menu"]}</button>
   <nav class="nav" id="nav" aria-label="Hauptnavigation">{links}</nav>
 </div></header>'''
@@ -155,7 +197,7 @@ def footer_html(t):
         cols += f"<div><h3>{title}</h3><ul>" + "".join(f'<li><a href="{fix(h)}">{l}</a></li>' for l, h in items) + "</ul></div>"
     return f'''<footer class="site-footer"><div class="wrap">
   <div class="foot">
-    <div><a class="logo" href="{"/ar/" if t is I18N["ar"] else "/"}" aria-label="HORANiQ">HORAN<i>i</i>Q</a><p>{t["foot_tag"]}</p><p><a href="mailto:{EMAIL}">{EMAIL}</a></p></div>
+    <div>{logo_html(t)}<p>{t["foot_tag"]}</p><p><a href="mailto:{EMAIL}">{EMAIL}</a></p></div>
     {cols}
   </div>
   <p class="legal">© 2026 HORANiQ, Rami Horani, Wien. {t["legal"]}</p>
@@ -166,7 +208,7 @@ def mbar_html(t, cta="#kontakt"):
     btns = call_buttons(t, "btn btn-ghost", "mbar-call")
     if WHATSAPP and not PHONE:
         btns += f'<a class="btn btn-ghost" href="https://wa.me/{WHATSAPP}" data-track="mbar-whatsapp">{t["whatsapp"]}</a>'
-    btns += f'<a class="btn btn-primary" href="{cta}" data-track="mbar-cta">{t["mbar_cta"]}</a>'
+    btns += f'<a class="btn btn-primary" href="{cta}" data-track="mbar-cta" data-interest="erstgespraech">{t["mbar_cta"]}</a>'
     return f'<div class="mbar">{btns}</div>'
 
 
@@ -184,6 +226,7 @@ def schema_graph(meta, body, url, t):
         "@id": f"{DOMAIN}/#business",
         "name": "HORANiQ",
         "url": f"{DOMAIN}/",
+        "logo": f"{DOMAIN}/assets/img/horaniq-logo.webp",
         "email": EMAIL,
         "description": "IT-Betreuung, Netzwerk, Sicherheit und Microsoft 365 für kleine und mittlere Unternehmen in Wien und Umgebung.",
         "founder": {"@type": "Person", "name": "Rami Horani"},
@@ -256,7 +299,7 @@ def _render(meta, body):
     og_locale = "ar_AR" if meta["lang"] == "ar" else "de_AT"
     title = html.escape(meta["title"])
     desc = html.escape(meta["description"])
-    fonts = "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
+    fonts = "https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700" + ("&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700" if meta["lang"] == "ar" else "") + "&display=swap"
     return f'''<!doctype html>
 <html lang="{meta["lang"]}" dir="{t["dir"]}">
 <head>
@@ -266,10 +309,11 @@ def _render(meta, body):
 <meta name="description" content="{desc}">
 <meta name="robots" content="{robots}{'' if robots != 'index' else ', max-image-preview:large'}">
 <link rel="canonical" href="{url}">
-{alt}<meta name="theme-color" content="#12263f">
+{alt}<meta name="theme-color" content="#0f2e40">
 <meta property="og:type" content="website"><meta property="og:site_name" content="HORANiQ"><meta property="og:locale" content="{og_locale}">
 <meta property="og:title" content="{title}"><meta property="og:description" content="{desc}"><meta property="og:url" content="{url}">
-<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/img/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="{fonts}">
 <link rel="stylesheet" href="/assets/css/site.css">
@@ -278,7 +322,7 @@ def _render(meta, body):
 </script>
 </head>
 <body>
-{header_html(t, meta["path"], cta, switch)}
+{header_html(t, meta["path"], cta, switch, set(re.findall(r'id="([^"]+)"', body)))}
 <main id="main">
 {crumbs}
 {body}

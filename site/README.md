@@ -26,3 +26,9 @@ python3 -m http.server -d site/public 8000
 4. Point the domain at `site/public/`, then verify structured data in Google's Rich Results Test and add the site to Search Console and Google Business Profile.
 5. Analytics: the JS only pushes events to `window.dataLayer`. Load GA4 or Google Ads tags only after a consent banner, and update the privacy page.
 6. Only keep claims you can honor: "Antwort am selben Werktag" and the Vertraulichkeitsvereinbarung.
+
+## Brand assets
+The header and footer use the approved logo (`assets/img/horaniq-logo.webp`, a resized copy of the current reference; the original 2000 px file was not redistributed). The favicon is a crop of the H/Q symbol from that same file. Replace both with the original transparent/high-resolution files when available. There is no approved reversed logo, so the footer shows the logo on a white tile.
+
+## Contact form
+`FORM_ENDPOINT` (env var or the constant in `build.py`) must point to a receiving service. Until then the form opens a prefilled e-mail and says so; it never shows a success message it cannot confirm.

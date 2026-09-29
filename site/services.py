@@ -363,7 +363,7 @@ SERVICES["care"] = dict(
 
 LABELS_DE = {
     "example": "Beispiel",
-    "primary": "Kostenloses Erstgespräch",
+    "primary": "Kostenloses Erstgespräch anfragen",
     "secondary_check": "IT-Check ansehen",
     "secondary_plain": "So gehen wir vor",
     "pains": "Kennen Sie das?",
@@ -508,7 +508,7 @@ def render_hub():
   <div class="wrap">
     <h1>Alle Leistungen aus einer Hand</h1>
     <p class="lead">IT, Netzwerk, Sicherheit, Smart Building und digitale Lösungen für kleine und mittlere Betriebe in Wien und Umgebung. Ein Ansprechpartner, der das Ganze kennt.</p>
-    <div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="hero-primary">Kostenloses Erstgespräch</a></div>
+    <div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="hero-primary">Kostenloses Erstgespräch anfragen</a></div>
   </div>
 </section>
 {blocks}
