@@ -42,8 +42,8 @@ I18N = {
         "crumb_home": "Start",
         "foot_tag": "IT, Netzwerk und Sicherheit für Betriebe in Wien und Umgebung. Persönlich, verständlich und aus einer Hand.",
         "foot_cols": [
-            ("Leistungen", [("IT-Betreuung", "/#leistungen"), ("Netzwerk und WLAN", "/#leistungen"), ("Sicherheit", "/#leistungen"), ("IT-Check", "/#it-check")]),
-            ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Kanzleien", "/kanzlei/"), ("Deutsch und Arabisch", "/ar/")]),
+            ("Leistungen", [("IT-Betreuung", "/#leistungen"), ("Netzwerk und WLAN", "/netzwerk/"), ("Sicherheit", "/#leistungen"), ("IT-Check", "/#it-check")]),
+            ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Kanzleien", "/kanzlei/"), ("Büros und Betriebe", "/unternehmen/"), ("Deutsch und Arabisch", "/ar/")]),
             ("Rechtliches", [("Impressum", "/impressum/"), ("Datenschutz", "/datenschutz/")]),
         ],
         "legal": "Alle Preise netto zuzüglich USt. Angaben ohne Gewähr.",

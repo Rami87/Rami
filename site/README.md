@@ -12,6 +12,7 @@ python3 -m http.server -d site/public 8000
 | `/` | `src/pages/index.html` |
 | `/arztpraxis/` | `src/pages/arztpraxis.html` |
 | `/kanzlei/` | `src/pages/kanzlei.html` |
+| `/netzwerk/`, `/unternehmen/` | `src/pages/netzwerk.html`, `src/pages/unternehmen.html` |
 | `/ar/` | `src/pages/ar.html` (RTL, Arabic) |
 | `/impressum/`, `/datenschutz/` | drafts, `noindex` |
 
