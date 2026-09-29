@@ -31,6 +31,7 @@ DOMAIN = "https://horaniq.at"
 EMAIL = "rami@horaniq.at"
 PHONE = os.environ.get("PHONE", "")            # e.g. "+43 660 1234567". Empty hides every call button.
 WHATSAPP = os.environ.get("WHATSAPP", "")         # digits only with country code, e.g. "436601234567". Empty hides it.
+PLAUSIBLE_DOMAIN = os.environ.get("PLAUSIBLE_DOMAIN", "")   # e.g. "horaniq.at". Cookieless analytics, off when empty and in preview builds.
 FORM_ENDPOINT = os.environ.get("FORM_ENDPOINT", "")    # e.g. a Formspree or own endpoint. Empty falls back to a prefilled e-mail.
 SAME_AS = []          # public profile URLs (Google Business, LinkedIn) for JSON-LD
 
@@ -225,6 +226,17 @@ def logo_html(t, cls="logo"):
     return f'<a class="{cls}" href="{home}" aria-label="HORANiQ"><img src="/assets/img/horaniq-logo.webp" alt="HORANiQ" width="145" height="44"></a>'
 
 
+PHOTO_RE = re.compile(r"\{\{PHOTO:([a-z0-9-]+)\|([^|}]*)\|(\d+)x(\d+)\}\}")
+
+
+def photo_html(m):
+    """Renders assets/photos/<name>.webp if the file exists, else nothing (no empty placeholders on the live site)."""
+    name, alt, w, h = m.groups()
+    if not (ROOT / "assets" / "photos" / f"{name}.webp").exists():
+        return ""
+    return f'<img class="photo" src="/assets/photos/{name}.webp" alt="{html.escape(alt)}" width="{w}" height="{h}" loading="lazy" decoding="async">'
+
+
 def header_html(t, path, cta="#kontakt", switch=None, ids=()):
     links = ""
     for label, href in t["nav"]:
@@ -256,7 +268,7 @@ def de_foot_cols():
         ("Leistungen", links(["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"])),
         ("Weitere Leistungen", links(["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]) + [("Alle Leistungen", "/leistungen/")]),
         ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Büros und Betriebe", "/unternehmen/"), ("Deutsch und Arabisch", "/ar/")]),
-        ("Rechtliches", [("Impressum", "/impressum/"), ("Datenschutz", "/datenschutz/")]),
+        ("Unternehmen", [("Über uns", "/ueber-uns/"), ("Preise", "/preise/"), ("Impressum", "/impressum/"), ("Datenschutz", "/datenschutz/")]),
     ]
 
 
@@ -344,6 +356,7 @@ def _render(meta, body):
     body = body.replace("{{SERVICE_GROUPS}}", services.groups_html("h3"))
     body = body.replace("{{SERVICE_GROUPS_AR}}", services_ar.groups_ar("h3"))
     body = ICON_RE.sub(lambda m: icon_svg(m.group(1), m.group(2) or ""), body)
+    body = PHOTO_RE.sub(photo_html, body)
     body = body.replace("{{FORM}}", form_html(t, sector, meta.get("interest", "erstgespraech")))
     body = body.replace("{{CALL}}", call_buttons(t))
     body = body.replace("{{EMAIL}}", EMAIL)
@@ -373,6 +386,9 @@ def _render(meta, body):
     og_locale = "ar_AR" if meta["lang"] == "ar" else "de_AT"
     title = html.escape(meta["title"])
     desc = html.escape(meta["description"])
+    analytics = ""
+    if PLAUSIBLE_DOMAIN and not PREVIEW:
+        analytics = f'<script defer data-domain="{PLAUSIBLE_DOMAIN}" src="https://plausible.io/js/script.js"></script>\n'
     return f'''<!doctype html>
 <html lang="{meta["lang"]}" dir="{t["dir"]}">
 <head>
@@ -402,7 +418,7 @@ def _render(meta, body):
 </main>
 {footer_html(t)}
 {mbar_html(t, cta)}
-<script src="/assets/js/site.js" defer></script>
+{analytics}<script src="/assets/js/site.js" defer></script>
 </body>
 </html>
 '''

@@ -4,6 +4,18 @@
   var doc = document.documentElement;
   doc.classList.add("js");
   window.dataLayer = window.dataLayer || [];
+  /* Optional cookieless analytics (Plausible, only when the build enabled it): forward the same events, without personal data. */
+  var _push = window.dataLayer.push.bind(window.dataLayer);
+  window.dataLayer.push = function (o) {
+    try {
+      if (o && o.event && typeof window.plausible === "function") {
+        var props = {};
+        Object.keys(o).forEach(function (k) { if (k !== "event") props[k] = String(o[k]); });
+        window.plausible(o.event, { props: props });
+      }
+    } catch (e) { /* analytics must never break the page */ }
+    return _push(o);
+  };
 
   /* Mobile menu */
   var btn = document.querySelector(".menu-btn");
