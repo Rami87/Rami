@@ -96,7 +96,7 @@ I18N = {
         "dir": "rtl",
         "skip": "انتقل إلى المحتوى",
         "menu": "القائمة",
-        "nav": [("الخدمات", "#leistungen"), ("فحص IT", "#it-check"), ("كيف نعمل", "#ablauf"), ("أسئلة شائعة", "#faq"), ("تواصل", "#kontakt")],
+        "nav": [("الخدمات", "/ar/leistungen/"), ("فحص IT", "#it-check"), ("كيف نعمل", "#ablauf"), ("أسئلة شائعة", "#faq"), ("تواصل", "#kontakt")],
         "cta": "استشارة مجانية",
         "lang_label": ("Deutsch", "/", "de"),
         "call": "اتصل بنا",
@@ -105,8 +105,9 @@ I18N = {
         "crumb_home": "الرئيسية",
         "foot_tag": "خدمات IT والشبكات والأمان للشركات والعيادات في فيينا ومحيطها. شخص واحد مسؤول، بشرح واضح.",
         "foot_cols": [
-            ("الخدمات", [("دعم IT", "#leistungen"), ("الشبكات والواي فاي", "#leistungen"), ("الأمان", "#leistungen"), ("فحص IT", "#it-check")]),
-            ("القطاعات", [("العيادات (بالألمانية)", "/arztpraxis/"), ("مكاتب المحاماة (بالألمانية)", "/kanzlei/")]),
+            ("الخدمات", [(services_ar.INDEX_AR[s][0], f"/ar/{s}/") for s in ["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"]]),
+            ("المزيد", [(services_ar.INDEX_AR[s][0], f"/ar/{s}/") for s in ["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]] + [("كل الخدمات", "/ar/leistungen/")]),
+            ("القطاعات", [("العيادات (بالألمانية)", "/arztpraxis/"), ("مكاتب المحاماة (بالألمانية)", "/kanzlei/"), ("الشركات (بالألمانية)", "/unternehmen/")]),
             ("قانوني", [("بيانات الشركة (Impressum)", "/impressum/"), ("الخصوصية (Datenschutz)", "/datenschutz/")]),
         ],
         "legal": "جميع الأسعار صافية دون ضريبة القيمة المضافة. المعلومات غير ملزمة.",
@@ -121,6 +122,15 @@ I18N = {
         "f_sending": "جارٍ الإرسال…", "f_invalid": "يرجى مراجعة الحقول المحددة.",
         "f_subject": "طلب استشارة أولى",
         "f_choose": "اختر",
+        "f_interest": "بماذا أنت مهتم؟",
+        "interests_general": [
+            ("erstgespraech", "استشارة أولى مجانية", "احجز استشارة أولى", ""),
+            ("it-check", "فحص IT بـ 99 € دون ضريبة", "اطلب فحص IT", ""),
+            ("betreuung", "دعم IT مستمر", "اطلب الدعم المستمر", ""),
+            ("website", "موقع إلكتروني", "اطلب مشروع موقع", "لا تحتاج إلى فحص IT لمشاريع المواقع والمتاجر."),
+            ("onlineshop", "متجر إلكتروني", "اطلب متجراً إلكترونياً", "لا تحتاج إلى فحص IT لمشاريع المواقع والمتاجر."),
+            ("beratung", "استشارة IT / موضوع آخر", "أرسل طلبك", ""),
+        ],
         "e_name": "يرجى إدخال اسمك.",
         "e_contact": "يرجى إدخال رقم هاتف أو بريد إلكتروني.",
         "e_contact_invalid": "يرجى التحقق من رقم الهاتف أو البريد الإلكتروني.",
@@ -323,6 +333,7 @@ def _render(meta, body):
     url = DOMAIN + meta["path"]
     sector = meta.get("sector", "home")
     body = body.replace("{{SERVICE_GROUPS}}", services.groups_html("h3"))
+    body = body.replace("{{SERVICE_GROUPS_AR}}", services_ar.groups_ar("h3"))
     body = body.replace("{{FORM}}", form_html(t, sector, meta.get("interest", "erstgespraech")))
     body = body.replace("{{CALL}}", call_buttons(t))
     body = body.replace("{{EMAIL}}", EMAIL)
@@ -399,8 +410,9 @@ def main():
         alt = f"de=/{slug}/" + (f",ar=/ar/{slug}/" if slug in services_ar.SERVICES_AR else "")
         pages.append(({"lang": "de", "path": f"/{slug}/", "title": s["title"], "description": s["description"], "sector": slug, "breadcrumb": html.unescape(s["name"]), "alt": alt, "interest": s.get("interest", "erstgespraech")}, services.render_fragment(slug)))
     for slug, s in services_ar.SERVICES_AR.items():
-        pages.append(({"lang": "ar", "path": f"/ar/{slug}/", "title": s["title"], "description": s["description"], "sector": f"ar-{slug}", "breadcrumb": s["name"], "alt": f"de=/{slug}/,ar=/ar/{slug}/"}, services.render_fragment(slug, "ar")))
-    pages.append(({"lang": "de", "path": "/leistungen/", "title": "Leistungen: IT, Netzwerk, Sicherheit und mehr in Wien | HORANiQ", "description": "Alle Leistungen von HORANiQ: IT-Betreuung, Microsoft 365, Netzwerk, Backup, Sicherheit, Smart Building, Websites und Wartung für Betriebe in Wien und Umgebung.", "sector": "leistungen", "breadcrumb": "Leistungen", "alt": "de=/leistungen/"}, services.render_hub()))
+        pages.append(({"lang": "ar", "path": f"/ar/{slug}/", "title": s["title"], "description": s["description"], "sector": f"ar-{slug}", "breadcrumb": s["name"], "alt": f"de=/{slug}/,ar=/ar/{slug}/", "interest": s.get("interest", "erstgespraech")}, services.render_fragment(slug, "ar")))
+    pages.append(({"lang": "ar", "path": "/ar/leistungen/", "title": "كل خدمات HORANiQ: IT وشبكات وأمان ومواقع في فيينا", "description": "كل الخدمات من جهة واحدة: دعم IT وMicrosoft 365 وشبكات ونسخ احتياطي وأمان وكاميرات ومواقع ومتاجر إلكترونية للشركات في فيينا ومحيطها.", "sector": "ar-leistungen", "breadcrumb": "كل الخدمات", "alt": "de=/leistungen/,ar=/ar/leistungen/"}, services_ar.render_hub_ar()))
+    pages.append(({"lang": "de", "path": "/leistungen/", "title": "Leistungen: IT, Netzwerk, Sicherheit und mehr in Wien | HORANiQ", "description": "Alle Leistungen von HORANiQ: IT-Betreuung, Microsoft 365, Netzwerk, Backup, Sicherheit, Smart Building, Websites und Wartung für Betriebe in Wien und Umgebung.", "sector": "leistungen", "breadcrumb": "Leistungen", "alt": "de=/leistungen/,ar=/ar/leistungen/"}, services.render_hub()))
     for meta, body in pages:
         out = OUT / meta["path"].strip("/") / "index.html"
         out.parent.mkdir(parents=True, exist_ok=True)

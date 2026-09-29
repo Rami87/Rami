@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://horaniq.at/ar/it-check/</loc></url>
+  <url><loc>https://horaniq.at/ar/website-shop/</loc></url>
   <url><loc>https://horaniq.at/ar/</loc></url>
   <url><loc>https://horaniq.at/arztpraxis/</loc></url>
   <url><loc>https://horaniq.at/</loc></url>
@@ -23,5 +25,12 @@
   <url><loc>https://horaniq.at/ar/backup/</loc></url>
   <url><loc>https://horaniq.at/ar/netzwerk/</loc></url>
   <url><loc>https://horaniq.at/ar/sicherheit/</loc></url>
+  <url><loc>https://horaniq.at/ar/wartung-reparatur/</loc></url>
+  <url><loc>https://horaniq.at/ar/smart-building/</loc></url>
+  <url><loc>https://horaniq.at/ar/crm-archivierung/</loc></url>
+  <url><loc>https://horaniq.at/ar/it-sicherheit/</loc></url>
+  <url><loc>https://horaniq.at/ar/it-beratung/</loc></url>
+  <url><loc>https://horaniq.at/ar/care/</loc></url>
+  <url><loc>https://horaniq.at/ar/leistungen/</loc></url>
   <url><loc>https://horaniq.at/leistungen/</loc></url>
 </urlset>

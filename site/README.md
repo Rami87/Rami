@@ -15,6 +15,7 @@ python3 -m http.server -d site/public 8000
 | `/netzwerk/`, `/unternehmen/` | `src/pages/netzwerk.html`, `src/pages/unternehmen.html` |
 | `/leistungen/` and service pages `/it-betreuung/`, `/microsoft-365/`, `/backup/`, `/it-sicherheit/`, `/sicherheit/` (Kameras, Alarm, Zutritt), `/wartung-reparatur/`, `/smart-building/`, `/it-beratung/`, `/crm-archivierung/`, `/care/` | generated from `services.py` (groups and names in `SVC`/`GROUPS`) |
 | `/website-shop/`, `/it-check/` | `src/pages/website-shop.html`, `src/pages/it-check.html` (hand-written) |
+| `/ar/<service>/`, `/ar/leistungen/` | Arabic versions of every service page: `services_ar.py` plus `src/pages/ar-website-shop.html`, `src/pages/ar-it-check.html` |
 | `/ar/` | `src/pages/ar.html` (RTL, Arabic) |
 | `/impressum/`, `/datenschutz/` | drafts, `noindex` |
 

@@ -17,7 +17,7 @@ SVC = {
     "it-sicherheit": ("IT-Sicherheit", "Firewall, Benutzerrechte, Zugriffsschutz und sichere Anmeldung mit MFA."),
     "sicherheit": ("Kameras, Alarm &amp; Zutritt", "Kameras, Alarmanlagen und Zutrittssysteme für Ihre Räume."),
     "smart-building": ("Smart Building", "Licht, Heizung und Beschattung praktisch steuern."),
-    "website-shop": ("Websites &amp; Onlineshops", "Professionelle Websites für Unternehmen und Onlineshops mit WordPress und WooCommerce."),
+    "website-shop": ("Websites &amp; Onlineshops", "Professionelle Websites für Unternehmen und Onlineshops mit WooCommerce oder Shopify."),
     "it-beratung": ("IT-Beratung &amp; Projektumsetzung", "Beraten, planen, umsetzen, dokumentieren und mit Anbietern abstimmen."),
     "it-check": ("HORANiQ IT-Check", "Ein Überblick über Ihre IT als verständlicher Bericht mit Prioritäten."),
     "care": ("HORANiQ Care", "Wartungspakete mit regelmäßigen Checks und Support."),
@@ -440,7 +440,7 @@ def render_fragment(slug, lang="de"):
         s, L, pills, generic = ar.SERVICES_AR[slug], ar.LABELS_AR, ar.PILL_AR, ar.GENERIC_FAQ_AR
         names = {k: v[0] for k, v in ar.INDEX_AR.items()}
         blurbs = {k: v[1] for k, v in ar.INDEX_AR.items()}
-        prefix, all_href = "/ar", "/ar/#leistungen"
+        prefix, all_href = "/ar", "/ar/leistungen/"
     else:
         s, L, pills, generic = SERVICES[slug], LABELS_DE, PILL, GENERIC_FAQ
         names = {sl: n for _, sl, n, _ in INDEX}
@@ -547,7 +547,7 @@ def render_fragment(slug, lang="de"):
 '''
 
 
-WEBSITE_TEXT = "Professionelle Websites für Unternehmen und Onlineshops mit WordPress und WooCommerce. Klar gestaltet, mobil nutzbar und auf Ihre Angebote und Kontaktanfragen ausgerichtet."
+WEBSITE_TEXT = "Professionelle Websites für Unternehmen und Onlineshops mit WooCommerce oder Shopify. Klar gestaltet, mobil nutzbar und auf Ihre Angebote und Kontaktanfragen ausgerichtet."
 
 
 def feature_html(level="h3"):
@@ -556,7 +556,7 @@ def feature_html(level="h3"):
   <div>
     <{level} class="feature-title">Websites &amp; Onlineshops</{level}>
     <p>{WEBSITE_TEXT}</p>
-    <ul class="feature-points"><li>Unternehmenswebsites</li><li>Onlineshops mit WooCommerce</li><li>Betreuung nach dem Start nach Vereinbarung</li></ul>
+    <ul class="feature-points"><li>Unternehmenswebsites</li><li>Onlineshops mit WooCommerce oder Shopify</li><li>Betreuung nach dem Start nach Vereinbarung</li></ul>
   </div>
   <a class="btn btn-primary" href="/website-shop/" data-track="feature-websites">Websites &amp; Onlineshops ansehen</a>
 </div>'''

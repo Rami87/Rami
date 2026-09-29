@@ -35,3 +35,11 @@ Legende: Menü = Untermenü Leistungen (alle deutschen Seiten), Footer = Fußzei
 - Kameras, Alarm und Zutritt sowie Smart Building: unterstützte Systeme und Marken.
 - IT-Beratung & Projektumsetzung: ob Projektsteuerung mit Dritten (Provider, Softwarehersteller) in dieser Form angeboten wird.
 - Referenzprojekte, Bilder von Arbeiten, Kundenstimmen: keine vorhanden, keine veröffentlicht.
+
+## Arabische Seiten (Stand jetzt)
+
+Alle 13 Leistungen haben eine arabische Seite unter `/ar/<leistung>/` (Website: `/ar/website-shop/`, IT-Check: `/ar/it-check/`), dazu die Übersicht `/ar/leistungen/`. Die arabischen und deutschen Seiten verweisen über hreflang und den Sprachumschalter aufeinander. Verträge und Rechnungen bleiben auf Deutsch; das steht auf den Seiten.
+
+## Plattformangaben
+
+Auf der Website werden nur noch **WooCommerce und Shopify** genannt, und nur bei Onlineshops. Websites nennen keine Plattform. WordPress kommt nirgends mehr vor. Shopify stammt aus Ihrer Anweisung und steht nicht im Brand-Brief; bitte bestätigen, dass Shopify-Shops tatsächlich angeboten werden.
