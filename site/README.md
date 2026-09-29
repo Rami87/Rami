@@ -13,6 +13,7 @@ python3 -m http.server -d site/public 8000
 | `/arztpraxis/` | `src/pages/arztpraxis.html` |
 | `/kanzlei/` | `src/pages/kanzlei.html` |
 | `/netzwerk/`, `/unternehmen/` | `src/pages/netzwerk.html`, `src/pages/unternehmen.html` |
+| `/leistungen/` and one page per service (`/it-betreuung/`, `/microsoft-365/`, `/backup/`, `/sicherheit/`, `/wartung-reparatur/`, `/smart-building/`, `/website-shop/`, `/crm-archivierung/`, `/care/`) | generated from `services.py` |
 | `/ar/` | `src/pages/ar.html` (RTL, Arabic) |
 | `/impressum/`, `/datenschutz/` | drafts, `noindex` |
 

@@ -13,7 +13,11 @@ import html
 import json
 import re
 import shutil
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+import services
 
 ROOT = Path(__file__).parent
 SRC = ROOT / "src" / "pages"
@@ -33,7 +37,7 @@ I18N = {
         "dir": "ltr",
         "skip": "Zum Inhalt springen",
         "menu": "Menü",
-        "nav": [("Leistungen", "/#leistungen"), ("Für Praxen", "/arztpraxis/"), ("Für Kanzleien", "/kanzlei/"), ("IT-Check", "/#it-check"), ("Kontakt", "/#kontakt")],
+        "nav": [("Leistungen", "/leistungen/"), ("Für Praxen", "/arztpraxis/"), ("Für Kanzleien", "/kanzlei/"), ("IT-Check", "/#it-check"), ("Kontakt", "/#kontakt")],
         "cta": "Erstgespräch",
         "lang_label": ("العربية", "/ar/", "ar"),
         "call": "Anrufen",
@@ -42,7 +46,7 @@ I18N = {
         "crumb_home": "Start",
         "foot_tag": "IT, Netzwerk und Sicherheit für Betriebe in Wien und Umgebung. Persönlich, verständlich und aus einer Hand.",
         "foot_cols": [
-            ("Leistungen", [("IT-Betreuung", "/#leistungen"), ("Netzwerk und WLAN", "/netzwerk/"), ("Sicherheit", "/#leistungen"), ("IT-Check", "/#it-check")]),
+            ("Leistungen", [("IT-Betreuung", "/it-betreuung/"), ("Netzwerk und WLAN", "/netzwerk/"), ("Sicherheit", "/sicherheit/"), ("Alle Leistungen", "/leistungen/")]),
             ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Kanzleien", "/kanzlei/"), ("Büros und Betriebe", "/unternehmen/"), ("Deutsch und Arabisch", "/ar/")]),
             ("Rechtliches", [("Impressum", "/impressum/"), ("Datenschutz", "/datenschutz/")]),
         ],
@@ -269,8 +273,11 @@ def main():
         shutil.rmtree(OUT)
     shutil.copytree(ROOT / "assets", OUT / "assets")
     sitemap = []
-    for f in sorted(SRC.glob("*.html")):
-        meta, body = parse(f)
+    pages = [parse(f) for f in sorted(SRC.glob("*.html"))]
+    for slug, s in services.SERVICES.items():
+        pages.append(({"lang": "de", "path": f"/{slug}/", "title": s["title"], "description": s["description"], "sector": slug, "breadcrumb": s["name"], "alt": f"de=/{slug}/"}, services.render_fragment(slug)))
+    pages.append(({"lang": "de", "path": "/leistungen/", "title": "Leistungen: IT, Netzwerk, Sicherheit und mehr in Wien | HORANiQ", "description": "Alle Leistungen von HORANiQ: IT-Betreuung, Microsoft 365, Netzwerk, Backup, Sicherheit, Smart Building, Websites und Wartung für Betriebe in Wien und Umgebung.", "sector": "leistungen", "breadcrumb": "Leistungen", "alt": "de=/leistungen/"}, services.render_hub()))
+    for meta, body in pages:
         out = OUT / meta["path"].strip("/") / "index.html"
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(render(meta, body), encoding="utf-8")
