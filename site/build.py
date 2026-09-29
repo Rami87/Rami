@@ -110,6 +110,7 @@ I18N = {
             ("الخدمات", [(services_ar.INDEX_AR[s][0], f"/ar/{s}/") for s in ["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"]]),
             ("المزيد", [(services_ar.INDEX_AR[s][0], f"/ar/{s}/") for s in ["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]] + [("كل الخدمات", "/ar/leistungen/")]),
             ("القطاعات", [("العيادات (بالألمانية)", "/arztpraxis/"), ("المكاتب ومكاتب المحاماة والشركات (بالألمانية)", "/unternehmen/")]),
+            ("الشركة", [("من نحن", "/ar/ueber-uns/"), ("الأسعار", "/ar/preise/")]),
             ("قانوني", [("بيانات الشركة (Impressum)", "/impressum/"), ("الخصوصية (Datenschutz)", "/datenschutz/")]),
         ],
         "legal": "جميع الأسعار صافية دون ضريبة القيمة المضافة. المعلومات غير ملزمة.",
