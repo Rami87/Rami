@@ -1,0 +1,12 @@
+{
+  "name": "Rami Horani",
+  "handle": "horaniq.at",
+  "subtitle": "IT-Betreuung Wien",
+  "profile_photo": "site/assets/photos/rami.webp",
+  "accent_color": "#33A1C2",
+  "secondary_color": "#48B78C",
+  "navy": "#0F2E40",
+  "initials": "RH",
+  "default_style": "dark",
+  "setup_complete": true
+}
