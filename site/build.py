@@ -30,11 +30,11 @@ OUT = ROOT / "public"
 # ---- Configuration: fill these in before going live -------------------------
 DOMAIN = "https://horaniq.at"
 EMAIL = "rami@horaniq.at"
-PHONE = os.environ.get("PHONE", "")            # e.g. "+43 660 1234567". Empty hides every call button.
-WHATSAPP = os.environ.get("WHATSAPP", "")         # digits only with country code, e.g. "436601234567". Empty hides it.
+PHONE = (os.environ.get("PHONE") or "+43 676 780 7247")            # e.g. "+43 660 1234567". Empty hides every call button.
+WHATSAPP = (os.environ.get("WHATSAPP") or "436767807247")         # digits only with country code, e.g. "436601234567". Empty hides it.
 ENABLE_EN = os.environ.get("ENABLE_EN") == "1"   # English version (/en/) is kept in the repo but switched off; set ENABLE_EN=1 to build it.
 PLAUSIBLE_DOMAIN = os.environ.get("PLAUSIBLE_DOMAIN", "")   # e.g. "horaniq.at". Cookieless analytics, off when empty and in preview builds.
-FORM_ENDPOINT = os.environ.get("FORM_ENDPOINT", "")    # e.g. a Formspree or own endpoint. Empty falls back to a prefilled e-mail.
+FORM_ENDPOINT = (os.environ.get("FORM_ENDPOINT") or "https://formspree.io/f/mjyklzyw")    # e.g. a Formspree or own endpoint. Empty falls back to a prefilled e-mail.
 SAME_AS = []          # public profile URLs (Google Business, LinkedIn) for JSON-LD
 
 # Preview builds (GitHub Pages under /repo-name/): PREVIEW=1 BASE_PATH=/Rami python3 site/build.py
@@ -53,7 +53,7 @@ I18N = {
         "sub_all": "Alle Leistungen ansehen",
         "call": "Anrufen",
         "whatsapp": "WhatsApp",
-        "mbar_cta": "Kostenloses Erstgespräch anfragen",
+        "mbar_cta": "Erstgespräch anfragen",
         "crumb_home": "Start",
         "foot_tag": "IT, Netzwerk und Sicherheit für Betriebe in Wien und Umgebung. Persönlich, verständlich und aus einer Hand.",
         "legal": "Alle Preise netto zuzüglich USt. Angaben ohne Gewähr.",
@@ -102,7 +102,7 @@ I18N = {
         "sub_all": "كل الخدمات",
         "call": "اتصل بنا",
         "whatsapp": "واتساب",
-        "mbar_cta": "احجز استشارة مجانية",
+        "mbar_cta": "احجز استشارة",
         "crumb_home": "الرئيسية",
         "foot_tag": "خدمات IT والشبكات والأمان للشركات والعيادات في فيينا ومحيطها. شخص واحد مسؤول، بشرح واضح.",
         "legal": "جميع الأسعار صافية دون ضريبة القيمة المضافة. المعلومات غير ملزمة.",
@@ -229,7 +229,7 @@ def foot_cols(code):
         (f["svc"], [link(x) for x in ["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"]]),
         (f["more"], [link(x) for x in ["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]] + [(f["all"], f"{pre}/leistungen/")]),
         (f["sectors"], [(f["praxis"], f"{pre}/arztpraxis/"), (f["biz"], f"{pre}/unternehmen/")] + langs),
-        (f["company"], [(f["about"], f"{pre}/ueber-uns/"), (f["prices"], f"{pre}/preise/"), (f["guides"], f"{pre}/ratgeber/"), (f["area"], f"{pre}/wien/"), (f["imp"], "/impressum/"), (f["ds"], "/datenschutz/")]),
+        (f["company"], [(f["about"], f"{pre}/ueber-uns/"), (f["guides"], f"{pre}/ratgeber/"), (f["area"], f"{pre}/wien/"), (f["imp"], "/impressum/"), (f["ds"], "/datenschutz/")]),
     ]
 
 
@@ -247,7 +247,7 @@ def parse(path):
 def call_buttons(t, cls="btn btn-ghost", track="call"):
     out = ""
     if PHONE:
-        out += f'<a class="{cls}" href="tel:{re.sub(r"[^+0-9]", "", PHONE)}" data-track="{track}">{t["call"]} {html.escape(PHONE)}</a>'
+        out += f'<a class="{cls}" href="tel:{re.sub(r"[^+0-9]", "", PHONE)}" data-track="{track}">{t["call"]}{"" if track.startswith("mbar") else " " + html.escape(PHONE)}</a>'
     return out
 
 
@@ -524,7 +524,7 @@ def _render(meta, body):
 
 
 def llms_txt(paths):
-    names = {"/": "Startseite", "/leistungen/": "Alle Leistungen", "/arztpraxis/": "IT für Arztpraxen", "/unternehmen/": "IT für Büros und Betriebe", "/preise/": "Preise", "/ueber-uns/": "Über uns", "/ratgeber/": "Ratgeber", "/wien/": "Einsatzgebiet Wien", "/ratgeber/it-sicherheit-arztpraxis/": "Checkliste IT-Sicherheit in der Arztpraxis", "/ratgeber/backup-testen/": "Backup testen in fünf Schritten", "/ratgeber/microsoft-365-mfa/": "Microsoft 365 absichern mit MFA"}
+    names = {"/": "Startseite", "/leistungen/": "Alle Leistungen", "/arztpraxis/": "IT für Arztpraxen", "/unternehmen/": "IT für Büros und Betriebe", "/ueber-uns/": "Über uns", "/ratgeber/": "Ratgeber", "/wien/": "Einsatzgebiet Wien", "/ratgeber/it-sicherheit-arztpraxis/": "Checkliste IT-Sicherheit in der Arztpraxis", "/ratgeber/backup-testen/": "Backup testen in fünf Schritten", "/ratgeber/microsoft-365-mfa/": "Microsoft 365 absichern mit MFA"}
     lines = ["# HORANiQ", "", "> IT-Betreuung, Netzwerk und Sicherheit für Arztpraxen, Büros und Betriebe in Wien und Umgebung. Persönlicher Ansprechpartner, Beratung auf Deutsch und Arabisch. Gründer: Rami Horani.", "", "## Seiten (Deutsch)"]
     for p in paths:
         if p.startswith(("/ar/", "/en/")):
