@@ -20,6 +20,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 import services
 import services_ar
+import services_en
 import icons
 
 ROOT = Path(__file__).parent
@@ -47,17 +48,13 @@ I18N = {
         "menu": "Menü",
         "nav": [("Leistungen", "/leistungen/"), ("Für Praxen", "/arztpraxis/"), ("Für Büros", "/unternehmen/"), ("IT-Check", "/#it-check"), ("Kontakt", "/#kontakt")],
         "cta": "Kostenloses Erstgespräch anfragen",
-        "lang_label": ("العربية", "/ar/", "ar"),
+        "sub_sr": "Untermenü Leistungen",
+        "sub_all": "Alle Leistungen ansehen",
         "call": "Anrufen",
         "whatsapp": "WhatsApp",
         "mbar_cta": "Kostenloses Erstgespräch anfragen",
         "crumb_home": "Start",
         "foot_tag": "IT, Netzwerk und Sicherheit für Betriebe in Wien und Umgebung. Persönlich, verständlich und aus einer Hand.",
-        "foot_cols": [
-            ("Leistungen", [("IT-Betreuung", "/it-betreuung/"), ("Netzwerk und WLAN", "/netzwerk/"), ("Sicherheit", "/sicherheit/"), ("Alle Leistungen", "/leistungen/")]),
-            ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Büros und Betriebe", "/unternehmen/"), ("Deutsch und Arabisch", "/ar/")]),
-            ("Rechtliches", [("Impressum", "/impressum/"), ("Datenschutz", "/datenschutz/")]),
-        ],
         "legal": "Alle Preise netto zuzüglich USt. Angaben ohne Gewähr.",
         "f_name": "Name", "f_contact": "Telefon oder E-Mail", "f_contact_hint": "Wie erreichen wir Sie am besten?",
         "f_type": "Ihr Betrieb", "f_msg": "Worum geht es? (optional)",
@@ -98,21 +95,15 @@ I18N = {
         "dir": "rtl",
         "skip": "انتقل إلى المحتوى",
         "menu": "القائمة",
-        "nav": [("الخدمات", "/ar/leistungen/"), ("فحص IT", "#it-check"), ("كيف نعمل", "#ablauf"), ("أسئلة شائعة", "#faq"), ("تواصل", "#kontakt")],
+        "nav": [("الخدمات", "/leistungen/"), ("للعيادات", "/arztpraxis/"), ("للمكاتب", "/unternehmen/"), ("فحص IT", "/#it-check"), ("تواصل", "/#kontakt")],
         "cta": "استشارة مجانية",
-        "lang_label": ("Deutsch", "/", "de"),
+        "sub_sr": "قائمة الخدمات الفرعية",
+        "sub_all": "كل الخدمات",
         "call": "اتصل بنا",
         "whatsapp": "واتساب",
         "mbar_cta": "احجز استشارة مجانية",
         "crumb_home": "الرئيسية",
         "foot_tag": "خدمات IT والشبكات والأمان للشركات والعيادات في فيينا ومحيطها. شخص واحد مسؤول، بشرح واضح.",
-        "foot_cols": [
-            ("الخدمات", [(services_ar.INDEX_AR[s][0], f"/ar/{s}/") for s in ["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"]]),
-            ("المزيد", [(services_ar.INDEX_AR[s][0], f"/ar/{s}/") for s in ["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]] + [("كل الخدمات", "/ar/leistungen/")]),
-            ("القطاعات", [("العيادات", "/ar/arztpraxis/"), ("المكاتب والشركات", "/ar/unternehmen/")]),
-            ("الشركة", [("من نحن", "/ar/ueber-uns/"), ("الأسعار", "/ar/preise/"), ("أدلة", "/ar/ratgeber/"), ("منطقة العمل", "/ar/wien/")]),
-            ("قانوني", [("بيانات الشركة (Impressum)", "/impressum/"), ("الخصوصية (Datenschutz)", "/datenschutz/")]),
-        ],
         "legal": "جميع الأسعار صافية دون ضريبة القيمة المضافة. المعلومات غير ملزمة.",
         "f_name": "الاسم", "f_contact": "الهاتف أو البريد الإلكتروني", "f_contact_hint": "كيف نتواصل معك بأفضل شكل؟",
         "f_type": "نوع عملك", "f_msg": "ما الموضوع؟ (اختياري)",
@@ -149,7 +140,96 @@ I18N = {
         "e_type": "يرجى اختيار أحد الخيارات.",
         "e_consent": "يرجى تأكيد قراءة سياسة الخصوصية.",
     },
+    "en": {
+        "dir": "ltr",
+        "skip": "Skip to content",
+        "menu": "Menu",
+        "nav": [("Services", "/leistungen/"), ("For practices", "/arztpraxis/"), ("For offices", "/unternehmen/"), ("IT check", "/#it-check"), ("Contact", "/#kontakt")],
+        "cta": "Request a free first call",
+        "call": "Call",
+        "whatsapp": "WhatsApp",
+        "mbar_cta": "Request a free first call",
+        "crumb_home": "Home",
+        "sub_sr": "Services submenu",
+        "sub_all": "See all services",
+        "foot_tag": "IT, network and security for businesses in Vienna and the surrounding area. Personal, understandable and from one source.",
+        "legal": "All prices net of VAT. Information without guarantee.",
+        "f_name": "Name", "f_contact": "Phone or email", "f_contact_hint": "How can we best reach you?",
+        "f_type": "Your business", "f_msg": "What is it about? (optional)",
+        "types": ["Medical practice", "Dental practice", "Therapy practice", "Lawyer", "Tax advisor or accountant", "Office", "Shop", "Workshop or warehouse", "Other"],
+        "f_consent": 'I have read the <a href="/datenschutz/">privacy policy</a> (in German) and agree that HORANiQ may contact me about my request.',
+        "f_submit": "Request a first call",
+        "f_ok": "Thank you for your request. We will get back to you using the contact details you provided.",
+        "f_err": "Your request could not be sent. Your entries are still there. Please try again or write to %s.",
+        "f_mailto": "Your email program has been opened. Please send the prepared message from there. If nothing opened, write to %s.",
+        "f_sending": "Sending…", "f_invalid": "Please check the highlighted fields.",
+        "f_subject": "Request first call",
+        "f_choose": "Please choose",
+        "f_interest": "What are you interested in?",
+        "f_praxis": "Your practice",
+        "types_praxis": ["Medical practice", "Dental practice", "Therapy practice", "Group practice", "Other medical facility"],
+        "interests_general": [
+            ("erstgespraech", "Free first call", "Request a first call", ""),
+            ("it-check", "IT check for €99 excl. VAT", "Request the IT check", ""),
+            ("betreuung", "Ongoing IT care", "Request care", ""),
+            ("website", "Website", "Request a website project", "You do not need an IT check for website and shop projects."),
+            ("onlineshop", "Online shop", "Request an online shop", "You do not need an IT check for website and shop projects."),
+            ("beratung", "IT consulting / other request", "Send request", ""),
+        ],
+        "interests_praxis": [
+            ("erstgespraech", "Free first call", "Request a first call", ""),
+            ("it-check", "IT check for €99 excl. VAT", "Request the IT check", ""),
+            ("betreuung", "Ongoing IT care", "Request care", ""),
+            ("praxiswebsite", "Practice website", "Request a practice website", "You do not need an IT check for a practice website."),
+        ],
+        "f_msg_notice": "Please do not send patient data or passwords through this form.",
+        "e_name": "Please enter your name.",
+        "e_contact": "Please enter a phone number or email address.",
+        "e_contact_invalid": "Please check your phone number or email address.",
+        "e_type": "Please choose an option.",
+        "e_consent": "Please confirm the privacy policy.",
+    },
 }
+
+HOME = {"de": "/", "en": "/en/", "ar": "/ar/"}
+PREFIX = {"de": "", "en": "/en", "ar": "/ar"}
+LANG_SHORT = {"de": ("DE", "Deutsch"), "en": ("EN", "English"), "ar": ("AR", "العربية")}
+OG_LOCALE = {"de": "de_AT", "en": "en_GB", "ar": "ar_AR"}
+SCHEMA_LANG = {"de": "de-AT", "en": "en", "ar": "ar"}
+
+
+def code_of(t):
+    return next(k for k, v in I18N.items() if v is t)
+
+
+def svc_data(code):
+    """(groups, {slug: (name, blurb)}) for a language."""
+    if code == "ar":
+        return services_ar.GROUPS_AR, services_ar.INDEX_AR
+    if code == "en":
+        return services_en.GROUPS_EN, services_en.INDEX_EN
+    return services.GROUPS, services.SVC
+
+
+FOOT = {
+    "de": dict(svc="Leistungen", more="Weitere Leistungen", all="Alle Leistungen", sectors="Branchen", praxis="Arztpraxen", biz="Büros und Betriebe", company="Unternehmen", about="Über uns", prices="Preise", guides="Ratgeber", area="Einsatzgebiet Wien", imp="Impressum", ds="Datenschutz", langs=[("English", "/en/"), ("العربية", "/ar/")]),
+    "en": dict(svc="Services", more="More services", all="All services", sectors="Sectors", praxis="Medical practices", biz="Offices and businesses", company="Company", about="About us", prices="Prices", guides="Guides", area="Service area Vienna", imp="Legal notice (German)", ds="Privacy policy (German)", langs=[("Deutsch", "/"), ("العربية", "/ar/")]),
+    "ar": dict(svc="الخدمات", more="المزيد", all="كل الخدمات", sectors="القطاعات", praxis="العيادات", biz="المكاتب والشركات", company="الشركة", about="من نحن", prices="الأسعار", guides="أدلة", area="منطقة العمل", imp="بيانات الشركة (Impressum)", ds="الخصوصية (Datenschutz)", langs=[("Deutsch", "/"), ("English", "/en/")]),
+}
+
+
+def foot_cols(code):
+    f, pre = FOOT[code], PREFIX[code]
+    names = svc_data(code)[1]
+    nm = lambda sl: names[sl][0]
+    link = lambda sl: (nm(sl), f"{pre}/{sl}/")
+    return [
+        (f["svc"], [link(x) for x in ["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"]]),
+        (f["more"], [link(x) for x in ["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]] + [(f["all"], f"{pre}/leistungen/")]),
+        (f["sectors"], [(f["praxis"], f"{pre}/arztpraxis/"), (f["biz"], f"{pre}/unternehmen/")] + f["langs"]),
+        (f["company"], [(f["about"], f"{pre}/ueber-uns/"), (f["prices"], f"{pre}/preise/"), (f["guides"], f"{pre}/ratgeber/"), (f["area"], f"{pre}/wien/"), (f["imp"], "/impressum/"), (f["ds"], "/datenschutz/")]),
+    ]
+
 
 
 def parse(path):
@@ -171,7 +251,7 @@ def call_buttons(t, cls="btn btn-ghost", track="call"):
 
 def form_html(t, sector, default_interest="erstgespraech"):
     """Shared contact form. The Arztpraxis page adds a request-type field and practice-specific options."""
-    praxis = sector in ("arztpraxis", "ar-arztpraxis")
+    praxis = sector in ("arztpraxis", "ar-arztpraxis", "en-arztpraxis")
     types = t["types_praxis"] if praxis else t["types"]
     label_type = t["f_praxis"] if praxis else t["f_type"]
     esc = html.escape
@@ -220,19 +300,22 @@ def icon_svg(slug, size=""):
 ICON_RE = re.compile(r"\{\{ICON:([a-z0-9-]+)(?::(sm|lg|xl))?\}\}")
 
 
-def services_menu_html(label, href, cur):
-    """Leistungen with a submenu that lists every service, grouped. The parent stays a normal link to /leistungen/."""
+def services_menu_html(t, label, href, cur):
+    """Services with a submenu that lists every service, grouped. The parent stays a normal link to the hub."""
+    code = code_of(t)
+    groups, names = svc_data(code)
+    pre = PREFIX[code]
     cols = ""
-    for name, _, slugs in services.GROUPS:
-        items = "".join(f'<li><a href="/{sl}/">{icon_svg(sl, "sm")}<span>{services.SVC[sl][0]}</span></a></li>' for sl in slugs)
+    for name, _, slugs in groups:
+        items = "".join(f'<li><a href="{pre}/{sl}/">{icon_svg(sl, "sm")}<span>{names[sl][0]}</span></a></li>' for sl in slugs)
         cols += f'<div class="sub-col"><p class="sub-h">{name}</p><ul>{items}</ul></div>'
     return (f'<div class="nav-item has-sub"><a href="{href}"{cur}>{label}</a>'
-            f'<button type="button" class="sub-toggle" aria-expanded="false" aria-controls="sub-leistungen"><span class="sr-only">Untermenü Leistungen</span></button>'
-            f'<div class="sub" id="sub-leistungen">{cols}<p class="sub-all"><a href="{href}">Alle Leistungen ansehen</a></p></div></div>')
+            f'<button type="button" class="sub-toggle" aria-expanded="false" aria-controls="sub-leistungen"><span class="sr-only">{t["sub_sr"]}</span></button>'
+            f'<div class="sub" id="sub-leistungen">{cols}<p class="sub-all"><a href="{href}">{t["sub_all"]}</a></p></div></div>')
 
 
 def logo_html(t, cls="logo"):
-    home = "/ar/" if t is I18N["ar"] else "/"
+    home = HOME[code_of(t)]
     return f'<a class="{cls}" href="{home}" aria-label="HORANiQ"><img src="/assets/img/horaniq-logo.webp" alt="HORANiQ" width="145" height="44"></a>'
 
 
@@ -247,21 +330,26 @@ def photo_html(m):
     return f'<img class="photo" src="/assets/photos/{name}.webp" alt="{html.escape(alt)}" width="{w}" height="{h}" loading="lazy" decoding="async">'
 
 
-def header_html(t, path, cta="#kontakt", switch=None, ids=()):
+def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
+    code = code_of(t)
+    pre = PREFIX[code]
     links = ""
-    for label, href in t["nav"]:
-        if t is I18N["ar"] and href.startswith("#") and href[1:] not in ids:
-            href = "/ar/" + href
-        if href.startswith("/#") and href[2:] in ids:
-            href = href[1:]  # target exists on this page: stay on the page
+    for label, h in t["nav"]:
+        if h.startswith("/#") and h[2:] in ids:
+            href = h[1:]  # target exists on this page: stay on the page
+        else:
+            href = pre + h
         cur = ' aria-current="page"' if href == path else ""
-        if t is I18N["de"] and href == "/leistungen/":
-            links += services_menu_html(label, href, cur)
+        if h == "/leistungen/":
+            links += services_menu_html(t, label, href, cur)
         else:
             links += f'<a href="{href}"{cur}>{label}</a>'
-    ll, lh, lc = t["lang_label"]
-    lh = switch or lh
-    links += f'<a class="lang" href="{lh}" hreflang="{lc}" lang="{lc}">{ll}</a>'
+    for oc in ("de", "en", "ar"):
+        if oc == code:
+            continue
+        short, full = LANG_SHORT[oc]
+        target = (pairs or {}).get(oc) or HOME[oc]
+        links += f'<a class="lang" href="{target}" hreflang="{oc}" lang="{oc}" aria-label="{full}" dir="ltr">{short}</a>'
     links += f'<a class="btn btn-primary btn-sm" href="{cta}" data-track="nav-cta" data-interest="erstgespraech">{t["cta"]}</a>'
     return f'''<a class="skip" href="#main">{t["skip"]}</a>
 <header class="site-header"><div class="wrap bar">
@@ -271,22 +359,18 @@ def header_html(t, path, cta="#kontakt", switch=None, ids=()):
 </div></header>'''
 
 
-def de_foot_cols():
-    def links(slugs):
-        return [(services.SVC[s][0], f"/{s}/") for s in slugs]
-    return [
-        ("Leistungen", links(["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"])),
-        ("Weitere Leistungen", links(["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]) + [("Alle Leistungen", "/leistungen/")]),
-        ("Branchen", [("Arztpraxen", "/arztpraxis/"), ("Büros und Betriebe", "/unternehmen/"), ("Deutsch und Arabisch", "/ar/")]),
-        ("Unternehmen", [("Über uns", "/ueber-uns/"), ("Preise", "/preise/"), ("Ratgeber", "/ratgeber/"), ("Einsatzgebiet Wien", "/wien/"), ("Impressum", "/impressum/"), ("Datenschutz", "/datenschutz/")]),
-    ]
+def lang_attr(h):
+    """hreflang/lang attributes for links that switch language."""
+    for code, home in HOME.items():
+        if h == home and code != "de" or (h == "/" and code == "de"):
+            return f' hreflang="{code}" lang="{code}"' + (' dir="rtl"' if code == "ar" else "")
+    return ""
 
 
 def footer_html(t):
     cols = ""
-    for title, items in (de_foot_cols() if t is I18N["de"] else t["foot_cols"]):
-        fix = lambda h: "/ar/" + h if (t is I18N["ar"] and h.startswith("#")) else h
-        cols += f"<div><h3>{title}</h3><ul>" + "".join(f'<li><a href="{fix(h)}">{l}</a></li>' for l, h in items) + "</ul></div>"
+    for title, items in foot_cols(code_of(t)):
+        cols += f"<div><h3>{title}</h3><ul>" + "".join(f'<li><a href="{h}"{lang_attr(h)}>{l}</a></li>' for l, h in items) + "</ul></div>"
     return f'''<footer class="site-footer"><div class="wrap">
   <div class="foot">
     <div>{logo_html(t)}<p>{t["foot_tag"]}</p><p><a href="mailto:{EMAIL}">{EMAIL}</a></p></div>
@@ -336,9 +420,9 @@ def schema_graph(meta, body, url, t):
     if meta["path"] == "/":
         graph.append({"@type": "WebSite", "@id": f"{DOMAIN}/#website", "url": f"{DOMAIN}/", "name": "HORANiQ", "inLanguage": "de-AT", "publisher": {"@id": f"{DOMAIN}/#business"}})
     if meta.get("robots", "index") == "index":
-        graph.append({"@type": "WebPage", "@id": url + "#page", "url": url, "name": meta["title"], "description": meta["description"], "inLanguage": meta["lang"] if meta["lang"] == "ar" else "de-AT", "isPartOf": {"@id": f"{DOMAIN}/#website"} if meta["path"] == "/" else {"@id": f"{DOMAIN}/#business"}, "about": {"@id": f"{DOMAIN}/#business"}})
+        graph.append({"@type": "WebPage", "@id": url + "#page", "url": url, "name": meta["title"], "description": meta["description"], "inLanguage": SCHEMA_LANG[meta["lang"]], "isPartOf": {"@id": f"{DOMAIN}/#website"} if meta["path"] == "/" else {"@id": f"{DOMAIN}/#business"}, "about": {"@id": f"{DOMAIN}/#business"}})
     if meta.get("breadcrumb"):
-        crumbs = [(t["crumb_home"], "/" if meta["lang"] == "de" else "/ar/")]
+        crumbs = [(t["crumb_home"], HOME[meta["lang"]])]
         crumbs.append((meta["breadcrumb"], meta["path"]))
         graph.append({"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": n, "item": DOMAIN + p} for i, (n, p) in enumerate(crumbs)]})
     faq = faq_schema(body)
@@ -365,6 +449,7 @@ def _render(meta, body):
     sector = meta.get("sector", "home")
     body = body.replace("{{SERVICE_GROUPS}}", services.groups_html("h3"))
     body = body.replace("{{SERVICE_GROUPS_AR}}", services_ar.groups_ar("h3"))
+    body = body.replace("{{SERVICE_GROUPS_EN}}", services_en.groups_en("h3"))
     body = ICON_RE.sub(lambda m: icon_svg(m.group(1), m.group(2) or ""), body)
     body = PHOTO_RE.sub(photo_html, body)
     body = body.replace("{{FORM}}", form_html(t, sector, meta.get("interest", "erstgespraech")))
@@ -380,20 +465,19 @@ def _render(meta, body):
         body = body.replace("{{WA_LINE}}", "")
 
     robots = meta.get("robots", "index")
-    cta = "#kontakt" if 'id="kontakt"' in body else ("/#kontakt" if meta["lang"] == "de" else "/ar/#kontakt")
+    cta = "#kontakt" if 'id="kontakt"' in body else HOME[meta["lang"]] + "#kontakt"
     alt = ""
-    switch = None
+    pairs = {}
     if meta.get("alt"):
         pairs = dict(p.split("=", 1) for p in meta["alt"].split(","))
-        switch = pairs.get("de" if meta["lang"] == "ar" else "ar")
         for code, p in pairs.items():
             alt += f'<link rel="alternate" hreflang="{code}" href="{DOMAIN}{p}">\n'
         alt += f'<link rel="alternate" hreflang="x-default" href="{DOMAIN}{pairs.get("de", "/")}">\n'
     crumbs = ""
     if meta.get("breadcrumb"):
-        home = "/" if meta["lang"] == "de" else "/ar/"
+        home = HOME[meta["lang"]]
         crumbs = f'<nav class="crumbs wrap" aria-label="Breadcrumb"><ol><li><a href="{home}">{t["crumb_home"]}</a></li><li aria-current="page">{html.escape(meta["breadcrumb"])}</li></ol></nav>'
-    og_locale = "ar_AR" if meta["lang"] == "ar" else "de_AT"
+    og_locale = OG_LOCALE[meta["lang"]]
     title = html.escape(meta["title"])
     desc = html.escape(meta["description"])
     analytics = ""
@@ -421,7 +505,7 @@ def _render(meta, body):
 </script>
 </head>
 <body>
-{header_html(t, meta["path"], cta, switch, set(re.findall(r'id="([^"]+)"', body)))}
+{header_html(t, meta["path"], cta, pairs, set(re.findall(r'id="([^"]+)"', body)))}
 <main id="main">
 {crumbs}
 {body}
@@ -438,11 +522,12 @@ def llms_txt(paths):
     names = {"/": "Startseite", "/leistungen/": "Alle Leistungen", "/arztpraxis/": "IT für Arztpraxen", "/unternehmen/": "IT für Büros und Betriebe", "/preise/": "Preise", "/ueber-uns/": "Über uns", "/ratgeber/": "Ratgeber", "/wien/": "Einsatzgebiet Wien", "/ratgeber/it-sicherheit-arztpraxis/": "Checkliste IT-Sicherheit in der Arztpraxis", "/ratgeber/backup-testen/": "Backup testen in fünf Schritten", "/ratgeber/microsoft-365-mfa/": "Microsoft 365 absichern mit MFA"}
     lines = ["# HORANiQ", "", "> IT-Betreuung, Netzwerk und Sicherheit für Arztpraxen, Büros und Betriebe in Wien und Umgebung. Persönlicher Ansprechpartner, Beratung auf Deutsch und Arabisch. Gründer: Rami Horani.", "", "## Seiten (Deutsch)"]
     for p in paths:
-        if p.startswith("/ar/"):
+        if p.startswith(("/ar/", "/en/")):
             continue
         slug = p.strip("/").split("/")[-1]
         label = names.get(p) or (services.SVC[slug][0] if slug in services.SVC else slug.replace("-", " ").title())
         lines.append(f"- [{html.unescape(re.sub(r'<[^>]+>', '', label))}]({DOMAIN}{p})")
+    lines += ["", "## English"] + [f"- [{p}]({DOMAIN}{p})" for p in paths if p.startswith("/en/")]
     lines += ["", "## Arabisch"] + [f"- [{p}]({DOMAIN}{p})" for p in paths if p.startswith("/ar/")] + [""]
     lines += [ "## Fakten", "- Einsatzgebiet: Wien und Umgebung, bis etwa eine Stunde Fahrzeit, Fernwartung darüber hinaus", "- Erstgespräch kostenlos; IT-Check €99 zzgl. USt., bei Auftrag angerechnet", "- Alle Preise netto"]
     return "\n".join(lines) + "\n"
@@ -461,12 +546,20 @@ def main():
     pages = [parse(f) for f in sorted(SRC.glob("*.html"))]
     import services_ar
     for slug, s in services.SERVICES.items():
-        alt = f"de=/{slug}/" + (f",ar=/ar/{slug}/" if slug in services_ar.SERVICES_AR else "")
+        alt = f"de=/{slug}/" + (f",en=/en/{slug}/" if slug in services_en.SERVICES_EN or slug == "netzwerk" else "") + (f",ar=/ar/{slug}/" if slug in services_ar.SERVICES_AR else "")
         pages.append(({"lang": "de", "path": f"/{slug}/", "title": s["title"], "description": s["description"], "sector": slug, "breadcrumb": html.unescape(s["name"]), "alt": alt, "interest": s.get("interest", "erstgespraech")}, services.render_fragment(slug)))
+    handwritten = {m["path"] for m, _ in pages}
     for slug, s in services_ar.SERVICES_AR.items():
-        pages.append(({"lang": "ar", "path": f"/ar/{slug}/", "title": s["title"], "description": s["description"], "sector": f"ar-{slug}", "breadcrumb": s["name"], "alt": f"de=/{slug}/,ar=/ar/{slug}/", "interest": s.get("interest", "erstgespraech")}, services.render_fragment(slug, "ar")))
-    pages.append(({"lang": "ar", "path": "/ar/leistungen/", "title": "كل خدمات HORANiQ: IT وشبكات وأمان ومواقع في فيينا", "description": "كل الخدمات من جهة واحدة: دعم IT وMicrosoft 365 وشبكات ونسخ احتياطي وأمان وكاميرات ومواقع ومتاجر إلكترونية للشركات في فيينا ومحيطها.", "sector": "ar-leistungen", "breadcrumb": "كل الخدمات", "alt": "de=/leistungen/,ar=/ar/leistungen/"}, services_ar.render_hub_ar()))
-    pages.append(({"lang": "de", "path": "/leistungen/", "title": "Leistungen: IT, Netzwerk, Sicherheit und mehr in Wien | HORANiQ", "description": "Alle Leistungen von HORANiQ: IT-Betreuung, Microsoft 365, Netzwerk, Backup, Sicherheit, Smart Building, Websites und Wartung für Betriebe in Wien und Umgebung.", "sector": "leistungen", "breadcrumb": "Leistungen", "alt": "de=/leistungen/,ar=/ar/leistungen/"}, services.render_hub()))
+        if f"/ar/{slug}/" in handwritten:
+            continue
+        pages.append(({"lang": "ar", "path": f"/ar/{slug}/", "title": s["title"], "description": s["description"], "sector": f"ar-{slug}", "breadcrumb": s["name"], "alt": f"de=/{slug}/,en=/en/{slug}/,ar=/ar/{slug}/", "interest": s.get("interest", "erstgespraech")}, services.render_fragment(slug, "ar")))
+    for slug, s_ in services_en.SERVICES_EN.items():
+        if f"/en/{slug}/" in handwritten:
+            continue
+        pages.append(({"lang": "en", "path": f"/en/{slug}/", "title": s_["title"], "description": s_["description"], "sector": f"en-{slug}", "breadcrumb": html.unescape(s_["name"]), "alt": f"de=/{slug}/,en=/en/{slug}/,ar=/ar/{slug}/", "interest": s_.get("interest", "erstgespraech")}, services.render_fragment(slug, "en")))
+    pages.append(({"lang": "en", "path": "/en/leistungen/", "title": "Services: IT, network, security and more in Vienna | HORANiQ", "description": "All HORANiQ services: IT support, Microsoft 365, network, backup, security, smart building, websites and maintenance for businesses in Vienna.", "sector": "en-leistungen", "breadcrumb": "Services", "alt": "de=/leistungen/,en=/en/leistungen/,ar=/ar/leistungen/"}, services_en.render_hub_en()))
+    pages.append(({"lang": "ar", "path": "/ar/leistungen/", "title": "كل خدمات HORANiQ: IT وشبكات وأمان ومواقع في فيينا", "description": "كل الخدمات من جهة واحدة: دعم IT وMicrosoft 365 وشبكات ونسخ احتياطي وأمان وكاميرات ومواقع ومتاجر إلكترونية للشركات في فيينا ومحيطها.", "sector": "ar-leistungen", "breadcrumb": "كل الخدمات", "alt": "de=/leistungen/,en=/en/leistungen/,ar=/ar/leistungen/"}, services_ar.render_hub_ar()))
+    pages.append(({"lang": "de", "path": "/leistungen/", "title": "Leistungen: IT, Netzwerk, Sicherheit und mehr in Wien | HORANiQ", "description": "Alle Leistungen von HORANiQ: IT-Betreuung, Microsoft 365, Netzwerk, Backup, Sicherheit, Smart Building, Websites und Wartung für Betriebe in Wien und Umgebung.", "sector": "leistungen", "breadcrumb": "Leistungen", "alt": "de=/leistungen/,en=/en/leistungen/,ar=/ar/leistungen/"}, services.render_hub()))
     for meta, body in pages:
         out = OUT / meta["path"].strip("/") / "index.html"
         out.parent.mkdir(parents=True, exist_ok=True)

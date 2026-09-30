@@ -37,7 +37,7 @@ INDEX = [(g, sl, SVC[sl][0], SVC[sl][1]) for g, _, sls in GROUPS for sl in sls]
 GENERIC_FAQ = [
     ("Was kostet das?", "Das hängt von Umfang, Geräten und gewünschter Reaktionszeit ab. Nach dem Erstgespräch erhalten Sie ein klares Angebot, mit Festpreis wo möglich. Alle Preise verstehen sich netto."),
     ("Wo sind Sie tätig?", "In Wien und Umgebung, bis etwa eine Stunde Fahrzeit. Vieles lässt sich zusätzlich per Fernwartung lösen."),
-    ("Sprechen Sie Arabisch?", 'Ja, wir betreuen Sie gern auf Deutsch und Arabisch. Verträge und Rechnungen erhalten Sie auf Deutsch. <a href="/ar/">Mehr auf Arabisch</a>.'),
+    ("Sprechen Sie Arabisch?", 'Ja, wir betreuen Sie gern auf Deutsch und Arabisch. Verträge und Rechnungen erhalten Sie auf Deutsch. <a href="/ar/">Mehr auf Arabisch</a> · <a href="/en/">English</a>.'),
 ]
 
 CHECK_NOTE = "Bei Auftrag für ein Projekt oder einen Wartungsvertrag wird der Betrag vollständig angerechnet. Das Erstgespräch ist kostenlos."
@@ -441,6 +441,12 @@ def render_fragment(slug, lang="de"):
         names = {k: v[0] for k, v in ar.INDEX_AR.items()}
         blurbs = {k: v[1] for k, v in ar.INDEX_AR.items()}
         prefix, all_href = "/ar", "/ar/leistungen/"
+    elif lang == "en":
+        import services_en as en
+        s, L, pills, generic = en.SERVICES_EN[slug], en.LABELS_EN, en.PILL_EN, en.GENERIC_FAQ_EN
+        names = {k: v[0] for k, v in en.INDEX_EN.items()}
+        blurbs = {k: v[1] for k, v in en.INDEX_EN.items()}
+        prefix, all_href = "/en", "/en/leistungen/"
     else:
         s, L, pills, generic = SERVICES[slug], LABELS_DE, PILL, GENERIC_FAQ
         names = {sl: n for _, sl, n, _ in INDEX}
@@ -597,7 +603,7 @@ def render_hub():
     <div class="rows">
       <div class="row quiet"><p class="row-h"><a href="/arztpraxis/">Arztpraxen</a></p><p>IT-Betreuung für Ordinationen, dazu Praxiswebsite auf Wunsch.</p></div>
       <div class="row quiet"><p class="row-h"><a href="/unternehmen/">Büros und Betriebe</a></p><p>Microsoft 365, Datensicherung, Netzwerk und Zugriffsrechte für Ihr Team.</p></div>
-      <div class="row quiet"><p class="row-h"><a href="/ar/">بالعربية</a></p><p>دعم IT للشركات والعيادات في فيينا، بالعربية والألمانية.</p></div>
+      <div class="row quiet"><p class="row-h"><a href="/ar/" hreflang="ar" lang="ar" dir="rtl">بالعربية</a></p><p>دعم IT للشركات والعيادات في فيينا، بالعربية والألمانية.</p></div>
     </div>
   </div>
 </section>

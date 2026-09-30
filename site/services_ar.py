@@ -97,6 +97,17 @@ def render_hub_ar():
   </div>
 </section>
 
+<section class="s">
+  <div class="wrap split">
+    <div class="split-head"><h2>لقطاعك</h2><p>الخدمات الأكثر أهمية لعملك أولاً.</p></div>
+    <div class="rows">
+      <div class="row quiet"><p class="row-h"><a href="/ar/arztpraxis/">العيادات</a></p><p>دعم IT للعيادات، مع موقع للعيادة عند الرغبة.</p></div>
+      <div class="row quiet"><p class="row-h"><a href="/ar/unternehmen/">المكاتب والشركات</a></p><p>Microsoft 365 والنسخ الاحتياطي والشبكة وصلاحيات الوصول لفريقك.</p></div>
+      <div class="row quiet"><p class="row-h"><a href="/" hreflang="de" lang="de" dir="ltr">Deutsch</a></p><p>IT-Betreuung für Praxen und Betriebe in Wien.</p></div>
+    </div>
+  </div>
+</section>
+
 <section class="s" id="kontakt">
   <div class="wrap contact">
     <div>
