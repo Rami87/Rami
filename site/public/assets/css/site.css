@@ -392,28 +392,27 @@ p { margin: 0 0 1em; max-width: 62ch; }
 @media print { .site-header, .site-footer, .mbar, #kontakt, .crumbs { display: none !important; } }
 
 
-/* Contact cards (contact sections) */
-.contact-direct { gap: 12px; max-width: 460px; }
-.cc { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "ico txt" "ico hint"; column-gap: 14px; align-items: center; padding: 14px 16px; min-height: 64px; background: var(--white); border: 1px solid var(--line); border-radius: 12px; color: var(--ink); text-decoration: none; font-weight: 400; transition: border-color .18s, box-shadow .18s, transform .18s; }
-.cc:hover { border-color: var(--teal); box-shadow: var(--shadow); }
-.cc:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
-.cc-ico { grid-area: ico; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--teal-tint); color: var(--teal-deep); }
-.cc-wa .cc-ico, .cc-whatsapp .cc-ico { background: #e3f5ea; color: #157a45; }
-.cc-txt { grid-area: txt; display: grid; }
-.cc-label { font-size: .82rem; color: var(--ink-soft); }
-.cc-value { font-weight: 650; font-size: 1.08rem; color: var(--ink); overflow-wrap: anywhere; text-align: start; }
-.cc-hint { grid-area: hint; font-size: .82rem; color: var(--teal-deep); font-weight: 600; }
-html[lang="ar"] .cc-value { unicode-bidi: plaintext; }
+/* Contact tiles (contact sections): brand icons instead of text and numbers */
+.contact-direct { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; max-width: 440px; margin-block-start: 28px; }
+.contact-direct a.ct { display: grid; justify-items: center; align-content: center; gap: 8px; min-height: 132px; padding: 16px 10px 14px; background: var(--white); border: 1px solid var(--line); border-radius: 18px; color: var(--ink); text-decoration: none; font-weight: 650; font-size: .98rem; transition: border-color .18s, box-shadow .18s, transform .18s; }
+.contact-direct a.ct:hover { border-color: var(--teal); box-shadow: var(--shadow); transform: translateY(-2px); }
+.contact-direct a.ct:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+.contact-direct a.ct .ico-xl { width: 68px; height: 68px; }
+.ct-label { line-height: 1.2; }
+.ct-whatsapp { --ico-blue: #25a862; --ico-tint: rgba(37, 168, 98, 0.16); }
+@media (max-width: 420px) { .contact-direct { gap: 10px; } .contact-direct a.ct { min-height: 112px; padding-inline: 4px; } .contact-direct a.ct .ico-xl { width: 56px; height: 56px; } .ct-label { font-size: .88rem; } }
 
 /* Header icon buttons */
 .nav .nav-ico { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 50%; color: var(--teal-deep); margin-inline: 2px; }
-.nav .nav-ico-wa { color: #157a45; }
+.nav .nav-ico .ico { width: 28px; height: 28px; }
+.nav .nav-ico-wa { --ico-blue: #25a862; --ico-tint: rgba(37, 168, 98, 0.16); }
 .nav .nav-ico:hover { background: var(--teal-tint); border-color: var(--teal); }
 .nav-ico-t { display: none; }
 
 /* Mobile bar icon buttons */
 .btn-icon { flex: 0 0 52px !important; padding: 0 !important; }
-.btn-wa { color: #157a45; border-color: #9fd3b4; }
+.btn-icon .ico { width: 32px; height: 32px; }
+.btn-wa { --ico-blue: #25a862; --ico-tint: rgba(37, 168, 98, 0.16); border-color: #9fd3b4; }
 
 .foot-contact { line-height: 1.7; }
 @media (max-width: 1240px) {
@@ -421,6 +420,6 @@ html[lang="ar"] .cc-value { unicode-bidi: plaintext; }
   .nav-ico-t { display: inline; font-weight: 550; color: var(--ink); }
 }
 
-.contact-direct a.cc { font-weight: 400; color: var(--ink); }
 
-html[lang="ar"] .cc-value { text-align: right; unicode-bidi: normal; }
+
+

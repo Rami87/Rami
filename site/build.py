@@ -277,18 +277,19 @@ def wa_url(t):
     return f"https://wa.me/{WHATSAPP}?text={urllib.parse.quote(t['wa_text'])}"
 
 
+KICON = {"phone": "kontakt-telefon", "whatsapp": "kontakt-whatsapp", "mail": "kontakt-mail"}
+
+
 def contact_card(kind, t, track):
-    """One tappable contact row: icon, label, value. Numbers and addresses stay left-to-right in RTL pages."""
+    """Icon tile in the HORANiQ icon style. The number/address stays in the accessible name and the tooltip."""
     if kind == "phone":
-        href, extra, value, label, hint = tel_url(), "", html.escape(PHONE), t["l_phone"], t["h_phone"]
+        href, extra, value, label = tel_url(), "", PHONE, t["call"]
     elif kind == "whatsapp":
-        href, extra, value, label, hint = wa_url(t), ' target="_blank" rel="noopener"', html.escape(PHONE), t["l_wa"], t["h_wa"]
+        href, extra, value, label = wa_url(t), ' target="_blank" rel="noopener"', PHONE, t["whatsapp"]
     else:
-        href, extra, value, label, hint = f"mailto:{EMAIL}", "", EMAIL, t["l_mail"], t["h_mail"]
-    return (f'<a class="cc cc-{kind}" href="{href}"{extra} data-track="{track}">'
-            f'<span class="cc-ico">{ui_icon(kind)}</span>'
-            f'<span class="cc-txt"><span class="cc-label">{label}</span><span class="cc-value" dir="ltr">{value}</span></span>'
-            f'<span class="cc-hint">{hint}</span></a>')
+        href, extra, value, label = f"mailto:{EMAIL}", "", EMAIL, t["l_mail"]
+    return (f'<a class="ct ct-{kind}" href="{href}"{extra} data-track="{track}" title="{html.escape(value)}" aria-label="{label}: {html.escape(value)}">'
+            f'{icon_svg(KICON[kind], "xl")}<span class="ct-label">{label}</span></a>')
 
 
 def form_html(t, sector, default_interest="erstgespraech"):
@@ -387,9 +388,9 @@ def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
         else:
             links += f'<a href="{href}"{cur}>{label}</a>'
     if PHONE:
-        links += f'<a class="nav-ico" href="{tel_url()}" data-track="nav-call" aria-label="{t["call"]} {html.escape(PHONE)}" title="{html.escape(PHONE)}">{ui_icon("phone")}<span class="nav-ico-t">{t["call"]}</span></a>'
+        links += f'<a class="nav-ico" href="{tel_url()}" data-track="nav-call" aria-label="{t["call"]} {html.escape(PHONE)}" title="{html.escape(PHONE)}">{icon_svg("kontakt-telefon", "sm")}<span class="nav-ico-t">{t["call"]}</span></a>'
     if WHATSAPP:
-        links += f'<a class="nav-ico nav-ico-wa" href="{wa_url(t)}" target="_blank" rel="noopener" data-track="nav-whatsapp" aria-label="{t["whatsapp"]}">{ui_icon("whatsapp")}<span class="nav-ico-t">{t["whatsapp"]}</span></a>'
+        links += f'<a class="nav-ico nav-ico-wa" href="{wa_url(t)}" target="_blank" rel="noopener" data-track="nav-whatsapp" aria-label="{t["whatsapp"]}">{icon_svg("kontakt-whatsapp", "sm")}<span class="nav-ico-t">{t["whatsapp"]}</span></a>'
     for oc in ("de", "en", "ar"):
         if oc == code or (oc == "en" and not ENABLE_EN):
             continue
@@ -441,9 +442,9 @@ def footer_html(t):
 def mbar_html(t, cta="#kontakt"):
     btns = ""
     if PHONE:
-        btns += f'<a class="btn btn-ghost btn-icon" href="{tel_url()}" data-track="mbar-call" aria-label="{t["call"]} {html.escape(PHONE)}">{ui_icon("phone")}</a>'
+        btns += f'<a class="btn btn-ghost btn-icon" href="{tel_url()}" data-track="mbar-call" aria-label="{t["call"]} {html.escape(PHONE)}">{icon_svg("kontakt-telefon", "sm")}</a>'
     if WHATSAPP:
-        btns += f'<a class="btn btn-ghost btn-icon btn-wa" href="{wa_url(t)}" target="_blank" rel="noopener" data-track="mbar-whatsapp" aria-label="{t["whatsapp"]}">{ui_icon("whatsapp")}</a>'
+        btns += f'<a class="btn btn-ghost btn-icon btn-wa" href="{wa_url(t)}" target="_blank" rel="noopener" data-track="mbar-whatsapp" aria-label="{t["whatsapp"]}">{icon_svg("kontakt-whatsapp", "sm")}</a>'
     btns += f'<a class="btn btn-primary" href="{cta}" data-track="mbar-cta" data-interest="erstgespraech">{t["mbar_cta"]}</a>'
     return f'<div class="mbar">{btns}</div>'
 

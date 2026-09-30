@@ -117,6 +117,22 @@ ICONS = {
 <path d="M20 8v10M44 8v10" fill="none"/>
 <circle cx="32" cy="41" r="10" fill="{BT}" stroke="none"/>
 <path d="M26 41l4.500 4.500L39 36.500" fill="none" stroke="{G}" stroke-width="3.600"/>''',
+    # Kontakt: telephone handset with signal arcs
+    "kontakt-telefon": '''
+<path d="M15 9h9l5 12-7 4.500c3.500 7 8 11.500 15 15l4.500-7 12 5v9c0 3-2.500 5.500-5.500 5.500C29 53 11 35 11 14.500 11 11.500 13 9 15 9z" fill="{BT}"/>
+<path d="M39 14a11 11 0 0 1 11 11" fill="none" stroke="{B}"/>
+<path d="M39 5a20 20 0 0 1 20 20" fill="none" stroke="{B}"/>''',
+
+    # Kontakt: chat bubble with handset (WhatsApp)
+    "kontakt-whatsapp": '''
+<path d="M32 7a24 24 0 1 1-11.500 45.200L8 56l4-11.800A24 24 0 0 1 32 7z" fill="{BT}"/>
+<path d="M23.500 22c0 9.500 7 17 16.500 17l3.500-3.500-5.500-3.500-3 2.500c-3.500-1.500-5.500-3.500-7-7l2.500-3-3.500-5.500z" fill="{B}" stroke="none"/>''',
+
+    # Kontakt: envelope with new-mail dot
+    "kontakt-mail": '''
+<rect x="7" y="15" width="50" height="36" rx="5" fill="{BT}"/>
+<path d="M9 19l23 18 23-18" fill="none"/>
+<circle cx="53" cy="15" r="6" fill="{B}" stroke="{W}" stroke-width="2.500"/>''',
 }
 
 NAMES = {
@@ -124,6 +140,7 @@ NAMES = {
     "crm-archivierung": "CRM und digitale Ablage", "netzwerk": "Netzwerk & WLAN", "backup": "Backup, NAS & Daten",
     "it-sicherheit": "IT-Sicherheit", "sicherheit": "Kameras, Alarm & Zutritt", "smart-building": "Smart Building",
     "website-shop": "Websites & Onlineshops", "it-beratung": "IT-Beratung & Projektumsetzung", "it-check": "HORANiQ IT-Check", "care": "HORANiQ Care",
+    "kontakt-telefon": "Telefon", "kontakt-whatsapp": "WhatsApp", "kontakt-mail": "E-Mail",
 }
 
 FILES = dict(S="#0F2E40", B="#33A1C2", BT="rgba(51,161,194,0.18)", G="#2FA672", A="#E0A02C", R="#C8443B", W="#FFFFFF")
