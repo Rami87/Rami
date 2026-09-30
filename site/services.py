@@ -37,7 +37,7 @@ INDEX = [(g, sl, SVC[sl][0], SVC[sl][1]) for g, _, sls in GROUPS for sl in sls]
 GENERIC_FAQ = [
     ("Was kostet das?", "Das hängt von Umfang, Geräten und gewünschter Reaktionszeit ab. Nach dem Erstgespräch erhalten Sie ein klares Angebot, mit Festpreis wo möglich. Alle Preise verstehen sich netto."),
     ("Wo sind Sie tätig?", "In Wien und Umgebung, bis etwa eine Stunde Fahrzeit. Vieles lässt sich zusätzlich per Fernwartung lösen."),
-    ("Sprechen Sie Arabisch?", 'Ja, wir betreuen Sie gern auf Deutsch und Arabisch. Verträge und Rechnungen erhalten Sie auf Deutsch. <a href="/ar/">Mehr auf Arabisch</a> · <a href="/en/">English</a>.'),
+    ("Sprechen Sie Arabisch?", 'Ja, wir betreuen Sie gern auf Deutsch und Arabisch. Verträge und Rechnungen erhalten Sie auf Deutsch. <a href="/ar/">Mehr auf Arabisch</a>.'),
 ]
 
 CHECK_NOTE = "Bei Auftrag für ein Projekt oder einen Wartungsvertrag wird der Betrag vollständig angerechnet. Das Erstgespräch ist kostenlos."

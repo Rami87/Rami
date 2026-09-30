@@ -32,6 +32,7 @@ DOMAIN = "https://horaniq.at"
 EMAIL = "rami@horaniq.at"
 PHONE = os.environ.get("PHONE", "")            # e.g. "+43 660 1234567". Empty hides every call button.
 WHATSAPP = os.environ.get("WHATSAPP", "")         # digits only with country code, e.g. "436601234567". Empty hides it.
+ENABLE_EN = os.environ.get("ENABLE_EN") == "1"   # English version (/en/) is kept in the repo but switched off; set ENABLE_EN=1 to build it.
 PLAUSIBLE_DOMAIN = os.environ.get("PLAUSIBLE_DOMAIN", "")   # e.g. "horaniq.at". Cookieless analytics, off when empty and in preview builds.
 FORM_ENDPOINT = os.environ.get("FORM_ENDPOINT", "")    # e.g. a Formspree or own endpoint. Empty falls back to a prefilled e-mail.
 SAME_AS = []          # public profile URLs (Google Business, LinkedIn) for JSON-LD
@@ -220,13 +221,14 @@ FOOT = {
 
 def foot_cols(code):
     f, pre = FOOT[code], PREFIX[code]
+    langs = [x for x in f["langs"] if ENABLE_EN or x[1] != "/en/"]
     names = svc_data(code)[1]
     nm = lambda sl: names[sl][0]
     link = lambda sl: (nm(sl), f"{pre}/{sl}/")
     return [
         (f["svc"], [link(x) for x in ["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"]]),
         (f["more"], [link(x) for x in ["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]] + [(f["all"], f"{pre}/leistungen/")]),
-        (f["sectors"], [(f["praxis"], f"{pre}/arztpraxis/"), (f["biz"], f"{pre}/unternehmen/")] + f["langs"]),
+        (f["sectors"], [(f["praxis"], f"{pre}/arztpraxis/"), (f["biz"], f"{pre}/unternehmen/")] + langs),
         (f["company"], [(f["about"], f"{pre}/ueber-uns/"), (f["prices"], f"{pre}/preise/"), (f["guides"], f"{pre}/ratgeber/"), (f["area"], f"{pre}/wien/"), (f["imp"], "/impressum/"), (f["ds"], "/datenschutz/")]),
     ]
 
@@ -345,11 +347,13 @@ def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
         else:
             links += f'<a href="{href}"{cur}>{label}</a>'
     for oc in ("de", "en", "ar"):
-        if oc == code:
+        if oc == code or (oc == "en" and not ENABLE_EN):
             continue
         short, full = LANG_SHORT[oc]
         target = (pairs or {}).get(oc) or HOME[oc]
-        links += f'<a class="lang" href="{target}" hreflang="{oc}" lang="{oc}" aria-label="{full}" dir="ltr">{short}</a>'
+        extra = "" if ENABLE_EN else (' dir="rtl"' if oc == "ar" else "")
+        text = short if ENABLE_EN else full
+        links += f'<a class="lang" href="{target}" hreflang="{oc}" lang="{oc}" aria-label="{full}"{extra}>{text}</a>'
     links += f'<a class="btn btn-primary btn-sm" href="{cta}" data-track="nav-cta" data-interest="erstgespraech">{t["cta"]}</a>'
     return f'''<a class="skip" href="#main">{t["skip"]}</a>
 <header class="site-header"><div class="wrap bar">
@@ -470,6 +474,7 @@ def _render(meta, body):
     pairs = {}
     if meta.get("alt"):
         pairs = dict(p.split("=", 1) for p in meta["alt"].split(","))
+        pairs = {k: v for k, v in pairs.items() if ENABLE_EN or k != "en"}
         for code, p in pairs.items():
             alt += f'<link rel="alternate" hreflang="{code}" href="{DOMAIN}{p}">\n'
         alt += f'<link rel="alternate" hreflang="x-default" href="{DOMAIN}{pairs.get("de", "/")}">\n'
@@ -527,7 +532,8 @@ def llms_txt(paths):
         slug = p.strip("/").split("/")[-1]
         label = names.get(p) or (services.SVC[slug][0] if slug in services.SVC else slug.replace("-", " ").title())
         lines.append(f"- [{html.unescape(re.sub(r'<[^>]+>', '', label))}]({DOMAIN}{p})")
-    lines += ["", "## English"] + [f"- [{p}]({DOMAIN}{p})" for p in paths if p.startswith("/en/")]
+    if ENABLE_EN:
+        lines += ["", "## English"] + [f"- [{p}]({DOMAIN}{p})" for p in paths if p.startswith("/en/")]
     lines += ["", "## Arabisch"] + [f"- [{p}]({DOMAIN}{p})" for p in paths if p.startswith("/ar/")] + [""]
     lines += [ "## Fakten", "- Einsatzgebiet: Wien und Umgebung, bis etwa eine Stunde Fahrzeit, Fernwartung darüber hinaus", "- Erstgespräch kostenlos; IT-Check €99 zzgl. USt., bei Auftrag angerechnet", "- Alle Preise netto"]
     return "\n".join(lines) + "\n"
@@ -544,6 +550,7 @@ def main():
     shutil.copy(ROOT / "assets" / "favicon.ico", OUT / "favicon.ico")
     sitemap = []
     pages = [parse(f) for f in sorted(SRC.glob("*.html"))]
+    pages = [pg for pg in pages if ENABLE_EN or pg[0].get("lang") != "en"]
     import services_ar
     for slug, s in services.SERVICES.items():
         alt = f"de=/{slug}/" + (f",en=/en/{slug}/" if slug in services_en.SERVICES_EN or slug == "netzwerk" else "") + (f",ar=/ar/{slug}/" if slug in services_ar.SERVICES_AR else "")
@@ -553,11 +560,12 @@ def main():
         if f"/ar/{slug}/" in handwritten:
             continue
         pages.append(({"lang": "ar", "path": f"/ar/{slug}/", "title": s["title"], "description": s["description"], "sector": f"ar-{slug}", "breadcrumb": s["name"], "alt": f"de=/{slug}/,en=/en/{slug}/,ar=/ar/{slug}/", "interest": s.get("interest", "erstgespraech")}, services.render_fragment(slug, "ar")))
-    for slug, s_ in services_en.SERVICES_EN.items():
+    for slug, s_ in (services_en.SERVICES_EN.items() if ENABLE_EN else []):
         if f"/en/{slug}/" in handwritten:
             continue
         pages.append(({"lang": "en", "path": f"/en/{slug}/", "title": s_["title"], "description": s_["description"], "sector": f"en-{slug}", "breadcrumb": html.unescape(s_["name"]), "alt": f"de=/{slug}/,en=/en/{slug}/,ar=/ar/{slug}/", "interest": s_.get("interest", "erstgespraech")}, services.render_fragment(slug, "en")))
-    pages.append(({"lang": "en", "path": "/en/leistungen/", "title": "Services: IT, network, security and more in Vienna | HORANiQ", "description": "All HORANiQ services: IT support, Microsoft 365, network, backup, security, smart building, websites and maintenance for businesses in Vienna.", "sector": "en-leistungen", "breadcrumb": "Services", "alt": "de=/leistungen/,en=/en/leistungen/,ar=/ar/leistungen/"}, services_en.render_hub_en()))
+    if ENABLE_EN:
+      pages.append(({"lang": "en", "path": "/en/leistungen/", "title": "Services: IT, network, security and more in Vienna | HORANiQ", "description": "All HORANiQ services: IT support, Microsoft 365, network, backup, security, smart building, websites and maintenance for businesses in Vienna.", "sector": "en-leistungen", "breadcrumb": "Services", "alt": "de=/leistungen/,en=/en/leistungen/,ar=/ar/leistungen/"}, services_en.render_hub_en()))
     pages.append(({"lang": "ar", "path": "/ar/leistungen/", "title": "كل خدمات HORANiQ: IT وشبكات وأمان ومواقع في فيينا", "description": "كل الخدمات من جهة واحدة: دعم IT وMicrosoft 365 وشبكات ونسخ احتياطي وأمان وكاميرات ومواقع ومتاجر إلكترونية للشركات في فيينا ومحيطها.", "sector": "ar-leistungen", "breadcrumb": "كل الخدمات", "alt": "de=/leistungen/,en=/en/leistungen/,ar=/ar/leistungen/"}, services_ar.render_hub_ar()))
     pages.append(({"lang": "de", "path": "/leistungen/", "title": "Leistungen: IT, Netzwerk, Sicherheit und mehr in Wien | HORANiQ", "description": "Alle Leistungen von HORANiQ: IT-Betreuung, Microsoft 365, Netzwerk, Backup, Sicherheit, Smart Building, Websites und Wartung für Betriebe in Wien und Umgebung.", "sector": "leistungen", "breadcrumb": "Leistungen", "alt": "de=/leistungen/,en=/en/leistungen/,ar=/ar/leistungen/"}, services.render_hub()))
     for meta, body in pages:
