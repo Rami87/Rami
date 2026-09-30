@@ -203,3 +203,69 @@ poster_html = f'''<!doctype html><html lang="de"><head><meta charset="utf-8"><ti
 </div></body></html>'''
 (HERE / "plakat-a3.html").write_text(poster_html, encoding="utf-8")
 print("written")
+
+# --------------------------------------------------------------------------------------- poster A3, Arabic (mirrored, RTL)
+def mirror(css):
+    css = css.replace("border-bottom-right-radius", "@@BBL").replace("border-top-right-radius", "@@BTL")
+    css = css.replace("border-top-left-radius", "border-top-right-radius").replace("@@BTL", "border-top-left-radius")
+    css = css.replace("@@BBL", "border-bottom-left-radius")
+    css = re.sub(r"\bleft:", "@@L:", css)
+    css = re.sub(r"\bright:", "left:", css)
+    css = css.replace("@@L:", "right:")
+    return css
+
+LINK_AR = f"https://{WEB}/ar/it-check/?utm_source=poster&utm_medium=print&utm_campaign=itcheck-wien-ar"
+AR_FACES = "".join(f'@font-face {{ font-family: "IBM Plex Sans Arabic"; font-weight: {w}; src: url("{FONTS}/ibm-plex-sans-arabic-arabic-{w}-normal.woff2"); }}\n' for w in (500, 700))
+POSTER_AR_CSS = AR_FACES + mirror(POSTER_CSS) + '''
+body { font-family: "IBM Plex Sans Arabic", "Instrument Sans", sans-serif; }
+.poster { direction: rtl; }
+h1 { line-height: 1.22; letter-spacing: 0; font-size: 25mm; top: 62mm; }
+.sub { font-size: 6.2mm; line-height: 1.55; top: 132mm; }
+.topr { text-align: left; }
+.lens { transform: scaleX(-1); }
+.head span { margin: 0; }
+.crow { column-gap: 3.4mm; }
+.pill { font-weight: 600; }
+.price { letter-spacing: 0; direction: ltr; unicode-bidi: isolate; }
+.offer { flex-direction: row; }
+.offer .txt b { font-size: 6.6mm; }
+.crt { direction: rtl; }
+.num { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+.qrcol .ar { font-family: "Instrument Sans", sans-serif; direction: ltr; font-size: 4.2mm; }
+.qrcol .cta { font-size: 5.2mm; }
+.points li { font-size: 6.4mm; }
+.card .head { font-size: 4.5mm; }
+.crow b { font-size: 4.2mm; }
+.dots { background-position: 4mm 4mm; }
+'''
+
+poster_ar = f'''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>HORANiQ ملصق A3</title><style>{POSTER_AR_CSS}</style></head><body>
+<div class="poster">
+  <div class="dots"></div>
+  <div class="tab" style="direction:ltr">{logo("pa")}</div>
+  <div class="topr"><b>دعم IT · شبكات · أمان</b><br>للعيادات والمكاتب والشركات في فيينا</div>
+  <h1>اعرف أين<br>تقف تقنيتك.</h1>
+  <p class="sub">فحص IT للعيادات والمكاتب: تقرير مفهوم بإشارات مرور، دون مصطلحات معقدة.</p>
+  <div class="points"><p>ما الذي نفحصه:</p><ul>
+    <li><i>{check}</i>الشبكة والواي فاي</li><li><i>{check}</i>النسخ الاحتياطي و <bdi>NAS</bdi></li><li><i>{check}</i><bdi>Microsoft 365</bdi> و <bdi>MFA</bdi></li><li><i>{check}</i>جدار الحماية وصلاحيات الوصول</li></ul></div>
+  {lens_svg}
+  <div class="card">
+    <div class="head">فحص IT: التقرير في نظرة واحدة<span>مثال</span></div>
+    <div class="crow"><i class="lamp" style="background:{GREEN}"></i><div><b>الشبكة والواي فاي</b><small>الاتصال مستقر في كل الغرف</small></div><span class="pill" style="background:{GREEN}">سليم</span></div>
+    <div class="crow"><i class="lamp" style="background:{BLUE}"></i><div><b>النسخ الاحتياطي</b><small>لم تُجرَّب الاستعادة قط</small></div><span class="pill" style="background:{BLUE}">يُنصح بتحسين</span></div>
+    <div class="crow"><i class="lamp" style="background:{NAVY}"></i><div><b>تسجيل الدخول إلى Microsoft 365</b><small>بدون خطوة تحقق ثانية (MFA)</small></div><span class="pill" style="background:{NAVY}">حرج</span></div>
+    <div class="foot-note">ترى فوراً ما الذي تبدأ به أولاً.</div>
+  </div>
+  <div class="base">
+    <div class="offer"><div class="price">99 €</div><div class="txt"><b>دون ضريبة القيمة المضافة</b><span>عند تكليفنا بمشروع أو عقد صيانة يُحتسب المبلغ بالكامل.</span></div></div>
+    <div class="bar"></div>
+    <div class="contacts">
+      <div class="crt"><span class="pair">{ic_dark("kontakt-telefon")}{ic_dark("kontakt-whatsapp")}</span><span class="num">{PHONE_DISPLAY}</span></div>
+      <div class="crt">{ic_dark("kontakt-mail")}<span class="num">{EMAIL}</span></div>
+      <div class="crt">{globe}<span class="num">{WEB}</span></div>
+    </div>
+    <div class="qrcol"><div class="qrbox">{qr_svg(LINK_AR, NAVY)}</div><div class="cta">احجز استشارة أولى مجانية</div><div class="ar">Beratung auch auf Deutsch</div></div>
+  </div>
+</div></body></html>'''
+(HERE / "plakat-a3-ar.html").write_text(poster_ar, encoding="utf-8")
+print("arabic poster written")
