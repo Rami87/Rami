@@ -36,8 +36,6 @@ INDEX = [(g, sl, SVC[sl][0], SVC[sl][1]) for g, _, sls in GROUPS for sl in sls]
 
 GENERIC_FAQ = [
     ("Was kostet das?", "Das hängt von Umfang, Geräten und gewünschter Reaktionszeit ab. Nach dem Erstgespräch erhalten Sie ein klares Angebot, mit Festpreis wo möglich. Alle Preise verstehen sich netto."),
-    ("Wo sind Sie tätig?", "In Wien und Umgebung, bis etwa eine Stunde Fahrzeit. Vieles lässt sich zusätzlich per Fernwartung lösen."),
-    ("Sprechen Sie Arabisch?", 'Ja, wir betreuen Sie gern auf Deutsch und Arabisch. Verträge und Rechnungen erhalten Sie auf Deutsch. <a href="/ar/">Mehr auf Arabisch</a>.'),
 ]
 
 CHECK_NOTE = "Bei Auftrag für ein Projekt oder einen Wartungsvertrag wird der Betrag vollständig angerechnet. Das Erstgespräch ist kostenlos."
@@ -419,7 +417,7 @@ LABELS_DE = {
     "secondary_plain": "So gehen wir vor",
     "pains": "Kennen Sie das?",
     "rows": "Was wir für Sie übernehmen",
-    "rows_sub": "Nur so viel Technik, wie Ihr Betrieb braucht.",
+    "rows_sub": "",
     "check_h3": "Darauf achten wir",
     "steps": "So arbeiten wir",
     "faq": "Häufige Fragen",
@@ -496,7 +494,7 @@ def render_fragment(slug, lang="de"):
 
 <section class="s" id="leistungen">
   <div class="wrap split">
-    <div class="split-head"><h2>{L["rows"]}</h2><p>{L["rows_sub"]}</p></div>
+    <div class="split-head"><h2>{L["rows"]}</h2>{("<p>" + L["rows_sub"] + "</p>") if L["rows_sub"] else ""}</div>
     <div class="rows">{rows}</div>
   </div>
 </section>
