@@ -14,6 +14,7 @@ import json
 import os
 import re
 import shutil
+import urllib.parse
 import sys
 from pathlib import Path
 
@@ -51,6 +52,8 @@ I18N = {
         "cta": "Kostenloses Erstgespräch anfragen",
         "sub_sr": "Untermenü Leistungen",
         "sub_all": "Alle Leistungen ansehen",
+        "l_phone": "Telefon", "h_phone": "Direkt anrufen", "l_wa": "WhatsApp", "h_wa": "Nachricht schreiben", "l_mail": "E-Mail", "h_mail": "Anfrage per E-Mail",
+        "wa_text": "Guten Tag, ich habe eine Anfrage zur IT-Betreuung.",
         "call": "Anrufen",
         "whatsapp": "WhatsApp",
         "mbar_cta": "Erstgespräch anfragen",
@@ -100,6 +103,8 @@ I18N = {
         "cta": "استشارة مجانية",
         "sub_sr": "قائمة الخدمات الفرعية",
         "sub_all": "كل الخدمات",
+        "l_phone": "هاتف", "h_phone": "اتصل مباشرة", "l_wa": "واتساب", "h_wa": "أرسل رسالة", "l_mail": "البريد الإلكتروني", "h_mail": "راسلنا بالبريد",
+        "wa_text": "مرحباً، لدي استفسار عن خدمات IT.",
         "call": "اتصل بنا",
         "whatsapp": "واتساب",
         "mbar_cta": "احجز استشارة",
@@ -153,6 +158,8 @@ I18N = {
         "crumb_home": "Home",
         "sub_sr": "Services submenu",
         "sub_all": "See all services",
+        "l_phone": "Phone", "h_phone": "Call directly", "l_wa": "WhatsApp", "h_wa": "Send a message", "l_mail": "Email", "h_mail": "Write to us",
+        "wa_text": "Hello, I have a question about IT support.",
         "foot_tag": "IT, network and security for businesses in Vienna and the surrounding area. Personal, understandable and from one source.",
         "legal": "All prices net of VAT. Information without guarantee.",
         "f_name": "Name", "f_contact": "Phone or email", "f_contact_hint": "How can we best reach you?",
@@ -251,6 +258,39 @@ def call_buttons(t, cls="btn btn-ghost", track="call"):
     return out
 
 
+UI_ICONS = {
+    "phone": '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>',
+    "whatsapp": '<path d="M3 21l1.65-4.9A9 9 0 1 1 8 19.4L3 21z"/><path d="M9 10c0 3 2 5 5 5l1.2-1.2a.8.8 0 0 0 0-1.1l-1.3-.9a.8.8 0 0 0-1 .1l-.5.5a3.3 3.3 0 0 1-2-2l.5-.5a.8.8 0 0 0 .1-1L10 7.8a.8.8 0 0 0-1.1 0z"/>',
+    "mail": '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+}
+
+
+def ui_icon(name, cls="ui-ico"):
+    return f'<svg class="{cls}" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">{UI_ICONS[name]}</svg>'
+
+
+def tel_url():
+    return "tel:" + re.sub(r"[^+0-9]", "", PHONE)
+
+
+def wa_url(t):
+    return f"https://wa.me/{WHATSAPP}?text={urllib.parse.quote(t['wa_text'])}"
+
+
+def contact_card(kind, t, track):
+    """One tappable contact row: icon, label, value. Numbers and addresses stay left-to-right in RTL pages."""
+    if kind == "phone":
+        href, extra, value, label, hint = tel_url(), "", html.escape(PHONE), t["l_phone"], t["h_phone"]
+    elif kind == "whatsapp":
+        href, extra, value, label, hint = wa_url(t), ' target="_blank" rel="noopener"', html.escape(PHONE), t["l_wa"], t["h_wa"]
+    else:
+        href, extra, value, label, hint = f"mailto:{EMAIL}", "", EMAIL, t["l_mail"], t["h_mail"]
+    return (f'<a class="cc cc-{kind}" href="{href}"{extra} data-track="{track}">'
+            f'<span class="cc-ico">{ui_icon(kind)}</span>'
+            f'<span class="cc-txt"><span class="cc-label">{label}</span><span class="cc-value" dir="ltr">{value}</span></span>'
+            f'<span class="cc-hint">{hint}</span></a>')
+
+
 def form_html(t, sector, default_interest="erstgespraech"):
     """Shared contact form. The Arztpraxis page adds a request-type field and practice-specific options."""
     praxis = sector in ("arztpraxis", "ar-arztpraxis", "en-arztpraxis")
@@ -346,6 +386,10 @@ def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
             links += services_menu_html(t, label, href, cur)
         else:
             links += f'<a href="{href}"{cur}>{label}</a>'
+    if PHONE:
+        links += f'<a class="nav-ico" href="{tel_url()}" data-track="nav-call" aria-label="{t["call"]} {html.escape(PHONE)}" title="{html.escape(PHONE)}">{ui_icon("phone")}<span class="nav-ico-t">{t["call"]}</span></a>'
+    if WHATSAPP:
+        links += f'<a class="nav-ico nav-ico-wa" href="{wa_url(t)}" target="_blank" rel="noopener" data-track="nav-whatsapp" aria-label="{t["whatsapp"]}">{ui_icon("whatsapp")}<span class="nav-ico-t">{t["whatsapp"]}</span></a>'
     for oc in ("de", "en", "ar"):
         if oc == code or (oc == "en" and not ENABLE_EN):
             continue
@@ -371,13 +415,23 @@ def lang_attr(h):
     return ""
 
 
+def foot_contact(t):
+    parts = []
+    if PHONE:
+        parts.append(f'<a href="{tel_url()}" data-track="footer-call" dir="ltr">{html.escape(PHONE)}</a>')
+    if WHATSAPP:
+        parts.append(f'<a href="{wa_url(t)}" target="_blank" rel="noopener" data-track="footer-whatsapp">{t["whatsapp"]}</a>')
+    parts.append(f'<a href="mailto:{EMAIL}" dir="ltr">{EMAIL}</a>')
+    return "<br>".join(parts)
+
+
 def footer_html(t):
     cols = ""
     for title, items in foot_cols(code_of(t)):
         cols += f"<div><h3>{title}</h3><ul>" + "".join(f'<li><a href="{h}"{lang_attr(h)}>{l}</a></li>' for l, h in items) + "</ul></div>"
     return f'''<footer class="site-footer"><div class="wrap">
   <div class="foot">
-    <div>{logo_html(t)}<p>{t["foot_tag"]}</p><p><a href="mailto:{EMAIL}">{EMAIL}</a></p></div>
+    <div>{logo_html(t)}<p>{t["foot_tag"]}</p><p class="foot-contact">{foot_contact(t)}</p></div>
     {cols}
   </div>
   <p class="legal">© 2026 HORANiQ, Rami Horani, Wien. {t["legal"]}</p>
@@ -385,9 +439,11 @@ def footer_html(t):
 
 
 def mbar_html(t, cta="#kontakt"):
-    btns = call_buttons(t, "btn btn-ghost", "mbar-call")
-    if WHATSAPP and not PHONE:
-        btns += f'<a class="btn btn-ghost" href="https://wa.me/{WHATSAPP}" data-track="mbar-whatsapp">{t["whatsapp"]}</a>'
+    btns = ""
+    if PHONE:
+        btns += f'<a class="btn btn-ghost btn-icon" href="{tel_url()}" data-track="mbar-call" aria-label="{t["call"]} {html.escape(PHONE)}">{ui_icon("phone")}</a>'
+    if WHATSAPP:
+        btns += f'<a class="btn btn-ghost btn-icon btn-wa" href="{wa_url(t)}" target="_blank" rel="noopener" data-track="mbar-whatsapp" aria-label="{t["whatsapp"]}">{ui_icon("whatsapp")}</a>'
     btns += f'<a class="btn btn-primary" href="{cta}" data-track="mbar-cta" data-interest="erstgespraech">{t["mbar_cta"]}</a>'
     return f'<div class="mbar">{btns}</div>'
 
@@ -458,15 +514,10 @@ def _render(meta, body):
     body = PHOTO_RE.sub(photo_html, body)
     body = body.replace("{{FORM}}", form_html(t, sector, meta.get("interest", "erstgespraech")))
     body = body.replace("{{CALL}}", call_buttons(t))
+    body = re.sub(r'<a href="mailto:\{\{EMAIL\}\}" data-track="contact-mail"[^>]*>\{\{EMAIL\}\}</a>', lambda m: contact_card("mail", t, "contact-mail"), body)
     body = body.replace("{{EMAIL}}", EMAIL)
-    if PHONE:
-        body = body.replace("{{PHONE_LINE}}", f'<a href="tel:{re.sub(r"[^+0-9]", "", PHONE)}" data-track="contact-call">{html.escape(PHONE)}</a>')
-    else:
-        body = body.replace("{{PHONE_LINE}}", "")
-    if WHATSAPP:
-        body = body.replace("{{WA_LINE}}", f'<a href="https://wa.me/{WHATSAPP}" data-track="contact-whatsapp">{t["whatsapp"]}</a>')
-    else:
-        body = body.replace("{{WA_LINE}}", "")
+    body = body.replace("{{PHONE_LINE}}", contact_card("phone", t, "contact-call") if PHONE else "")
+    body = body.replace("{{WA_LINE}}", contact_card("whatsapp", t, "contact-whatsapp") if WHATSAPP else "")
 
     robots = meta.get("robots", "index")
     cta = "#kontakt" if 'id="kontakt"' in body else HOME[meta["lang"]] + "#kontakt"

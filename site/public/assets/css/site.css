@@ -390,3 +390,37 @@ p { margin: 0 0 1em; max-width: 62ch; }
 .checks-list li { padding-inline-start: 34px; position: relative; }
 .checks-list li::before { content: ""; position: absolute; inset-inline-start: 0; top: .2em; width: 20px; height: 20px; border: 2px solid var(--teal); border-radius: 4px; }
 @media print { .site-header, .site-footer, .mbar, #kontakt, .crumbs { display: none !important; } }
+
+
+/* Contact cards (contact sections) */
+.contact-direct { gap: 12px; max-width: 460px; }
+.cc { display: grid; grid-template-columns: auto 1fr; grid-template-areas: "ico txt" "ico hint"; column-gap: 14px; align-items: center; padding: 14px 16px; min-height: 64px; background: var(--white); border: 1px solid var(--line); border-radius: 12px; color: var(--ink); text-decoration: none; font-weight: 400; transition: border-color .18s, box-shadow .18s, transform .18s; }
+.cc:hover { border-color: var(--teal); box-shadow: var(--shadow); }
+.cc:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.cc-ico { grid-area: ico; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--teal-tint); color: var(--teal-deep); }
+.cc-wa .cc-ico, .cc-whatsapp .cc-ico { background: #e3f5ea; color: #157a45; }
+.cc-txt { grid-area: txt; display: grid; }
+.cc-label { font-size: .82rem; color: var(--ink-soft); }
+.cc-value { font-weight: 650; font-size: 1.08rem; color: var(--ink); overflow-wrap: anywhere; text-align: start; }
+.cc-hint { grid-area: hint; font-size: .82rem; color: var(--teal-deep); font-weight: 600; }
+html[lang="ar"] .cc-value { unicode-bidi: plaintext; }
+
+/* Header icon buttons */
+.nav .nav-ico { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 50%; color: var(--teal-deep); margin-inline: 2px; }
+.nav .nav-ico-wa { color: #157a45; }
+.nav .nav-ico:hover { background: var(--teal-tint); border-color: var(--teal); }
+.nav-ico-t { display: none; }
+
+/* Mobile bar icon buttons */
+.btn-icon { flex: 0 0 52px !important; padding: 0 !important; }
+.btn-wa { color: #157a45; border-color: #9fd3b4; }
+
+.foot-contact { line-height: 1.7; }
+@media (max-width: 1240px) {
+  .nav .nav-ico { width: auto; height: auto; min-height: 48px; justify-content: flex-start; border: 0; border-block-end: 1px solid var(--line); border-radius: 0; padding: 14px 4px; margin: 0; }
+  .nav-ico-t { display: inline; font-weight: 550; color: var(--ink); }
+}
+
+.contact-direct a.cc { font-weight: 400; color: var(--ink); }
+
+html[lang="ar"] .cc-value { text-align: right; unicode-bidi: normal; }
