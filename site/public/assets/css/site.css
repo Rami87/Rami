@@ -423,3 +423,13 @@ p { margin: 0 0 1em; max-width: 62ch; }
 
 
 
+
+/* Footer contact icons */
+.foot-contact { display: flex; gap: 10px; margin-block-start: 14px; }
+.ct-mini { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--white); color: var(--ink); transition: transform .18s, box-shadow .18s; }
+.ct-mini:hover { transform: translateY(-2px); box-shadow: 0 6px 18px -8px rgba(0,0,0,.5); }
+.ct-mini:focus-visible { outline: 3px solid var(--brand-blue); outline-offset: 3px; }
+.ct-mini .ico { width: 36px; height: 36px; }
+.ct-whatsapp.ct-mini, .ct-mini.ct-whatsapp { --ico-blue: #25a862; --ico-tint: rgba(37, 168, 98, 0.16); }
+
+.foot a.ct-mini { color: var(--ink); }

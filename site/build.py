@@ -387,10 +387,6 @@ def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
             links += services_menu_html(t, label, href, cur)
         else:
             links += f'<a href="{href}"{cur}>{label}</a>'
-    if PHONE:
-        links += f'<a class="nav-ico" href="{tel_url()}" data-track="nav-call" aria-label="{t["call"]} {html.escape(PHONE)}" title="{html.escape(PHONE)}">{icon_svg("kontakt-telefon", "sm")}<span class="nav-ico-t">{t["call"]}</span></a>'
-    if WHATSAPP:
-        links += f'<a class="nav-ico nav-ico-wa" href="{wa_url(t)}" target="_blank" rel="noopener" data-track="nav-whatsapp" aria-label="{t["whatsapp"]}">{icon_svg("kontakt-whatsapp", "sm")}<span class="nav-ico-t">{t["whatsapp"]}</span></a>'
     for oc in ("de", "en", "ar"):
         if oc == code or (oc == "en" and not ENABLE_EN):
             continue
@@ -417,13 +413,14 @@ def lang_attr(h):
 
 
 def foot_contact(t):
-    parts = []
+    """Icon buttons on white tiles (the footer is dark). Number and address live in the tooltip and the accessible name."""
+    items = []
     if PHONE:
-        parts.append(f'<a href="{tel_url()}" data-track="footer-call" dir="ltr">{html.escape(PHONE)}</a>')
+        items.append(("kontakt-telefon", tel_url(), "", t["call"], PHONE, "footer-call"))
     if WHATSAPP:
-        parts.append(f'<a href="{wa_url(t)}" target="_blank" rel="noopener" data-track="footer-whatsapp">{t["whatsapp"]}</a>')
-    parts.append(f'<a href="mailto:{EMAIL}" dir="ltr">{EMAIL}</a>')
-    return "<br>".join(parts)
+        items.append(("kontakt-whatsapp", wa_url(t), ' target="_blank" rel="noopener"', t["whatsapp"], PHONE, "footer-whatsapp"))
+    items.append(("kontakt-mail", f"mailto:{EMAIL}", "", t["l_mail"], EMAIL, "footer-mail"))
+    return "".join(f'<a class="ct-mini ct-{ic.split("-")[1]}" href="{h}"{ex} data-track="{tr}" title="{html.escape(v)}" aria-label="{lb}: {html.escape(v)}">{icon_svg(ic, "sm")}</a>' for ic, h, ex, lb, v, tr in items)
 
 
 def footer_html(t):
@@ -432,7 +429,7 @@ def footer_html(t):
         cols += f"<div><h3>{title}</h3><ul>" + "".join(f'<li><a href="{h}"{lang_attr(h)}>{l}</a></li>' for l, h in items) + "</ul></div>"
     return f'''<footer class="site-footer"><div class="wrap">
   <div class="foot">
-    <div>{logo_html(t)}<p>{t["foot_tag"]}</p><p class="foot-contact">{foot_contact(t)}</p></div>
+    <div>{logo_html(t)}<p>{t["foot_tag"]}</p><div class="foot-contact">{foot_contact(t)}</div></div>
     {cols}
   </div>
   <p class="legal">© 2026 HORANiQ, Rami Horani, Wien. {t["legal"]}</p>
