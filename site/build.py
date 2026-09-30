@@ -233,7 +233,7 @@ def foot_cols(code):
     nm = lambda sl: names[sl][0]
     link = lambda sl: (nm(sl), f"{pre}/{sl}/")
     return [
-        (f["svc"], [link(x) for x in ["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"]]),
+        (f["svc"], [link(x) for x in ["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "voip", "backup", "it-sicherheit"]]),
         (f["more"], [link(x) for x in ["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]] + [(f["all"], f"{pre}/leistungen/")]),
         (f["sectors"], [(f["praxis"], f"{pre}/arztpraxis/"), (f["biz"], f"{pre}/unternehmen/")] + langs),
         (f["company"], [(f["about"], f"{pre}/ueber-uns/"), (f["guides"], f"{pre}/ratgeber/"), (f["area"], f"{pre}/wien/"), (f["imp"], "/impressum/"), (f["ds"], "/datenschutz/")]),

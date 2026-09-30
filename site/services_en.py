@@ -40,6 +40,7 @@ INDEX_EN = {
     "microsoft-365": ("Microsoft 365", "Set up and look after email, users and secure sign-in."),
     "crm-archivierung": ("CRM and digital filing", "Organise customers, documents and workflows clearly."),
     "netzwerk": ("Network &amp; Wi-Fi", "Plan, install and improve your network and Wi-Fi."),
+    "voip": ("VoIP telephony", "A modern phone system over your network, with opening hours, announcements and voicemail."),
     "backup": ("Backup, NAS &amp; data", "Data backup and central storage, with a view to recoverability within the agreed scope."),
     "it-sicherheit": ("IT security", "Firewall, user rights, access protection and secure sign-in with MFA."),
     "sicherheit": ("Cameras, alarm &amp; access", "Cameras, alarm systems and access control for your premises."),
@@ -52,7 +53,7 @@ INDEX_EN = {
 
 GROUPS_EN = [
     ("IT &amp; workstations", "Support, devices, Microsoft 365 and digital workflows.", ["it-betreuung", "wartung-reparatur", "microsoft-365", "crm-archivierung"]),
-    ("Network, data &amp; security", "Network, data backup and protection of your systems.", ["netzwerk", "backup", "it-sicherheit"]),
+    ("Network, data &amp; security", "Network, data backup and protection of your systems.", ["netzwerk", "voip", "backup", "it-sicherheit"]),
     ("Building technology", "Cameras, alarm, access and smart building.", ["sicherheit", "smart-building"]),
     ("Websites &amp; online shops", "Your presence on the web.", ["website-shop"]),
     ("Consulting &amp; ongoing care", "Plan, check and look after, long term.", ["it-beratung", "it-check", "care"]),
@@ -198,6 +199,42 @@ SERVICES_EN["microsoft-365"] = dict(
          ("What is MFA?", "When signing in, a second factor is needed in addition to the password, for example a confirmation on your phone. It protects accounts much better."),
          ("Do I buy the licences myself?", "We recommend the right plans and set them up. Whether you license directly or through us is settled in the quote.")],
     related=["it-betreuung", "backup", "care"],
+)
+
+SERVICES_EN["voip"] = dict(
+    name="VoIP telephony",
+    title="VoIP telephony for practices and offices in Vienna | HORANiQ",
+    description="Modern VoIP phone system for medical practices and offices in Vienna: opening hours, announcements and voicemail programmed to fit. Planning, setup and support.",
+    h1="Telephony that fits your opening hours",
+    lead="We set up your phone system on modern VoIP technology, as part of your network. We program opening hours, announcements and voicemail so callers reach the right place at the right time.",
+    assure=["Opening hours and voicemail programmed to fit", "Part of your network, from one provider", "For practices and offices"],
+    report=("Telephony at a glance", [
+        ("ok", "Opening hours", "Announcements and forwarding run on a schedule"),
+        ("warn", "Voicemail", "Greeting is out of date"),
+        ("crit", "Call quality", "Network does not prioritise telephony"),
+    ], "You see whether your telephony runs reliably."),
+    pains=["Outside opening hours callers reach nothing, or the wrong announcement.",
+           "Calls crackle, stutter or drop as soon as the network is busy.",
+           "A new employee or a second site means more work with the phone provider.",
+           "The system is old and nobody dares to change anything.",
+           "Voicemail messages are not heard in time."],
+    rows=[("Planning and provider choice", "We clarify workstations, numbers and requirements and choose the right solution and provider."),
+          ("Programming opening hours", "Announcements, forwarding and voicemail to match your hours, including public holidays and lunch breaks."),
+          ("Voicemail and announcements", "Clear announcements per time period and messages that reliably reach you."),
+          ("Devices", "Desk phones, headsets or a phone app, set up and tested."),
+          ("Phone numbers", "We keep your existing numbers where possible."),
+          ("Network and call quality", "Telephony runs cleanly in the network and is documented so changes stay easy.")],
+    band=dict(title="Have telephony and network checked", lead="The IT check shows whether your network is ready for telephony.", price=True,
+              checks=["Network and Wi-Fi", "Router and switches", "Phone system", "Internet connection", "Firewall", "Backup", "Documentation", "Security basics"]),
+    steps=[("First call", "We clarify your numbers, workstations and opening hours."),
+           ("Concept", "We plan the system, devices and workflows, such as announcements and forwarding."),
+           ("Setup and test", "We set everything up, program the schedules and test in live operation."),
+           ("Handover and support", "You get an introduction and documentation. We handle changes on request.")],
+    faq=[("What is VoIP?", "Telephony over the internet instead of the classic phone line. The system runs in your network or in the cloud."),
+         ("Can I keep my phone number?", "Usually yes. We clarify this in the concept with your provider and organise the switchover."),
+         ("Can voicemail follow our opening hours?", "Yes. We program times, announcements and forwarding, for example lunch breaks, public holidays or holiday periods."),
+         ("Is it suitable for small practices?", "Yes. VoIP suits anything from a single workstation to several sites, and the scope follows your business.")],
+    related=["netzwerk", "it-betreuung", "care"],
 )
 
 SERVICES_EN["backup"] = dict(

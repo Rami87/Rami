@@ -11,7 +11,7 @@
 | البند | الحالة |
 |---|---|
 | عدد الصفحات | 48 صفحة + صفحة 404: 24 ألمانية و24 عربية (الصفحتان القانونيتان ألمانيتان فقط) |
-| الخدمات | 13 خدمة، لكل منها صفحة ألمانية وعربية |
+| الخدمات | 14 خدمة، لكل منها صفحة ألمانية وعربية |
 | اللغات | ألمانية (الأساسية) وعربية (`/ar/`، RTL كامل) بنفس الهيكل والأقسام. النسخة الإنجليزية جاهزة في المستودع لكنها معطّلة (تُفعَّل بالمتغير `ENABLE_EN=1` عند البناء) |
 | الصفحات القانونية | مسودتان بـ noindex، تنتظر بياناتك |
 | صورتك | موجودة وتظهر في الرئيسية وفي "من نحن" |
@@ -23,7 +23,7 @@
 
 **الرئيسية والقطاعات:** `/` ، `/arztpraxis/` (العيادات) ، `/unternehmen/` (المكاتب والأعمال) ، `/ar/`
 
-**الخدمات (13):** it-betreuung، wartung-reparatur، microsoft-365، crm-archivierung، netzwerk، backup، it-sicherheit، sicherheit (كاميرات وإنذار ودخول)، smart-building، website-shop (WooCommerce أو Shopify للمتاجر فقط)، it-beratung، it-check، care. بالإضافة إلى `/leistungen/` كصفحة تجمعها.
+**الخدمات (14):** it-betreuung، wartung-reparatur، microsoft-365، crm-archivierung، netzwerk، voip (هاتف VoIP)، backup، it-sicherheit، sicherheit (كاميرات وإنذار ودخول)، smart-building، website-shop (WooCommerce أو Shopify للمتاجر فقط)، it-beratung، it-check، care. بالإضافة إلى `/leistungen/` كصفحة تجمعها.
 
 **الشركة:** `/ueber-uns/` ، `/wien/` (منطقة العمل) ، `/impressum/` ، `/datenschutz/`
 

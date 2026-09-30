@@ -46,6 +46,15 @@ ICONS = {
 <circle cx="32" cy="41" r="2.400" fill="{B}" stroke="none"/>
 <path d="M45 50h5" fill="none"/>''',
 
+    # VoIP-Telefonie: desk phone with handset, display and keypad
+    "voip": '''
+<path d="M9 23v-4c0-3 2.500-5 6-5h34c3.500 0 6 2 6 5v4" fill="{BT}"/>
+<rect x="8" y="25" width="48" height="29" rx="5" fill="none"/>
+<rect x="14" y="31" width="16" height="9" rx="2" fill="{B}" stroke="none"/>
+<circle cx="38" cy="33" r="1.800" fill="{S}" stroke="none"/><circle cx="44" cy="33" r="1.800" fill="{S}" stroke="none"/><circle cx="50" cy="33" r="1.800" fill="{S}" stroke="none"/>
+<circle cx="38" cy="39" r="1.800" fill="{S}" stroke="none"/><circle cx="44" cy="39" r="1.800" fill="{S}" stroke="none"/><circle cx="50" cy="39" r="1.800" fill="{S}" stroke="none"/>
+<path d="M14 47h36" fill="none"/>''',
+
     # Backup, NAS & Daten: database with restore arrow
     "backup": '''
 <ellipse cx="22" cy="14" rx="14" ry="5.500" fill="{BT}"/>
@@ -137,7 +146,7 @@ ICONS = {
 
 NAMES = {
     "it-betreuung": "IT-Betreuung & Support", "wartung-reparatur": "Computer, Geräte & Wartung", "microsoft-365": "Microsoft 365",
-    "crm-archivierung": "CRM und digitale Ablage", "netzwerk": "Netzwerk & WLAN", "backup": "Backup, NAS & Daten",
+    "crm-archivierung": "CRM und digitale Ablage", "netzwerk": "Netzwerk & WLAN", "backup": "Backup, NAS & Daten", "voip": "VoIP-Telefonie",
     "it-sicherheit": "IT-Sicherheit", "sicherheit": "Kameras, Alarm & Zutritt", "smart-building": "Smart Building",
     "website-shop": "Websites & Onlineshops", "it-beratung": "IT-Beratung & Projektumsetzung", "it-check": "HORANiQ IT-Check", "care": "HORANiQ Care",
     "kontakt-telefon": "Telefon", "kontakt-whatsapp": "WhatsApp", "kontakt-mail": "E-Mail",

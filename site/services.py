@@ -13,6 +13,7 @@ SVC = {
     "microsoft-365": ("Microsoft 365", "E-Mail, Benutzer und sichere Anmeldung einrichten und betreuen."),
     "crm-archivierung": ("CRM und digitale Ablage", "Kunden, Dokumente und Abläufe übersichtlich organisieren."),
     "netzwerk": ("Netzwerk &amp; WLAN", "Netzwerk und WLAN planen, installieren und verbessern."),
+    "voip": ("VoIP-Telefonie", "Moderne Telefonanlage über das Netzwerk, mit Öffnungszeiten, Ansagen und Anrufbeantworter."),
     "backup": ("Backup, NAS &amp; Daten", "Datensicherung und zentrale Ablage, mit Blick auf die Wiederherstellbarkeit im vereinbarten Umfang."),
     "it-sicherheit": ("IT-Sicherheit", "Firewall, Benutzerrechte, Zugriffsschutz und sichere Anmeldung mit MFA."),
     "sicherheit": ("Kameras, Alarm &amp; Zutritt", "Kameras, Alarmanlagen und Zutrittssysteme für Ihre Räume."),
@@ -25,7 +26,7 @@ SVC = {
 
 GROUPS = [
     ("IT &amp; Arbeitsplätze", "Support, Geräte, Microsoft 365 und digitale Abläufe.", ["it-betreuung", "wartung-reparatur", "microsoft-365", "crm-archivierung"]),
-    ("Netzwerk, Daten &amp; Sicherheit", "Netzwerk, Datensicherung und der Schutz Ihrer Systeme.", ["netzwerk", "backup", "it-sicherheit"]),
+    ("Netzwerk, Daten &amp; Sicherheit", "Netzwerk, Datensicherung und der Schutz Ihrer Systeme.", ["netzwerk", "voip", "backup", "it-sicherheit"]),
     ("Gebäudetechnik", "Kameras, Alarm, Zutritt und Smart Building.", ["sicherheit", "smart-building"]),
     ("Websites &amp; Onlineshops", "Ihr Auftritt im Netz.", ["website-shop"]),
     ("Beratung &amp; laufende Betreuung", "Planen, prüfen und dauerhaft betreuen.", ["it-beratung", "it-check", "care"]),
@@ -145,6 +146,42 @@ SERVICES["backup"] = dict(
          ("Was ist ein NAS?", "Ein Netzwerkspeicher, auf den Ihr Team zugreift. Er dient als gemeinsame Ablage und als Basis für Sicherungen."),
          ("Sichern Sie auch Microsoft 365?", "Ja, auf Wunsch sichern wir Postfächer und Dateien aus Microsoft 365 zusätzlich.")],
     related=["netzwerk", "microsoft-365", "care"],
+)
+
+SERVICES["voip"] = dict(
+    name="VoIP-Telefonie",
+    title="VoIP-Telefonie für Praxen und Büros in Wien | HORANiQ",
+    description="Moderne VoIP-Telefonanlage für Arztpraxen und Büros in Wien: Öffnungszeiten, Ansagen und Anrufbeantworter passend programmiert. Planung, Einrichtung, Betreuung.",
+    h1="Telefonie, die zu Ihren Öffnungszeiten passt",
+    lead="Wir richten Ihre Telefonanlage auf moderner VoIP-Technik ein, ein Teil Ihres Netzwerks. Öffnungszeiten, Ansagen und Anrufbeantworter programmieren wir so, dass Anrufer zur richtigen Zeit am richtigen Ort landen.",
+    assure=["Öffnungszeiten und Anrufbeantworter passend programmiert", "Teil Ihres Netzwerks, aus einer Hand", "Für Praxen und Büros"],
+    report=("Telefonie im Überblick", [
+        ("ok", "Öffnungszeiten", "Ansage und Weiterleitung laufen zeitgesteuert"),
+        ("warn", "Anrufbeantworter", "Ansage nicht mehr aktuell"),
+        ("crit", "Sprachqualität", "Netzwerk ohne Priorisierung der Telefonie"),
+    ], "Sie sehen, ob Ihre Telefonie zuverlässig läuft."),
+    pains=["Außerhalb der Ordinationszeiten landen Anrufer im Leeren oder bei der falschen Ansage.",
+           "Es rauscht, hakt oder bricht ab, sobald das Netzwerk ausgelastet ist.",
+           "Neue Mitarbeiter oder ein zweiter Standort bedeuten wieder Aufwand mit dem Telefonanbieter.",
+           "Die Anlage ist alt, und niemand traut sich, etwas zu ändern.",
+           "Nachrichten des Anrufbeantworters werden nicht rechtzeitig gehört."],
+    rows=[("Planung und Anbieterwahl", "Wir klären Arbeitsplätze, Rufnummern und Anforderungen und wählen die passende Lösung samt Anbieter."),
+          ("Öffnungszeiten programmieren", "Ansagen, Weiterleitungen und Anrufbeantworter passend zu Ihren Zeiten, auch für Feiertage und Mittagspause."),
+          ("Anrufbeantworter und Ansagen", "Klare Ansagen, Ansagen je Zeitraum und Nachrichten, die Sie zuverlässig erreichen."),
+          ("Endgeräte", "Tischtelefone, Headsets oder Telefon-App, passend eingerichtet und getestet."),
+          ("Rufnummern", "Ihre bestehenden Rufnummern übernehmen wir, wo das möglich ist."),
+          ("Netzwerk und Sprachqualität", "Die Telefonie läuft sauber im Netzwerk und wird dokumentiert, damit Änderungen einfach bleiben.")],
+    band=dict(title="Telefonie und Netzwerk prüfen lassen", lead="Der IT-Check zeigt, ob Ihr Netzwerk für Telefonie bereit ist.", price=True,
+              checks=["Netzwerk und WLAN", "Router und Switches", "Telefonanlage", "Internetanbindung", "Firewall", "Backup", "Dokumentation", "Sicherheitsgrundlagen"]),
+    steps=[("Erstgespräch", "Wir klären Ihre Rufnummern, Arbeitsplätze und Öffnungszeiten."),
+           ("Konzept", "Wir planen Anlage, Endgeräte und Abläufe, etwa Ansagen und Weiterleitungen."),
+           ("Einrichtung und Test", "Wir richten alles ein, programmieren die Zeiten und testen im Betrieb."),
+           ("Übergabe und Betreuung", "Sie erhalten eine Einweisung und Dokumentation. Änderungen übernehmen wir auf Wunsch.")],
+    faq=[("Was ist VoIP?", "Telefonieren über das Internet statt über die klassische Telefonleitung. Die Anlage läuft in Ihrem Netzwerk oder in der Cloud."),
+         ("Kann ich meine Rufnummer behalten?", "In der Regel ja. Wir klären das im Konzept mit Ihrem Anbieter und organisieren die Umstellung."),
+         ("Kann der Anrufbeantworter zu Öffnungszeiten passen?", "Ja. Wir programmieren Zeiten, Ansagen und Weiterleitungen, zum Beispiel Mittagspause, Feiertage oder Urlaubszeiten."),
+         ("Ist das auch für kleine Praxen geeignet?", "Ja. VoIP eignet sich vom Einzelarbeitsplatz bis zu mehreren Standorten, der Umfang richtet sich nach Ihrem Betrieb.")],
+    related=["netzwerk", "it-betreuung", "care"],
 )
 
 SERVICES["sicherheit"] = dict(
