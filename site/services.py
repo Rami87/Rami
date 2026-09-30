@@ -38,7 +38,7 @@ GENERIC_FAQ = [
     ("Was kostet das?", "Das hängt von Umfang, Geräten und gewünschter Reaktionszeit ab. Nach dem Erstgespräch erhalten Sie ein klares Angebot, mit Festpreis wo möglich. Alle Preise verstehen sich netto."),
 ]
 
-CHECK_NOTE = "Bei Auftrag für ein Projekt oder einen Wartungsvertrag wird der Betrag vollständig angerechnet. Das Erstgespräch ist kostenlos."
+CHECK_NOTE = "Das Erstgespräch ist kostenlos. Danach erhalten Sie ein klares Angebot."
 
 SERVICES = {}
 
@@ -425,7 +425,7 @@ LABELS_DE = {
     "all": "Alle Leistungen ansehen",
     "contact_h2": "Sprechen wir über {name}",
     "contact_lead": "Kostenloses Erstgespräch, unverbindlich und ohne Fachchinesisch.",
-    "price_offer": f'<p class="price">€99 <small>zzgl. USt.</small></p><p class="muted">{CHECK_NOTE}</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta" data-interest="it-check">IT-Check anfragen</a></div>',
+    "price_offer": f'<p class="muted">{CHECK_NOTE}</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta" data-interest="it-check">IT-Check anfragen</a></div>',
     "plain_offer": '<p class="muted">Das Erstgespräch ist kostenlos. Danach erhalten Sie ein klares Angebot, mit Festpreis wo möglich.</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta" data-interest="erstgespraech">Erstgespräch anfragen</a></div>',
     "legend_check": "Ergebnis mit Ampel: <strong>OK</strong>, <strong>Verbesserung empfohlen</strong> oder <strong>Kritisch</strong>.",
     "legend_plain": "Das besprechen wir gemeinsam, bevor wir ein Angebot machen.",

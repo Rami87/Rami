@@ -39,7 +39,7 @@
 
 ### المحتوى والرسالة
 - رسالة الرئيسية: "Technik, die zu Ihrem Betrieb passt"، مع بطاقة تقرير IT-Check بإشارات مرور (OK / Verbesserung empfohlen / Kritisch).
-- عرض واحد واضح: جلسة أولى مجانية، ثم IT-Check بـ €99 دون ضريبة يُحتسب عند التكليف.
+- عرض واحد واضح: جلسة أولى مجانية، ثم IT-Check وعرض واضح بلا ذكر سعر في الموقع.
 - باقات Care الأربع (Start / Business / Pro / Praxis) مشروحة دون أرقام.
 - إزالة كلمة Kanzlei من الموقع بالكامل واستبدالها بـ "Büros und Betriebe".
 - إزالة ادعاء "Antwort am selben Werktag" غير المثبت، واستبداله بصياغة عامة.

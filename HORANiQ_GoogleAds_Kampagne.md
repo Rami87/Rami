@@ -2,7 +2,7 @@
 
 Stand: aktualisiert auf die aktuelle Website. Texte, Ziel-URLs und Angebote entsprechen den Seiten in `site/src/pages/`. Hero- und Seitentexte stehen dort und nicht mehr in diesem Dokument.
 
-**Wichtig vor dem Start:** Alle Angaben zum IT-Check (€99 netto, bei Auftrag angerechnet) und zur Reaktionszeit müssen Sie tatsächlich einhalten können. Die Anzeigen versprechen keine feste Antwortzeit, keine Platzierungen und keine Umsätze.
+**Wichtig vor dem Start:** Alle Angaben zum IT-Check (kostenloses Erstgespräch, Preis erst im Angebot) und zur Reaktionszeit müssen Sie tatsächlich einhalten können. Die Anzeigen versprechen keine feste Antwortzeit, keine Platzierungen und keine Umsätze.
 
 ## 1. Kampagnenaufbau
 
@@ -54,7 +54,7 @@ Die Landingpage passt jeweils zur Anzeige: gleiche Angebote, gleiche Wörter. De
 
 **Sitelinks** (Titel ≤25, Beschreibungszeilen ≤35 Zeichen):
 
-- IT-Check anfragen (17) | Verständlicher Überblick über (29) | Ihre IT, €99 netto (18) | `/it-check/`
+- IT-Check anfragen (17) | Verständlicher Überblick über (29) | Ihre IT, klar erklärt (19) | `/it-check/`
 - Für Arztpraxen (14) | IT-Betreuung für Ihre (21) | Ordination in Wien (18) | `/arztpraxis/`
 - Für Büros (9) | IT für Büros, Anwälte und (25) | Steuerberater in Wien (21) | `/unternehmen/`
 - Websites & Onlineshops (22) | Websites für Unternehmen, (25) | Shops mit WooCommerce (21) | `/website-shop/`
@@ -101,7 +101,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 2. Damit Ihre Praxis läuft (23)
 3. Persönlicher Ansprechpartner (28)
 4. Kostenloses Erstgespräch (24)
-5. Praxis-IT-Check €99 netto (25)
+5. Praxis-IT-Check anfragen (24)
 6. Netzwerk, PC & Datensicherung (29)
 7. Vor Ort oder per Fernwartung (28)
 8. Wien und Umgebung (17)
@@ -116,7 +116,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 **Beschreibungen**
 
 1. Netzwerk, Computer und Datensicherung für Ihre Ordination. Persönlich und aus einer Hand. (89)
-2. Kostenloses Erstgespräch. Praxis-IT-Check €99 netto, bei Auftrag voll angerechnet. (82)
+2. Kostenloses Erstgespräch. Praxis-IT-Check mit klarem Angebot. (61)
 3. Damit Ihre Praxis läuft, auch wenn es voll wird. Vor Ort in Wien oder per Fernwartung. (86)
 4. Betreuung auf Deutsch und Arabisch. Verständlich erklärt, mit klarem Angebot. (77)
 
@@ -136,7 +136,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 4. Microsoft 365 mit MFA (21)
 5. Klare Zugriffsrechte (20)
 6. Datensicherung im Blick (23)
-7. IT-Check €99 netto (18)
+7. IT-Check anfragen (17)
 8. Kostenloses Erstgespräch (24)
 9. Wien und Umgebung (17)
 10. Persönlich & verständlich (25)
@@ -150,7 +150,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 
 1. IT, Netzwerk und Sicherheit für Ihr Büro. Persönlich, vor Ort oder per Fernwartung. (83)
 2. Vertrauliche Daten brauchen zuverlässige Technik. Microsoft 365, Backup, Zugriffsrechte. (88)
-3. Kostenloses Erstgespräch. IT-Check €99 netto, bei Auftrag voll angerechnet. (75)
+3. Kostenloses Erstgespräch. IT-Check mit klarem Angebot. (54)
 4. Ihr Büro läuft. Die Technik dahinter auch. In Wien und Umgebung, auf Deutsch und Arabisch. (90)
 
 ### AG3 Allgemein IT-Betreuung
@@ -173,7 +173,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 8. Persönlich & verständlich (25)
 9. Wien und Umgebung (17)
 10. Vor Ort oder per Fernwartung (28)
-11. IT-Check €99 netto (18)
+11. IT-Check anfragen (17)
 12. Alles aus einer Hand (20)
 13. Klare Angebote (14)
 14. Erstgespräch anfragen (21)
@@ -184,7 +184,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 1. IT, Netzwerk und Sicherheit für Betriebe in Wien und Umgebung. Persönlich, aus einer Hand. (90)
 2. Klare Sprache, klares Angebot. Jetzt unverbindlich Erstgespräch vereinbaren. (76)
 3. Technik, die zu Ihrem Betrieb passt. Betreuung auf Deutsch und Arabisch. (72)
-4. IT-Check €99 netto: verständlicher Überblick, bei Auftrag voll angerechnet. (75)
+4. IT-Check: verständlicher Überblick über Ihre Technik. (53)
 
 ### AG4 Netzwerk & WLAN
 
@@ -206,7 +206,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 8. Wien und Umgebung (17)
 9. Sauber verkabelt (16)
 10. Netzwerk dokumentiert (21)
-11. IT-Check €99 netto (18)
+11. IT-Check anfragen (17)
 12. Ein Ansprechpartner (19)
 13. Netzwerk für Praxis & Laden (27)
 14. Von Planung bis Betreuung (25)
@@ -217,7 +217,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 1. Stabiles Netzwerk und WLAN für Praxis, Büro, Geschäft. Sauber installiert, dokumentiert. (88)
 2. Ein Ansprechpartner für Netzwerk, Geräte und Sicherheit. Jetzt Erstgespräch anfragen. (85)
 3. Planung, Installation und Betreuung in Wien und Umgebung. Verständlich erklärt. (79)
-4. IT-Check €99 netto, bei Auftrag voll angerechnet. Das Erstgespräch ist kostenlos. (81)
+4. IT-Check mit klarem Angebot. Das Erstgespräch ist kostenlos. (60)
 
 ### AG5 Microsoft 365
 
@@ -239,7 +239,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 8. Wien und Umgebung (17)
 9. Benutzer und Rechte (19)
 10. Ein Ansprechpartner (19)
-11. IT-Check €99 netto (18)
+11. IT-Check anfragen (17)
 12. Auf Deutsch und Arabisch (24)
 13. Sauber eingerichtet (19)
 14. Erstgespräch anfragen (21)
@@ -249,7 +249,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 
 1. Microsoft 365 einrichten und betreuen: E-Mail, Benutzer und sichere Anmeldung mit MFA. (86)
 2. Postfächer übernehmen, Rechte regeln, Team einweisen. Persönlich, in Wien und Umgebung. (87)
-3. Kostenloses Erstgespräch. IT-Check €99 netto, bei Auftrag voll angerechnet. (75)
+3. Kostenloses Erstgespräch. IT-Check mit klarem Angebot. (54)
 4. Betreuung auf Deutsch und Arabisch. Verständlich erklärt, mit klarem Angebot. (77)
 
 ### AG6 Backup & Daten
@@ -270,7 +270,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 6. Kostenloses Erstgespräch (24)
 7. Wien und Umgebung (17)
 8. Ein Ansprechpartner (19)
-9. IT-Check €99 netto (18)
+9. IT-Check anfragen (17)
 10. Sicherung prüfen lassen (23)
 11. Auf Deutsch und Arabisch (24)
 12. Verständlich erklärt (20)
@@ -281,7 +281,7 @@ Je Anzeigengruppe 1 RSA mit 15 Überschriften (≤30 Zeichen) und 4 Beschreibung
 **Beschreibungen**
 
 1. Datensicherung und NAS für Büro und Praxis. Wiederherstellung im Umfang geprüft. (80)
-2. Kostenloses Erstgespräch. IT-Check €99 netto, bei Auftrag voll angerechnet. (75)
+2. Kostenloses Erstgespräch. IT-Check mit klarem Angebot. (54)
 3. Ihre Daten gesichert und gut abgelegt. Persönlich, in Wien und Umgebung. (72)
 4. Betreuung auf Deutsch und Arabisch. Verständlich erklärt, mit klarem Angebot. (77)
 

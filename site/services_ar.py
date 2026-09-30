@@ -20,7 +20,7 @@ LABELS_AR = {
     "all": "كل الخدمات",
     "contact_h2": "لنتحدث عن {name}",
     "contact_lead": "استشارة أولى مجانية، دون التزام وبلا مصطلحات معقدة.",
-    "price_offer": '<p class="price">99 € <small>دون ضريبة القيمة المضافة</small></p><p class="muted">إذا طلبتَ مشروعاً أو عقد صيانة، يُخصم المبلغ بالكامل من قيمته. الاستشارة الأولى مجانية.</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta">اطلب فحص IT</a></div>',
+    "price_offer": '<p class="muted">الاستشارة الأولى مجانية، وبعدها يصلك عرض واضح.</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta">اطلب فحص IT</a></div>',
     "plain_offer": '<p class="muted">الاستشارة الأولى مجانية. بعدها تحصل على عرض واضح، بسعر ثابت حيثما أمكن.</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta">احجز استشارة أولى</a></div>',
     "legend_check": "النتيجة بإشارات: <strong>سليم</strong> أو <strong>يُنصح بالتحسين</strong> أو <strong>حرج</strong>.",
     "legend_plain": "نناقش ذلك معك قبل أن نقدّم أي عرض.",

@@ -5,7 +5,7 @@ Contracts and invoices are in German, and the copy says so. No invented proof or
 
 PILL_EN = {"ok": "OK", "warn": "Improvement recommended", "crit": "Critical"}
 
-CHECK_NOTE_EN = "If you commission a project or a maintenance contract, the amount is credited in full. The first conversation is free."
+CHECK_NOTE_EN = "The first call is free. After that you receive a clear quote."
 
 LABELS_EN = {
     "example": "Example",
@@ -22,7 +22,7 @@ LABELS_EN = {
     "all": "See all services",
     "contact_h2": "Let's talk about {name}",
     "contact_lead": "Free first call, no obligation and no jargon.",
-    "price_offer": f'<p class="price">€99 <small>excl. VAT</small></p><p class="muted">{CHECK_NOTE_EN}</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta" data-interest="it-check">Request the IT check</a></div>',
+    "price_offer": f'<p class="muted">{CHECK_NOTE_EN}</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta" data-interest="it-check">Request the IT check</a></div>',
     "plain_offer": '<p class="muted">The first call is free. After that you receive a clear quote, with a fixed price where possible.</p><div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="check-cta" data-interest="erstgespraech">Request a first call</a></div>',
     "legend_check": "Result with traffic lights: <strong>OK</strong>, <strong>Improvement recommended</strong> or <strong>Critical</strong>.",
     "legend_plain": "We discuss this with you before we make a quote.",

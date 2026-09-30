@@ -12,4 +12,4 @@ Guten Tag [Name], passt ein Termin von 20 Minuten diese Woche? Wir klären, was 
 
 **Mail 3: nach 5 Tagen**
 Betreff: Wissen, wo Ihre IT steht
-Der IT-Check zeigt in einem verständlichen Bericht, was in Ordnung ist und was Sie zuerst angehen sollten (€99 zzgl. USt., bei Auftrag angerechnet): https://horaniq.at/it-check/ . Wenn Sie lieber zuerst reden möchten, melden Sie sich jederzeit.
+Der IT-Check zeigt in einem verständlichen Bericht, was in Ordnung ist und was Sie zuerst angehen sollten: https://horaniq.at/it-check/ . Wenn Sie lieber zuerst reden möchten, melden Sie sich jederzeit.

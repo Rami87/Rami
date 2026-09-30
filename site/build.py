@@ -81,7 +81,7 @@ I18N = {
         "f_interest": "Wofür interessieren Sie sich?",
         "interests_general": [
             ("erstgespraech", "Kostenloses Erstgespräch", "Erstgespräch anfragen", ""),
-            ("it-check", "IT-Check für €99 zzgl. USt.", "IT-Check anfragen", ""),
+            ("it-check", "IT-Check", "IT-Check anfragen", ""),
             ("betreuung", "Laufende IT-Betreuung", "Betreuung anfragen", ""),
             ("website", "Website", "Website-Projekt anfragen", "Für Website- und Shop-Projekte brauchen Sie keinen IT-Check."),
             ("onlineshop", "Onlineshop", "Onlineshop anfragen", "Für Website- und Shop-Projekte brauchen Sie keinen IT-Check."),
@@ -89,7 +89,7 @@ I18N = {
         ],
         "interests_praxis": [
             ("erstgespraech", "Kostenloses Erstgespräch", "Erstgespräch anfragen", ""),
-            ("it-check", "IT-Check für €99 zzgl. USt.", "IT-Check anfragen", ""),
+            ("it-check", "IT-Check", "IT-Check anfragen", ""),
             ("betreuung", "Laufende IT-Betreuung", "Betreuung anfragen", ""),
             ("praxiswebsite", "Praxiswebsite", "Praxiswebsite anfragen", "Für eine Praxiswebsite brauchen Sie keinen IT-Check."),
         ],
@@ -127,14 +127,14 @@ I18N = {
         "types_praxis": ["عيادة طبية", "عيادة أسنان", "عيادة علاج", "عيادة جماعية", "منشأة طبية أخرى"],
         "interests_praxis": [
             ("erstgespraech", "استشارة أولى مجانية", "احجز استشارة أولى", ""),
-            ("it-check", "فحص IT بـ 99 € دون ضريبة", "اطلب فحص IT", ""),
+            ("it-check", "فحص IT", "اطلب فحص IT", ""),
             ("betreuung", "دعم IT مستمر", "اطلب الدعم المستمر", ""),
             ("praxiswebsite", "موقع العيادة", "اطلب موقع العيادة", "لا تحتاج إلى فحص IT لموقع العيادة."),
         ],
         "f_msg_notice": "يرجى عدم إرسال بيانات مرضى أو كلمات مرور عبر هذا النموذج.",
         "interests_general": [
             ("erstgespraech", "استشارة أولى مجانية", "احجز استشارة أولى", ""),
-            ("it-check", "فحص IT بـ 99 € دون ضريبة", "اطلب فحص IT", ""),
+            ("it-check", "فحص IT", "اطلب فحص IT", ""),
             ("betreuung", "دعم IT مستمر", "اطلب الدعم المستمر", ""),
             ("website", "موقع إلكتروني", "اطلب مشروع موقع", "لا تحتاج إلى فحص IT لمشاريع المواقع والمتاجر."),
             ("onlineshop", "متجر إلكتروني", "اطلب متجراً إلكترونياً", "لا تحتاج إلى فحص IT لمشاريع المواقع والمتاجر."),
@@ -178,7 +178,7 @@ I18N = {
         "types_praxis": ["Medical practice", "Dental practice", "Therapy practice", "Group practice", "Other medical facility"],
         "interests_general": [
             ("erstgespraech", "Free first call", "Request a first call", ""),
-            ("it-check", "IT check for €99 excl. VAT", "Request the IT check", ""),
+            ("it-check", "IT check", "Request the IT check", ""),
             ("betreuung", "Ongoing IT care", "Request care", ""),
             ("website", "Website", "Request a website project", "You do not need an IT check for website and shop projects."),
             ("onlineshop", "Online shop", "Request an online shop", "You do not need an IT check for website and shop projects."),
@@ -186,7 +186,7 @@ I18N = {
         ],
         "interests_praxis": [
             ("erstgespraech", "Free first call", "Request a first call", ""),
-            ("it-check", "IT check for €99 excl. VAT", "Request the IT check", ""),
+            ("it-check", "IT check", "Request the IT check", ""),
             ("betreuung", "Ongoing IT care", "Request care", ""),
             ("praxiswebsite", "Practice website", "Request a practice website", "You do not need an IT check for a practice website."),
         ],
@@ -482,7 +482,7 @@ def schema_graph(meta, body, url, t):
         "areaServed": [{"@type": "City", "name": "Wien"}, {"@type": "AdministrativeArea", "name": "Wien und Umgebung"}],
         "knowsLanguage": ["de", "ar", "en"],
         "hasOfferCatalog": {"@type": "OfferCatalog", "name": "Leistungen", "itemListElement": [{"@type": "Offer", "itemOffered": {"@type": "Service", "name": re.sub(r"&amp;", "&", services.SVC[sl][0]), "url": f"{DOMAIN}/{sl}/"}} for _, _, sls in services.GROUPS for sl in sls]},
-        "makesOffer": {"@type": "Offer", "price": "99", "priceCurrency": "EUR", "description": "IT-Check, Preis zuzüglich USt., bei Auftrag vollständig angerechnet", "itemOffered": {"@type": "Service", "name": "IT-Check"}},
+        "makesOffer": {"@type": "Offer", "description": "Kostenloses Erstgespräch", "itemOffered": {"@type": "Service", "name": "IT-Check"}},
     }
     if PHONE:
         org["telephone"] = PHONE
@@ -598,7 +598,7 @@ def llms_txt(paths):
     if ENABLE_EN:
         lines += ["", "## English"] + [f"- [{p}]({DOMAIN}{p})" for p in paths if p.startswith("/en/")]
     lines += ["", "## Arabisch"] + [f"- [{p}]({DOMAIN}{p})" for p in paths if p.startswith("/ar/")] + [""]
-    lines += [ "## Fakten", "- Einsatzgebiet: Wien und Umgebung, bis etwa eine Stunde Fahrzeit, Fernwartung darüber hinaus", "- Erstgespräch kostenlos; IT-Check €99 zzgl. USt., bei Auftrag angerechnet", "- Alle Preise netto"]
+    lines += [ "## Fakten", "- Einsatzgebiet: Wien und Umgebung, bis etwa eine Stunde Fahrzeit, Fernwartung darüber hinaus", "- Erstgespräch kostenlos; danach klares Angebot, alle Preise netto", "- Alle Preise netto"]
     return "\n".join(lines) + "\n"
 
 
