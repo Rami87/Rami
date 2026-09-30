@@ -335,9 +335,23 @@ def form_html(t, sector, default_interest="erstgespraech"):
 </form>'''
 
 
+import hashlib
+
+
+def _ver(data):
+    return hashlib.md5(data if isinstance(data, bytes) else data.encode("utf-8")).hexdigest()[:8]
+
+
+def asset_version(name):
+    """Content hash used as ?v= so browsers never show a stale sprite, stylesheet or script after a deploy."""
+    if name == "icons.svg":
+        return _ver(icons.sprite())
+    return _ver((ROOT / "assets" / name).read_bytes())
+
+
 def icon_svg(slug, size=""):
     cls = "ico" + (f" ico-{size}" if size else "")
-    return f'<svg class="{cls}" aria-hidden="true" focusable="false"><use href="/assets/img/icons.svg#i-{slug}"/></svg>'
+    return f'<svg class="{cls}" aria-hidden="true" focusable="false"><use href="/assets/img/icons.svg?v={asset_version("icons.svg")}#i-{slug}"/></svg>'
 
 
 ICON_RE = re.compile(r"\{\{ICON:([a-z0-9-]+)(?::(sm|lg|xl))?\}\}")
@@ -553,7 +567,7 @@ def _render(meta, body):
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" href="/assets/img/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/{"ibm-plex-sans-arabic-arabic-400" if meta["lang"] == "ar" else "instrument-sans-latin-400"}-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/site.css?v={asset_version("css/site.css")}">
 <script type="application/ld+json">
 {schema_graph(meta, body, url, t)}
 </script>
@@ -566,7 +580,7 @@ def _render(meta, body):
 </main>
 {footer_html(t)}
 {mbar_html(t, cta)}
-{analytics}<script src="/assets/js/site.js" defer></script>
+{analytics}<script src="/assets/js/site.js?v={asset_version("js/site.js")}" defer></script>
 </body>
 </html>
 '''

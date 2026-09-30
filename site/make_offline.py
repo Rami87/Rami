@@ -25,8 +25,8 @@ for f in list(OUT.rglob("*.html")):
     depth = len(f.relative_to(OUT).parts) - 1
     rel = "../" * depth if depth else "./"
     s = f.read_text(encoding="utf8")
-    s = s.replace('href="/assets/img/icons.svg#', 'href="#')
-    s = re.sub(r'(href|src)="(/(?!/)[^"]*)"', lambda m: f'{m.group(1)}="{rel_target(m.group(2), rel)}"', s)
+    s = re.sub(r'href="/assets/img/icons\.svg\?v=[0-9a-f]+#', 'href="#', s)
+    s = re.sub(r'(href|src)="(/(?!/)[^"?]*)(\?v=[0-9a-f]+)?"', lambda m: f'{m.group(1)}="{rel_target(m.group(2), rel)}"', s)
     s = re.sub(r'(href="[^"#]*/)(#|")', lambda m: m.group(0), s)
     s = re.sub(r"<body([^>]*)>", lambda m: f"<body{m.group(1)}>\n{sprite}", s, count=1)
     s = re.sub(r'<link rel="(canonical|alternate)"[^>]*>\n?', "", s)
