@@ -29,7 +29,30 @@
 - [Alle Leistungen](https://horaniq.at/leistungen/)
 
 ## Arabisch
-- [HORANiQ بالعربية](https://horaniq.at/ar/)
+- [/ar/arztpraxis/](https://horaniq.at/ar/arztpraxis/)
+- [/ar/it-check/](https://horaniq.at/ar/it-check/)
+- [/ar/preise/](https://horaniq.at/ar/preise/)
+- [/ar/ratgeber/backup-testen/](https://horaniq.at/ar/ratgeber/backup-testen/)
+- [/ar/ratgeber/microsoft-365-mfa/](https://horaniq.at/ar/ratgeber/microsoft-365-mfa/)
+- [/ar/ratgeber/it-sicherheit-arztpraxis/](https://horaniq.at/ar/ratgeber/it-sicherheit-arztpraxis/)
+- [/ar/ratgeber/](https://horaniq.at/ar/ratgeber/)
+- [/ar/ueber-uns/](https://horaniq.at/ar/ueber-uns/)
+- [/ar/unternehmen/](https://horaniq.at/ar/unternehmen/)
+- [/ar/website-shop/](https://horaniq.at/ar/website-shop/)
+- [/ar/wien/](https://horaniq.at/ar/wien/)
+- [/ar/](https://horaniq.at/ar/)
+- [/ar/it-betreuung/](https://horaniq.at/ar/it-betreuung/)
+- [/ar/microsoft-365/](https://horaniq.at/ar/microsoft-365/)
+- [/ar/backup/](https://horaniq.at/ar/backup/)
+- [/ar/netzwerk/](https://horaniq.at/ar/netzwerk/)
+- [/ar/sicherheit/](https://horaniq.at/ar/sicherheit/)
+- [/ar/wartung-reparatur/](https://horaniq.at/ar/wartung-reparatur/)
+- [/ar/smart-building/](https://horaniq.at/ar/smart-building/)
+- [/ar/crm-archivierung/](https://horaniq.at/ar/crm-archivierung/)
+- [/ar/it-sicherheit/](https://horaniq.at/ar/it-sicherheit/)
+- [/ar/it-beratung/](https://horaniq.at/ar/it-beratung/)
+- [/ar/care/](https://horaniq.at/ar/care/)
+- [/ar/leistungen/](https://horaniq.at/ar/leistungen/)
 
 ## Fakten
 - Einsatzgebiet: Wien und Umgebung, bis etwa eine Stunde Fahrzeit, Fernwartung darüber hinaus

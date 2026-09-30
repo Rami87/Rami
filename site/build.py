@@ -109,8 +109,8 @@ I18N = {
         "foot_cols": [
             ("الخدمات", [(services_ar.INDEX_AR[s][0], f"/ar/{s}/") for s in ["it-betreuung", "wartung-reparatur", "microsoft-365", "netzwerk", "backup", "it-sicherheit"]]),
             ("المزيد", [(services_ar.INDEX_AR[s][0], f"/ar/{s}/") for s in ["sicherheit", "smart-building", "website-shop", "crm-archivierung", "it-beratung", "it-check", "care"]] + [("كل الخدمات", "/ar/leistungen/")]),
-            ("القطاعات", [("العيادات (بالألمانية)", "/arztpraxis/"), ("المكاتب ومكاتب المحاماة والشركات (بالألمانية)", "/unternehmen/")]),
-            ("الشركة", [("من نحن", "/ar/ueber-uns/"), ("الأسعار", "/ar/preise/")]),
+            ("القطاعات", [("العيادات", "/ar/arztpraxis/"), ("المكاتب والشركات", "/ar/unternehmen/")]),
+            ("الشركة", [("من نحن", "/ar/ueber-uns/"), ("الأسعار", "/ar/preise/"), ("أدلة", "/ar/ratgeber/"), ("منطقة العمل", "/ar/wien/")]),
             ("قانوني", [("بيانات الشركة (Impressum)", "/impressum/"), ("الخصوصية (Datenschutz)", "/datenschutz/")]),
         ],
         "legal": "جميع الأسعار صافية دون ضريبة القيمة المضافة. المعلومات غير ملزمة.",
@@ -126,6 +126,15 @@ I18N = {
         "f_subject": "طلب استشارة أولى",
         "f_choose": "اختر",
         "f_interest": "بماذا أنت مهتم؟",
+        "f_praxis": "عيادتك",
+        "types_praxis": ["عيادة طبية", "عيادة أسنان", "عيادة علاج", "عيادة جماعية", "منشأة طبية أخرى"],
+        "interests_praxis": [
+            ("erstgespraech", "استشارة أولى مجانية", "احجز استشارة أولى", ""),
+            ("it-check", "فحص IT بـ 99 € دون ضريبة", "اطلب فحص IT", ""),
+            ("betreuung", "دعم IT مستمر", "اطلب الدعم المستمر", ""),
+            ("praxiswebsite", "موقع العيادة", "اطلب موقع العيادة", "لا تحتاج إلى فحص IT لموقع العيادة."),
+        ],
+        "f_msg_notice": "يرجى عدم إرسال بيانات مرضى أو كلمات مرور عبر هذا النموذج.",
         "interests_general": [
             ("erstgespraech", "استشارة أولى مجانية", "احجز استشارة أولى", ""),
             ("it-check", "فحص IT بـ 99 € دون ضريبة", "اطلب فحص IT", ""),
@@ -162,7 +171,7 @@ def call_buttons(t, cls="btn btn-ghost", track="call"):
 
 def form_html(t, sector, default_interest="erstgespraech"):
     """Shared contact form. The Arztpraxis page adds a request-type field and practice-specific options."""
-    praxis = sector == "arztpraxis"
+    praxis = sector in ("arztpraxis", "ar-arztpraxis")
     types = t["types_praxis"] if praxis else t["types"]
     label_type = t["f_praxis"] if praxis else t["f_type"]
     esc = html.escape
@@ -434,7 +443,8 @@ def llms_txt(paths):
         slug = p.strip("/").split("/")[-1]
         label = names.get(p) or (services.SVC[slug][0] if slug in services.SVC else slug.replace("-", " ").title())
         lines.append(f"- [{html.unescape(re.sub(r'<[^>]+>', '', label))}]({DOMAIN}{p})")
-    lines += ["", "## Arabisch", f"- [HORANiQ بالعربية]({DOMAIN}/ar/)", "", "## Fakten", "- Einsatzgebiet: Wien und Umgebung, bis etwa eine Stunde Fahrzeit, Fernwartung darüber hinaus", "- Erstgespräch kostenlos; IT-Check €99 zzgl. USt., bei Auftrag angerechnet", "- Alle Preise netto"]
+    lines += ["", "## Arabisch"] + [f"- [{p}]({DOMAIN}{p})" for p in paths if p.startswith("/ar/")] + [""]
+    lines += [ "## Fakten", "- Einsatzgebiet: Wien und Umgebung, bis etwa eine Stunde Fahrzeit, Fernwartung darüber hinaus", "- Erstgespräch kostenlos; IT-Check €99 zzgl. USt., bei Auftrag angerechnet", "- Alle Preise netto"]
     return "\n".join(lines) + "\n"
 
 
