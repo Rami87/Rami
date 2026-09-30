@@ -566,7 +566,7 @@ def _render(meta, body):
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" href="/assets/img/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
-<link rel="preload" href="/assets/fonts/{"ibm-plex-sans-arabic-arabic-400" if meta["lang"] == "ar" else "instrument-sans-latin-400"}-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/{"readex-pro-arabic-400" if meta["lang"] == "ar" else "manrope-latin-400"}-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css?v={asset_version("css/site.css")}">
 <script type="application/ld+json">
 {schema_graph(meta, body, url, t)}
