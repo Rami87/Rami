@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Smart Building"><g fill="none" stroke="#0F2E40" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+<rect x="9" y="9" width="27" height="46" rx="2.500" fill="none"/>
+<path d="M16 17h4M25 17h4M16 26h4M25 26h4M16 35h4M25 35h4" fill="none"/>
+<path d="M18 55v-8h9v8" fill="none"/>
+<circle cx="48" cy="43" r="9" fill="rgba(51,161,194,0.18)"/>
+<path d="M48 43l3.500-3.500" fill="none"/>
+<circle cx="48" cy="43" r="1.500" fill="#0F2E40" stroke="none"/>
+<path d="M43.500 31a6.500 6.500 0 0 1 9 0" fill="none" stroke="#33A1C2"/></g></svg>

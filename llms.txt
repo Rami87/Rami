@@ -1,0 +1,60 @@
+# HORANiQ
+
+> IT-Betreuung, Netzwerk und Sicherheit für Arztpraxen, Büros und Betriebe in Wien und Umgebung. Persönlicher Ansprechpartner, Beratung auf Deutsch und Arabisch. Gründer: Rami Horani.
+
+## Seiten (Deutsch)
+- [IT für Arztpraxen](https://horaniq.at/arztpraxis/)
+- [Startseite](https://horaniq.at/)
+- [HORANiQ IT-Check](https://horaniq.at/it-check/)
+- [Netzwerk & WLAN](https://horaniq.at/netzwerk/)
+- [Backup testen in fünf Schritten](https://horaniq.at/ratgeber/backup-testen/)
+- [Microsoft 365 absichern mit MFA](https://horaniq.at/ratgeber/microsoft-365-mfa/)
+- [Checkliste IT-Sicherheit in der Arztpraxis](https://horaniq.at/ratgeber/it-sicherheit-arztpraxis/)
+- [Ratgeber](https://horaniq.at/ratgeber/)
+- [Über uns](https://horaniq.at/ueber-uns/)
+- [IT für Büros und Betriebe](https://horaniq.at/unternehmen/)
+- [Websites & Onlineshops](https://horaniq.at/website-shop/)
+- [Einsatzgebiet Wien](https://horaniq.at/wien/)
+- [IT-Betreuung & Support](https://horaniq.at/it-betreuung/)
+- [Microsoft 365](https://horaniq.at/microsoft-365/)
+- [Backup, NAS & Daten](https://horaniq.at/backup/)
+- [VoIP-Telefonie](https://horaniq.at/voip/)
+- [Kameras, Alarm & Zutritt](https://horaniq.at/sicherheit/)
+- [Computer, Geräte & Wartung](https://horaniq.at/wartung-reparatur/)
+- [Smart Building](https://horaniq.at/smart-building/)
+- [CRM und digitale Ablage](https://horaniq.at/crm-archivierung/)
+- [IT-Sicherheit](https://horaniq.at/it-sicherheit/)
+- [IT-Beratung & Projektumsetzung](https://horaniq.at/it-beratung/)
+- [HORANiQ Care](https://horaniq.at/care/)
+- [Alle Leistungen](https://horaniq.at/leistungen/)
+
+## Arabisch
+- [/ar/arztpraxis/](https://horaniq.at/ar/arztpraxis/)
+- [/ar/it-check/](https://horaniq.at/ar/it-check/)
+- [/ar/netzwerk/](https://horaniq.at/ar/netzwerk/)
+- [/ar/ratgeber/backup-testen/](https://horaniq.at/ar/ratgeber/backup-testen/)
+- [/ar/ratgeber/microsoft-365-mfa/](https://horaniq.at/ar/ratgeber/microsoft-365-mfa/)
+- [/ar/ratgeber/it-sicherheit-arztpraxis/](https://horaniq.at/ar/ratgeber/it-sicherheit-arztpraxis/)
+- [/ar/ratgeber/](https://horaniq.at/ar/ratgeber/)
+- [/ar/ueber-uns/](https://horaniq.at/ar/ueber-uns/)
+- [/ar/unternehmen/](https://horaniq.at/ar/unternehmen/)
+- [/ar/website-shop/](https://horaniq.at/ar/website-shop/)
+- [/ar/wien/](https://horaniq.at/ar/wien/)
+- [/ar/](https://horaniq.at/ar/)
+- [/ar/it-betreuung/](https://horaniq.at/ar/it-betreuung/)
+- [/ar/microsoft-365/](https://horaniq.at/ar/microsoft-365/)
+- [/ar/voip/](https://horaniq.at/ar/voip/)
+- [/ar/backup/](https://horaniq.at/ar/backup/)
+- [/ar/sicherheit/](https://horaniq.at/ar/sicherheit/)
+- [/ar/wartung-reparatur/](https://horaniq.at/ar/wartung-reparatur/)
+- [/ar/smart-building/](https://horaniq.at/ar/smart-building/)
+- [/ar/crm-archivierung/](https://horaniq.at/ar/crm-archivierung/)
+- [/ar/it-sicherheit/](https://horaniq.at/ar/it-sicherheit/)
+- [/ar/it-beratung/](https://horaniq.at/ar/it-beratung/)
+- [/ar/care/](https://horaniq.at/ar/care/)
+- [/ar/leistungen/](https://horaniq.at/ar/leistungen/)
+
+## Fakten
+- Einsatzgebiet: Wien und Umgebung, bis etwa eine Stunde Fahrzeit, Fernwartung darüber hinaus
+- Erstgespräch kostenlos; danach klares Angebot, alle Preise netto
+- Alle Preise netto
