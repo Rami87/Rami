@@ -32,4 +32,15 @@ assert(H.build({ number: '1', date: '2026-10-01', items: [{ description: 'x', qt
 assert(H.build({ number: '1', date: '2026-10-01', items: [], taxNote: H.DEFAULT_TAX_NOTE }, {}).includes('01.10.2026'));
 const html = H.build({ number: '<x>', items: [], customer: '' }, { companyName: '<script>', color: 'red', logo: 'javascript:1' });
 assert(!html.includes('<script>') && !html.includes('javascript:') && html.includes('lang="de"'));
+const { toCsv } = require('../src/csv');
+const csv = toCsv([{ number: '7', date: '2025-12-31', customer: '=cmd;"x"', taxRate: 20, items: [{ description: 'a', qty: 1, price: 100 }] },
+  { number: '8', date: '2026-01-02', customer: 'B', taxRate: 0, items: [{ description: 'b', qty: 2, price: 50.5 }] }]);
+assert(csv.startsWith('﻿Rechnungsnummer;'));
+assert(csv.includes(`"'=cmd;""x"""`)); // Formel-Injection entschärft, Quotes escaped
+assert(csv.includes('7;31.12.2025;;') && csv.includes('100,00;20;20,00;120,00'));
+assert(csv.includes('Summe (2 Rechnungen);;;;;201,00;;20,00;221,00'));
+const y = new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'inv-')));
+y.saveInvoice({ date: '2025-05-01', customer: 'A', items: [] }); y.saveInvoice({ date: '2026-05-01', customer: 'B', items: [] });
+assert.strictEqual(y.listInvoices('', '2025').length, 1);
+assert.strictEqual(y.listInvoices('B', '2025').length, 0);
 console.log('Alle Tests bestanden');

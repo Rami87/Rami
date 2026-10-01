@@ -43,3 +43,8 @@ table#list { width: 100%; background: #fff; border-collapse: collapse; margin-to
   background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); }
 #hue::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 2px solid #555; cursor: pointer; }
 .rgbrow { display: flex; gap: 6px; margin-bottom: 8px; } .rgbrow input { margin: 0; text-align: center; padding: 6px 2px; } .rgbrow button { padding: 4px 10px; }
+
+table#years { width: 100%; max-width: 760px; background: #fff; border-collapse: collapse; margin: 6px 0 16px; border-radius: 8px; overflow: hidden; }
+#years th, #years td { padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: right; } #years th:first-child, #years td:first-child { text-align: left; }
+#years tr.sel td { background: #e8f0fe; font-weight: 600; } #years tbody tr { cursor: pointer; }
+.filters { align-items: center; max-width: 900px; } .filters > #search { flex: 3; margin: 0; } .filters > select { flex: 1; margin: 0; } .filters > button { flex: 0 0 auto; }

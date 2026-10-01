@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { Store } = require('./store');
 const InvoiceHtml = require('./invoice-html');
+const { toCsv } = require('./csv');
 
 let store;
 
@@ -26,10 +27,21 @@ app.whenReady().then(() => {
   store = new Store(path.join(app.getPath('userData'), 'data'));
   ipcMain.handle('settings:get', () => store.getSettings());
   ipcMain.handle('settings:save', (_, s) => store.saveSettings(s));
-  ipcMain.handle('invoices:list', (_, q) => store.listInvoices(q));
+  ipcMain.handle('invoices:list', (_, q, year) => store.listInvoices(q, year));
   ipcMain.handle('invoices:get', (_, id) => store.getInvoice(id));
   ipcMain.handle('invoices:save', (_, inv) => store.saveInvoice(inv));
   ipcMain.handle('invoices:delete', (_, id) => store.deleteInvoice(id));
+  ipcMain.handle('invoices:csv', async (e, q, year) => {
+    const list = store.listInvoices(q, year);
+    const win = BrowserWindow.fromWebContents(e.sender);
+    const { filePath, canceled } = await dialog.showSaveDialog(win, {
+      defaultPath: path.join(app.getPath('documents'), `Rechnungen-${year || 'alle'}.csv`),
+      filters: [{ name: 'CSV', extensions: ['csv'] }],
+    });
+    if (canceled || !filePath) return { ok: false };
+    fs.writeFileSync(filePath, toCsv(list));
+    return { ok: true, filePath, count: list.length };
+  });
   ipcMain.handle('invoices:pdf', async (e, id) => {
     const inv = store.getInvoice(id);
     if (!inv) return { ok: false };

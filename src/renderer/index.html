@@ -39,7 +39,14 @@
     </div>
   </section>
   <section id="view-archive" hidden>
-    <input id="search" type="search" placeholder="Suche nach Nummer, Kunde, Datum oder Position …">
+    <h3>Jahresübersicht</h3>
+    <table id="years"><thead><tr><th>Jahr</th><th>Rechnungen</th><th>Netto</th><th>USt.</th><th>Gesamt (brutto)</th></tr></thead><tbody></tbody></table>
+    <div class="row filters">
+      <input id="search" type="search" placeholder="Suche nach Nummer, Kunde, Datum oder Position …">
+      <select id="yearFilter" title="Jahr"></select>
+      <button type="button" id="exportCsv" class="secondary">Als CSV exportieren</button>
+    </div>
+    <p id="listmsg" class="msg"></p>
     <table id="list"><thead><tr><th>Nr.</th><th>Datum</th><th>Kunde</th><th>Gesamtbetrag</th><th></th></tr></thead><tbody></tbody></table>
     <p id="empty" class="msg" hidden>Keine Rechnungen vorhanden.</p>
   </section>

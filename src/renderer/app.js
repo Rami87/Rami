@@ -102,9 +102,39 @@ $('#savePdf').onclick = async () => {
 
 // ---- Archiv ----
 let timer;
+const yearOf = (inv) => String(inv.date || '').slice(0, 4);
 $('#search').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(loadList, 200); });
+$('#yearFilter').addEventListener('change', loadList);
+$('#exportCsv').onclick = async () => {
+  const r = await api.exportCsv($('#search').value, $('#yearFilter').value);
+  if (r.ok) $('#listmsg').textContent = r.count + ' Rechnungen exportiert: ' + r.filePath;
+};
+async function loadYears() {
+  const all = await api.listInvoices('', '');
+  const by = {};
+  all.forEach((inv) => {
+    const y = yearOf(inv) || '—', t = InvoiceHtml.totals(inv);
+    const o = (by[y] = by[y] || { n: 0, net: 0, tax: 0, total: 0 });
+    o.n++; o.net += t.net; o.tax += t.tax; o.total += t.total;
+  });
+  const years = Object.keys(by).sort().reverse();
+  const sel = $('#yearFilter'), cur = sel.value;
+  sel.innerHTML = '<option value="">Alle Jahre</option>' + years.filter((y) => y !== '—').map((y) => `<option value="${y}">${y}</option>`).join('');
+  sel.value = years.includes(cur) ? cur : '';
+  const tb = $('#years tbody'); tb.innerHTML = '';
+  const row = (label, o, y) => {
+    const tr = document.createElement('tr'); if (y !== undefined && y === sel.value) tr.className = 'sel';
+    [label, o.n, eur(o.net, settings.currency), eur(o.tax, settings.currency), eur(o.total, settings.currency)].forEach((c) => { const td = document.createElement('td'); td.textContent = c; tr.appendChild(td); });
+    if (y !== undefined) tr.onclick = () => { sel.value = y === sel.value ? '' : y; loadList(); };
+    tb.appendChild(tr);
+  };
+  years.forEach((y) => row(y, by[y], y));
+  if (years.length > 1) row('Gesamt', Object.values(by).reduce((a, o) => ({ n: a.n + o.n, net: a.net + o.net, tax: a.tax + o.tax, total: a.total + o.total }), { n: 0, net: 0, tax: 0, total: 0 }));
+}
 async function loadList() {
-  const list = await api.listInvoices($('#search').value);
+  await loadYears();
+  $('#listmsg').textContent = '';
+  const list = await api.listInvoices($('#search').value, $('#yearFilter').value);
   const tb = $('#list tbody'); tb.innerHTML = '';
   $('#empty').hidden = list.length > 0;
   for (const inv of list) {

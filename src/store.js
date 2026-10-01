@@ -25,11 +25,12 @@ class Store {
   }
   getSettings() { return { ...DEFAULT_SETTINGS, ...this._read(this.settingsFile, {}) }; }
   saveSettings(s) { const merged = { ...this.getSettings(), ...s }; this._write(this.settingsFile, merged); return merged; }
-  listInvoices(query = '') {
+  listInvoices(query = '', year = '') {
     const q = String(query).trim().toLowerCase();
     const all = this._read(this.invoicesFile, []);
-    const res = q ? all.filter((i) => [i.number, i.customer, i.date, i.notes, i.customerUid, ...(i.items || []).map((x) => x.description)]
-      .some((v) => String(v || '').toLowerCase().includes(q))) : all;
+    let res = year ? all.filter((i) => String(i.date || '').startsWith(String(year) + '-')) : all;
+    res = q ? res.filter((i) => [i.number, i.customer, i.date, i.notes, i.customerUid, ...(i.items || []).map((x) => x.description)]
+      .some((v) => String(v || '').toLowerCase().includes(q))) : res;
     return res.sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.number).localeCompare(String(a.number)));
   }
   getInvoice(id) { return this._read(this.invoicesFile, []).find((i) => i.id === id) || null; }
