@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; frame-src 'self' about:">
+<title>برنامج الفواتير</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<nav>
+  <button data-view="new" class="active">فاتورة جديدة</button>
+  <button data-view="archive">الأرشيف</button>
+  <button data-view="settings">الإعدادات</button>
+</nav>
+<main>
+  <section id="view-new">
+    <div class="split">
+      <form id="form">
+        <div class="row"><label>رقم الفاتورة<input name="number" placeholder="تلقائي"></label>
+          <label>التاريخ<input name="date" type="date" required></label></div>
+        <label>اسم العميل<input name="customer" required></label>
+        <label>عنوان العميل<input name="customerAddress"></label>
+        <h3>البنود</h3>
+        <div id="items"></div>
+        <button type="button" id="addItem" class="secondary">+ إضافة بند</button>
+        <div class="row"><label>الخصم<input name="discount" type="number" min="0" step="0.01" value="0"></label>
+          <label>الضريبة %<input name="taxRate" type="number" min="0" step="0.01" value="0"></label></div>
+        <label>ملاحظات<textarea name="notes" rows="2"></textarea></label>
+        <div class="total">الإجمالي: <b id="total">0.00</b></div>
+        <div class="row">
+          <button type="submit">حفظ في الأرشيف</button>
+          <button type="button" id="savePdf" class="secondary">حفظ وتصدير PDF</button>
+          <button type="button" id="reset" class="secondary">جديد</button>
+        </div>
+        <p id="msg" class="msg"></p>
+      </form>
+      <iframe id="preview" title="معاينة" sandbox></iframe>
+    </div>
+  </section>
+  <section id="view-archive" hidden>
+    <input id="search" type="search" placeholder="ابحث برقم الفاتورة أو اسم العميل أو التاريخ أو البند...">
+    <table id="list"><thead><tr><th>الرقم</th><th>التاريخ</th><th>العميل</th><th>الإجمالي</th><th></th></tr></thead><tbody></tbody></table>
+    <p id="empty" class="msg" hidden>لا توجد فواتير.</p>
+  </section>
+  <section id="view-settings" hidden>
+    <form id="settingsForm">
+      <label>اسم الشركة<input name="companyName" required></label>
+      <label>العنوان<textarea name="address" rows="3"></textarea></label>
+      <div class="row"><label>اللون الأساسي<input name="color" type="color"></label>
+        <label>العملة<input name="currency"></label>
+        <label>رقم الفاتورة التالي<input name="nextNumber" type="number" min="1"></label></div>
+      <label>الشعار<input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+      <img id="logoPreview" alt="" hidden><button type="button" id="removeLogo" class="secondary" hidden>إزالة الشعار</button>
+      <button type="submit">حفظ الإعدادات</button>
+      <p id="smsg" class="msg"></p>
+    </form>
+  </section>
+</main>
+<script src="../invoice-html.js"></script>
+<script src="app.js"></script>
+</body></html>

@@ -1,0 +1,24 @@
+{
+  "name": "invoice-app",
+  "version": "0.1.0",
+  "description": "برنامج فواتير بسيط يعمل بدون إنترنت ويحفظ PDF",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node scripts/test.js",
+    "sample": "node scripts/sample-pdf.js",
+    "dist": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "local.invoice.app",
+    "productName": "Invoices",
+    "files": ["src/**/*", "package.json"],
+    "win": { "target": "portable" }
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "playwright-core": "^1.48.0"
+  },
+  "license": "MIT"
+}

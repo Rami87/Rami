@@ -1,0 +1,25 @@
+name: build
+on: [push, pull_request]
+jobs:
+  test-and-sample:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npx playwright-core install --with-deps chromium
+      - run: npm run sample
+      - uses: actions/upload-artifact@v4
+        with: { name: sample-pdf, path: sample/invoice-sample.pdf }
+  windows-portable:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      - run: npm run dist
+      - uses: actions/upload-artifact@v4
+        with: { name: windows-portable, path: dist/*.exe }
