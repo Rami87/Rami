@@ -2,7 +2,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const DEFAULT_SETTINGS = { companyName: 'اسم الشركة', address: '', color: '#1f6feb', logo: '', currency: 'ر.س', nextNumber: 1 };
+const DEFAULT_SETTINGS = {
+  companyName: 'Firmenname', address: '', uid: '', iban: '', bic: '', color: '#1f6feb', logo: '', currency: '€', nextNumber: 1,
+  taxRate: 0, taxNote: 'Umsatzsteuerfrei gemäß § 6 Abs. 1 Z 27 UStG.',
+  catalog: [], // vordefinierte Positionen: [{ description, price }]
+};
 
 class Store {
   constructor(dir) {
@@ -24,7 +28,7 @@ class Store {
   listInvoices(query = '') {
     const q = String(query).trim().toLowerCase();
     const all = this._read(this.invoicesFile, []);
-    const res = q ? all.filter((i) => [i.number, i.customer, i.date, i.notes, ...(i.items || []).map((x) => x.description)]
+    const res = q ? all.filter((i) => [i.number, i.customer, i.date, i.notes, i.customerUid, ...(i.items || []).map((x) => x.description)]
       .some((v) => String(v || '').toLowerCase().includes(q))) : all;
     return res.sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.number).localeCompare(String(a.number)));
   }

@@ -12,7 +12,7 @@ jobs:
       - run: npx playwright-core install --with-deps chromium
       - run: npm run sample
       - uses: actions/upload-artifact@v4
-        with: { name: sample-pdf, path: sample/invoice-sample.pdf }
+        with: { name: sample-pdf, path: sample/*.pdf }
   windows-portable:
     runs-on: windows-latest
     steps:

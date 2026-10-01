@@ -1,53 +1,75 @@
 <!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<html lang="de"><head><meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; frame-src 'self' about:">
-<title>برنامج الفواتير</title><link rel="stylesheet" href="style.css"></head>
+<title>Rechnungen</title><link rel="stylesheet" href="style.css"></head>
 <body>
 <nav>
-  <button data-view="new" class="active">فاتورة جديدة</button>
-  <button data-view="archive">الأرشيف</button>
-  <button data-view="settings">الإعدادات</button>
+  <button data-view="new" class="active">Neue Rechnung</button>
+  <button data-view="archive">Archiv</button>
+  <button data-view="settings">Einstellungen</button>
 </nav>
 <main>
   <section id="view-new">
     <div class="split">
       <form id="form">
-        <div class="row"><label>رقم الفاتورة<input name="number" placeholder="تلقائي"></label>
-          <label>التاريخ<input name="date" type="date" required></label></div>
-        <label>اسم العميل<input name="customer" required></label>
-        <label>عنوان العميل<input name="customerAddress"></label>
-        <h3>البنود</h3>
+        <div class="row"><label>Rechnungsnummer<input name="number" placeholder="automatisch"></label>
+          <label>Rechnungsdatum<input name="date" type="date" required></label>
+          <label>Leistungsdatum<input name="serviceDate" type="date"></label></div>
+        <label>Kunde<input name="customer" required></label>
+        <label>Adresse des Kunden<textarea name="customerAddress" rows="2"></textarea></label>
+        <label>UID-Nr. des Kunden (optional)<input name="customerUid" placeholder="ATU12345678"></label>
+        <h3>Positionen</h3>
+        <div class="item head"><span>Bezeichnung</span><span>Menge</span><span>Preis (netto)</span><span></span></div>
         <div id="items"></div>
-        <button type="button" id="addItem" class="secondary">+ إضافة بند</button>
-        <div class="row"><label>الخصم<input name="discount" type="number" min="0" step="0.01" value="0"></label>
-          <label>الضريبة %<input name="taxRate" type="number" min="0" step="0.01" value="0"></label></div>
-        <label>ملاحظات<textarea name="notes" rows="2"></textarea></label>
-        <div class="total">الإجمالي: <b id="total">0.00</b></div>
+        <datalist id="catalogList"></datalist>
+        <button type="button" id="addItem" class="secondary">+ Position hinzufügen</button>
+        <div class="row"><label>Rabatt (netto)<input name="discount" type="number" min="0" step="0.01" value="0"></label>
+          <label>Umsatzsteuer<select name="taxRate"></select></label></div>
+        <label>Steuerhinweis<textarea name="taxNote" rows="2"></textarea></label>
+        <label>Anmerkungen<textarea name="notes" rows="2"></textarea></label>
+        <div class="total">Gesamtbetrag: <b id="total">0,00</b></div>
         <div class="row">
-          <button type="submit">حفظ في الأرشيف</button>
-          <button type="button" id="savePdf" class="secondary">حفظ وتصدير PDF</button>
-          <button type="button" id="reset" class="secondary">جديد</button>
+          <button type="submit">Im Archiv speichern</button>
+          <button type="button" id="savePdf" class="secondary">Speichern und PDF exportieren</button>
+          <button type="button" id="reset" class="secondary">Neu</button>
         </div>
         <p id="msg" class="msg"></p>
       </form>
-      <iframe id="preview" title="معاينة" sandbox></iframe>
+      <iframe id="preview" title="Vorschau" sandbox></iframe>
     </div>
   </section>
   <section id="view-archive" hidden>
-    <input id="search" type="search" placeholder="ابحث برقم الفاتورة أو اسم العميل أو التاريخ أو البند...">
-    <table id="list"><thead><tr><th>الرقم</th><th>التاريخ</th><th>العميل</th><th>الإجمالي</th><th></th></tr></thead><tbody></tbody></table>
-    <p id="empty" class="msg" hidden>لا توجد فواتير.</p>
+    <input id="search" type="search" placeholder="Suche nach Nummer, Kunde, Datum oder Position …">
+    <table id="list"><thead><tr><th>Nr.</th><th>Datum</th><th>Kunde</th><th>Gesamtbetrag</th><th></th></tr></thead><tbody></tbody></table>
+    <p id="empty" class="msg" hidden>Keine Rechnungen vorhanden.</p>
   </section>
   <section id="view-settings" hidden>
     <form id="settingsForm">
-      <label>اسم الشركة<input name="companyName" required></label>
-      <label>العنوان<textarea name="address" rows="3"></textarea></label>
-      <div class="row"><label>اللون الأساسي<input name="color" type="color"></label>
-        <label>العملة<input name="currency"></label>
-        <label>رقم الفاتورة التالي<input name="nextNumber" type="number" min="1"></label></div>
-      <label>الشعار<input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/gif"></label>
-      <img id="logoPreview" alt="" hidden><button type="button" id="removeLogo" class="secondary" hidden>إزالة الشعار</button>
-      <button type="submit">حفظ الإعدادات</button>
+      <h3>Firma</h3>
+      <label>Firmenname<input name="companyName" required></label>
+      <label>Adresse<textarea name="address" rows="3"></textarea></label>
+      <div class="row"><label>UID-Nr.<input name="uid" placeholder="ATU12345678"></label>
+        <label>IBAN<input name="iban"></label><label>BIC<input name="bic"></label></div>
+      <h3>Darstellung</h3>
+      <label>Hauptfarbe</label>
+      <div class="colorrow">
+        <span id="swatches"></span>
+        <input name="color" id="colorHex" maxlength="7" placeholder="#1f6feb" pattern="#[0-9a-fA-F]{6}">
+        <span id="colorPreview" class="chip"></span>
+      </div>
+      <label>Logo<input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+      <div><img id="logoPreview" alt="" hidden></div>
+      <button type="button" id="removeLogo" class="secondary" hidden>Logo entfernen</button>
+      <h3>Steuer (Österreich)</h3>
+      <div class="row"><label>Standard-Umsatzsteuersatz<select name="taxRate"></select></label>
+        <label>Währung<input name="currency"></label>
+        <label>Nächste Rechnungsnummer<input name="nextNumber" type="number" min="1"></label></div>
+      <label>Standard-Steuerhinweis (wird bei neuen Rechnungen vorausgefüllt)<textarea name="taxNote" rows="2"></textarea></label>
+      <h3>Positionsliste (Vorlagen)</h3>
+      <p class="hint">Diese Positionen erscheinen als Auswahl, wenn Sie in der Rechnung eine Bezeichnung eintippen.</p>
+      <div id="catalogRows"></div>
+      <button type="button" id="addCatalog" class="secondary">+ Vorlage hinzufügen</button>
+      <div><button type="submit">Einstellungen speichern</button></div>
       <p id="smsg" class="msg"></p>
     </form>
   </section>

@@ -16,7 +16,7 @@ async function renderPdf(html) {
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1100, height: 780, autoHideMenuBar: true, title: 'برنامج الفواتير',
+    width: 1100, height: 780, autoHideMenuBar: true, title: 'Rechnungen',
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false },
   });
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
@@ -36,7 +36,7 @@ app.whenReady().then(() => {
     const pdf = await renderPdf(InvoiceHtml.build(inv, store.getSettings()));
     const win = BrowserWindow.fromWebContents(e.sender);
     const { filePath, canceled } = await dialog.showSaveDialog(win, {
-      defaultPath: path.join(app.getPath('documents'), `فاتورة-${inv.number}.pdf`),
+      defaultPath: path.join(app.getPath('documents'), `Rechnung-${inv.number}.pdf`),
       filters: [{ name: 'PDF', extensions: ['pdf'] }],
     });
     if (canceled || !filePath) return { ok: false };
