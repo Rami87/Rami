@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { Store } = require('./store');
@@ -20,6 +20,10 @@ function createWindow() {
     width: 1100, height: 780, autoHideMenuBar: true, title: 'Rechnungen',
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false },
   });
+  // Nur die Entwickler-Links dürfen extern geöffnet werden; sonst bleibt die App geschlossen für Navigation.
+  const allowed = (u) => u.startsWith('https://horaniq.at') || u === 'mailto:Rami@horaniq.at';
+  win.webContents.setWindowOpenHandler(({ url }) => { if (allowed(url)) shell.openExternal(url); return { action: 'deny' }; });
+  win.webContents.on('will-navigate', (e, url) => { if (url !== win.webContents.getURL()) { e.preventDefault(); if (allowed(url)) shell.openExternal(url); } });
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 }
 

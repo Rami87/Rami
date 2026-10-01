@@ -164,3 +164,9 @@ table#list { width: 100%; max-width: 960px; border-collapse: collapse; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 #railName { min-width: 0; line-height: 1.2; font-size: 15px; }
+
+.credit { margin: 14px 8px 0; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12px; line-height: 1.5; color: var(--muted); }
+.credit b { color: var(--ink); font-size: 13px; }
+a { color: var(--brand); font-weight: 600; text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+.about p { margin: 0 0 8px; }

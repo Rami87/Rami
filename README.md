@@ -18,3 +18,6 @@ npm run sample     # ينتج sample/*.pdf
 npm run dist       # ملف .exe محمول لويندوز في dist/ (يُبنى على ويندوز)
 ```
 البيانات: `%APPDATA%/invoice-app/data/` (ملفا JSON: settings.json و invoices.json).
+
+---
+Entwickelt von **Rami Horani**, HoraniQ IT-Lösungen · https://horaniq.at · Rami@horaniq.at
