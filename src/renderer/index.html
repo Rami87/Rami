@@ -51,15 +51,24 @@
       <div class="row"><label>UID-Nr.<input name="uid" placeholder="ATU12345678"></label>
         <label>IBAN<input name="iban"></label><label>BIC<input name="bic"></label></div>
       <h3>Darstellung</h3>
-      <label>Hauptfarbe</label>
-      <div class="colorrow">
-        <span id="swatches"></span>
-        <input name="color" id="colorHex" maxlength="7" placeholder="#1f6feb" pattern="#[0-9a-fA-F]{6}">
-        <span id="colorPreview" class="chip"></span>
+      <div class="design">
+        <div class="picker">
+          <label>Hauptfarbe</label>
+          <div id="sv"><div id="svThumb"></div></div>
+          <input type="range" id="hue" min="0" max="360" value="210">
+          <div class="rgbrow">
+            <button type="button" id="eye" class="secondary" title="Pipette">💧</button>
+            <input id="rIn" type="number" min="0" max="255" aria-label="R"><input id="gIn" type="number" min="0" max="255" aria-label="G"><input id="bIn" type="number" min="0" max="255" aria-label="B">
+          </div>
+          <div class="colorrow"><span id="swatches"></span></div>
+          <div class="colorrow"><input name="color" id="colorHex" maxlength="7" placeholder="#1f6feb"><span id="colorPreview" class="chip"></span></div>
+        </div>
+        <div class="logobox">
+          <label>Logo<input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+          <div><img id="logoPreview" alt="" hidden></div>
+          <button type="button" id="removeLogo" class="secondary" hidden>Logo entfernen</button>
+        </div>
       </div>
-      <label>Logo<input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/gif"></label>
-      <div><img id="logoPreview" alt="" hidden></div>
-      <button type="button" id="removeLogo" class="secondary" hidden>Logo entfernen</button>
       <h3>Steuer (Österreich)</h3>
       <div class="row"><label>Standard-Umsatzsteuersatz<select name="taxRate"></select></label>
         <label>Währung<input name="currency"></label>

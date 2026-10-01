@@ -124,10 +124,57 @@ async function loadList() {
 
 // ---- Einstellungen ----
 const validHex = (c) => /^#[0-9a-fA-F]{6}$/.test(c);
-function setColor(c) {
-  $('#colorHex').value = c;
-  $('#colorPreview').style.background = validHex(c) ? c : 'transparent';
+// Eingebauter Farbwähler (kein Popup, verdeckt also nichts)
+let hsv = { h: 210, s: 0.8, v: 0.9 };
+function hsvToRgb({ h, s, v }) {
+  const f = (n) => { const k = (n + h / 60) % 6; return Math.round(255 * (v - v * s * Math.max(0, Math.min(k, 4 - k, 1)))); };
+  return [f(5), f(3), f(1)];
 }
+function rgbToHsv(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), d = max - Math.min(r, g, b); let h = 0;
+  if (d) h = max === r ? ((g - b) / d + 6) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return { h: h * 60, s: max ? d / max : 0, v: max };
+}
+const toHex = (rgb) => '#' + rgb.map((x) => x.toString(16).padStart(2, '0')).join('');
+function renderColor(skipHex) {
+  const rgb = hsvToRgb(hsv), hex = toHex(rgb);
+  $('#sv').style.setProperty('--hue', 'hsl(' + hsv.h + ',100%,50%)');
+  $('#svThumb').style.left = hsv.s * 100 + '%'; $('#svThumb').style.top = (1 - hsv.v) * 100 + '%';
+  $('#hue').value = hsv.h;
+  [$('#rIn'), $('#gIn'), $('#bIn')].forEach((el, i) => (el.value = rgb[i]));
+  if (!skipHex) $('#colorHex').value = hex;
+  $('#colorPreview').style.background = hex;
+}
+function setColor(c) {
+  if (!validHex(c)) return;
+  const n = parseInt(c.slice(1), 16);
+  const nh = rgbToHsv(n >> 16, (n >> 8) & 255, n & 255);
+  if (nh.s === 0 || nh.v === 0) nh.h = hsv.h; // Farbton bei Grau/Schwarz beibehalten
+  hsv = nh; renderColor();
+}
+function svPick(e) {
+  const r = $('#sv').getBoundingClientRect();
+  hsv.s = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+  hsv.v = 1 - Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+  renderColor();
+}
+$('#sv').addEventListener('pointerdown', (e) => { $('#sv').setPointerCapture(e.pointerId); svPick(e); });
+$('#sv').addEventListener('pointermove', (e) => { if (e.buttons) svPick(e); });
+$('#hue').addEventListener('input', (e) => { hsv.h = +e.target.value; renderColor(); });
+['#rIn', '#gIn', '#bIn'].forEach((id) => $(id).addEventListener('input', () => {
+  const v = ['#rIn', '#gIn', '#bIn'].map((i) => Math.min(255, Math.max(0, +$(i).value || 0)));
+  const nh = rgbToHsv(...v); if (nh.s === 0 || nh.v === 0) nh.h = hsv.h; hsv = nh;
+  $('#colorHex').value = toHex(v);
+  $('#sv').style.setProperty('--hue', 'hsl(' + hsv.h + ',100%,50%)'); $('#svThumb').style.left = hsv.s * 100 + '%'; $('#svThumb').style.top = (1 - hsv.v) * 100 + '%'; $('#hue').value = hsv.h;
+  $('#colorPreview').style.background = toHex(v);
+}));
+$('#colorHex').addEventListener('input', (e) => {
+  let v = e.target.value.trim(); if (v && v[0] !== '#') v = '#' + v;
+  if (validHex(v)) { setColor(v); $('#colorHex').value = e.target.value; }
+});
+if (window.EyeDropper) $('#eye').onclick = async () => { try { setColor((await new EyeDropper().open()).sRGBHex); } catch {} };
+else $('#eye').hidden = true;
 function buildSwatches() {
   const box = $('#swatches'); box.innerHTML = '';
   SWATCHES.forEach((c) => {
@@ -135,10 +182,6 @@ function buildSwatches() {
     s.onclick = () => setColor(c); box.appendChild(s);
   });
 }
-$('#colorHex').addEventListener('input', (e) => {
-  let v = e.target.value.trim(); if (v && v[0] !== '#') v = '#' + v;
-  $('#colorPreview').style.background = validHex(v) ? v : 'transparent';
-});
 function addCatalogRow(c = { description: '', price: '' }) {
   const d = document.createElement('div'); d.className = 'cat';
   d.innerHTML = '<input class="cd" placeholder="Bezeichnung"><input class="cp" type="number" min="0" step="0.01" placeholder="Preis (netto)"><button type="button" class="danger" title="Entfernen">×</button>';
