@@ -1,95 +1,175 @@
 <!doctype html>
 <html lang="de"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'; frame-src 'self' about:">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; script-src 'self'; frame-src 'self' about:">
 <title>Rechnungen</title><link rel="stylesheet" href="style.css"></head>
 <body>
-<nav>
-  <button data-view="new" class="active">Neue Rechnung</button>
-  <button data-view="archive">Archiv</button>
-  <button data-view="settings">Einstellungen</button>
-</nav>
-<main>
-  <section id="view-new">
-    <div class="split">
-      <form id="form">
-        <div class="row"><label>Rechnungsnummer<input name="number" placeholder="automatisch"></label>
-          <label>Rechnungsdatum<input name="date" type="date" required></label>
-          <label>Leistungsdatum<input name="serviceDate" type="date"></label></div>
-        <label>Kunde<input name="customer" required></label>
-        <label>Adresse des Kunden<textarea name="customerAddress" rows="2"></textarea></label>
-        <label>UID-Nr. des Kunden (optional)<input name="customerUid" placeholder="ATU12345678"></label>
-        <h3>Positionen</h3>
-        <div class="item head"><span>Bezeichnung</span><span>Menge</span><span>Preis (netto)</span><span></span></div>
-        <div id="items"></div>
-        <datalist id="catalogList"></datalist>
-        <button type="button" id="addItem" class="secondary">+ Position hinzufügen</button>
-        <div class="row"><label>Rabatt (netto)<input name="discount" type="number" min="0" step="0.01" value="0"></label>
-          <label>Umsatzsteuer<select name="taxRate"></select></label></div>
-        <label>Steuerhinweis<textarea name="taxNote" rows="2"></textarea></label>
-        <label>Anmerkungen<textarea name="notes" rows="2"></textarea></label>
-        <div class="total">Gesamtbetrag: <b id="total">0,00</b></div>
-        <div class="row">
-          <button type="submit">Im Archiv speichern</button>
-          <button type="button" id="savePdf" class="secondary">Speichern und PDF exportieren</button>
-          <button type="button" id="reset" class="secondary">Neu</button>
-        </div>
-        <p id="msg" class="msg"></p>
-      </form>
-      <iframe id="preview" title="Vorschau" sandbox></iframe>
-    </div>
-  </section>
-  <section id="view-archive" hidden>
-    <h3>Jahresübersicht</h3>
-    <table id="years"><thead><tr><th>Jahr</th><th>Rechnungen</th><th>Netto</th><th>USt.</th><th>Gesamt (brutto)</th></tr></thead><tbody></tbody></table>
-    <div class="row filters">
-      <input id="search" type="search" placeholder="Suche nach Nummer, Kunde, Datum oder Position …">
-      <select id="yearFilter" title="Jahr"></select>
-      <button type="button" id="exportCsv" class="secondary">Als CSV exportieren</button>
-    </div>
-    <p id="listmsg" class="msg"></p>
-    <table id="list"><thead><tr><th>Nr.</th><th>Datum</th><th>Kunde</th><th>Gesamtbetrag</th><th></th></tr></thead><tbody></tbody></table>
-    <p id="empty" class="msg" hidden>Keine Rechnungen vorhanden.</p>
-  </section>
-  <section id="view-settings" hidden>
-    <form id="settingsForm">
-      <h3>Firma</h3>
-      <label>Firmenname<input name="companyName" required></label>
-      <label>Adresse<textarea name="address" rows="3"></textarea></label>
-      <div class="row"><label>UID-Nr.<input name="uid" placeholder="ATU12345678"></label>
-        <label>IBAN<input name="iban"></label><label>BIC<input name="bic"></label></div>
-      <h3>Darstellung</h3>
-      <div class="design">
-        <div class="picker">
-          <label>Hauptfarbe</label>
-          <div id="sv"><div id="svThumb"></div></div>
-          <input type="range" id="hue" min="0" max="360" value="210">
-          <div class="rgbrow">
-            <button type="button" id="eye" class="secondary" title="Pipette">💧</button>
-            <input id="rIn" type="number" min="0" max="255" aria-label="R"><input id="gIn" type="number" min="0" max="255" aria-label="G"><input id="bIn" type="number" min="0" max="255" aria-label="B">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z M14 3v5h5 M10 13h6 M10 17h6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><path d="M4 5h16v4H4z M6 9v10h12V9 M10 13h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 3v3 M12 18v3 M3 12h3 M18 12h3 M5.6 5.6l2.1 2.1 M16.3 16.3l2.1 2.1 M5.6 18.4l2.1-2.1 M16.3 7.7l2.1-2.1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v11 M7 11l5 5 5-5 M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-pipette" viewBox="0 0 24 24"><path d="M14 6l4 4 M16 4l4 4-3 3-4-4z M13 9l-8 8v3h3l8-8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brandmark"><span class="mark" id="railMark">R</span><span id="railName">Rechnungen</span></div>
+    <nav aria-label="Hauptnavigation">
+      <button data-view="new" class="active"><svg><use href="#i-doc"/></svg>Neue Rechnung</button>
+      <button data-view="archive"><svg><use href="#i-archive"/></svg>Archiv</button>
+      <button data-view="settings"><svg><use href="#i-gear"/></svg>Einstellungen</button>
+    </nav>
+    <p class="railnote">Alle Daten bleiben auf diesem Computer.</p>
+  </aside>
+
+  <main>
+    <!-- ============ Neue Rechnung ============ -->
+    <section id="view-new">
+      <div class="editor">
+        <form id="form" autocomplete="off">
+          <header class="pagehead"><h1 id="formTitle">Neue Rechnung</h1><p class="sub">Die Vorschau rechts zeigt das fertige PDF.</p></header>
+
+          <fieldset>
+            <legend>Rechnung</legend>
+            <div class="grid3">
+              <label>Rechnungsnummer<input name="number" placeholder="wird automatisch vergeben"></label>
+              <label>Rechnungsdatum<input name="date" type="date" required></label>
+              <label>Leistungsdatum<input name="serviceDate" type="date"></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Kunde</legend>
+            <label>Name<input name="customer" required placeholder="Firma oder Person"></label>
+            <label>Adresse<textarea name="customerAddress" rows="2"></textarea></label>
+            <label>UID-Nr. <span class="opt">optional</span><input name="customerUid" placeholder="ATU12345678"></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Positionen</legend>
+            <div class="item head"><span>Bezeichnung</span><span>Menge</span><span>Preis netto</span><span class="r">Betrag</span><span></span></div>
+            <div id="items"></div>
+            <datalist id="catalogList"></datalist>
+            <button type="button" id="addItem" class="ghost"><svg><use href="#i-plus"/></svg>Position hinzufügen</button>
+          </fieldset>
+
+          <fieldset>
+            <legend>Steuer und Hinweise</legend>
+            <div class="grid2">
+              <label>Rabatt (netto)<input name="discount" type="number" min="0" step="0.01" value="0"></label>
+              <label>Umsatzsteuer<select name="taxRate"></select></label>
+            </div>
+            <label>Steuerhinweis<textarea name="taxNote" rows="2"></textarea></label>
+            <label>Anmerkungen <span class="opt">optional</span><textarea name="notes" rows="2"></textarea></label>
+          </fieldset>
+
+          <div class="actionbar">
+            <div class="sum"><span class="sumlabel">Gesamtbetrag</span><b id="total">0,00 €</b></div>
+            <div class="btns">
+              <button type="button" id="reset" class="ghost">Neu beginnen</button>
+              <button type="submit" class="secondary">Speichern</button>
+              <button type="button" id="savePdf" class="primary"><svg><use href="#i-dl"/></svg>Speichern und PDF</button>
+            </div>
           </div>
-          <div class="colorrow"><span id="swatches"></span></div>
-          <div class="colorrow"><input name="color" id="colorHex" maxlength="7" placeholder="#1f6feb"><span id="colorPreview" class="chip"></span></div>
-        </div>
-        <div class="logobox">
-          <label>Logo<input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/gif"></label>
-          <div><img id="logoPreview" alt="" hidden></div>
-          <button type="button" id="removeLogo" class="secondary" hidden>Logo entfernen</button>
+        </form>
+
+        <div class="previewcol">
+          <div class="sheetwrap" id="sheetwrap"><iframe id="preview" title="Vorschau der Rechnung" sandbox></iframe></div>
         </div>
       </div>
-      <h3>Steuer (Österreich)</h3>
-      <div class="row"><label>Standard-Umsatzsteuersatz<select name="taxRate"></select></label>
-        <label>Währung<input name="currency"></label>
-        <label>Nächste Rechnungsnummer<input name="nextNumber" type="number" min="1"></label></div>
-      <label>Standard-Steuerhinweis (wird bei neuen Rechnungen vorausgefüllt)<textarea name="taxNote" rows="2"></textarea></label>
-      <h3>Positionsliste (Vorlagen)</h3>
-      <p class="hint">Diese Positionen erscheinen als Auswahl, wenn Sie in der Rechnung eine Bezeichnung eintippen.</p>
-      <div id="catalogRows"></div>
-      <button type="button" id="addCatalog" class="secondary">+ Vorlage hinzufügen</button>
-      <div><button type="submit">Einstellungen speichern</button></div>
-      <p id="smsg" class="msg"></p>
-    </form>
-  </section>
-</main>
+    </section>
+
+    <!-- ============ Archiv ============ -->
+    <section id="view-archive" hidden>
+      <header class="pagehead"><h1>Archiv</h1><p class="sub">Alle gespeicherten Rechnungen. Ein Klick auf ein Jahr filtert die Liste.</p></header>
+      <div id="years" class="years"></div>
+      <div class="toolbar">
+        <label class="searchbox"><svg><use href="#i-search"/></svg><input id="search" type="search" placeholder="Nummer, Kunde, Datum oder Position suchen" aria-label="Suche"></label>
+        <label class="yearsel"><span class="sr">Jahr</span><select id="yearFilter"></select></label>
+        <button type="button" id="exportCsv" class="secondary"><svg><use href="#i-dl"/></svg>Als CSV exportieren</button>
+      </div>
+      <table id="list"><thead><tr><th>Nr.</th><th>Datum</th><th>Kunde</th><th class="r">Gesamtbetrag</th><th><span class="sr">Aktionen</span></th></tr></thead><tbody></tbody></table>
+      <div id="empty" class="empty" hidden>
+        <p class="emptytitle">Keine Rechnungen gefunden</p>
+        <p>Ändern Sie die Suche oder das Jahr, oder legen Sie eine neue Rechnung an.</p>
+        <button type="button" class="primary" data-goto="new">Neue Rechnung</button>
+      </div>
+    </section>
+
+    <!-- ============ Einstellungen ============ -->
+    <section id="view-settings" hidden>
+      <form id="settingsForm" autocomplete="off">
+        <header class="pagehead"><h1>Einstellungen</h1><p class="sub">Diese Angaben erscheinen auf jeder Rechnung.</p></header>
+        <div class="settingsgrid">
+          <div>
+            <fieldset>
+              <legend>Firma</legend>
+              <label>Firmenname<input name="companyName" required></label>
+              <label>Adresse<textarea name="address" rows="3"></textarea></label>
+              <div class="grid3"><label>UID-Nr.<input name="uid" placeholder="ATU12345678"></label>
+                <label>IBAN<input name="iban"></label><label>BIC<input name="bic"></label></div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Logo und Farbe</legend>
+              <div class="design">
+                <div class="picker">
+                  <div id="sv" aria-label="Farbfläche"><div id="svThumb"></div></div>
+                  <input type="range" id="hue" min="0" max="360" value="210" aria-label="Farbton">
+                  <div class="rgbrow">
+                    <button type="button" id="eye" class="icon" title="Farbe vom Bildschirm aufnehmen" aria-label="Pipette"><svg><use href="#i-pipette"/></svg></button>
+                    <input id="rIn" type="number" min="0" max="255" aria-label="Rot"><input id="gIn" type="number" min="0" max="255" aria-label="Grün"><input id="bIn" type="number" min="0" max="255" aria-label="Blau">
+                  </div>
+                  <div class="colorrow"><span id="swatches"></span></div>
+                  <label class="hexl">Farbcode<input name="color" id="colorHex" maxlength="7" placeholder="#0b7a4b"></label>
+                </div>
+                <div class="logobox">
+                  <label for="logoFile" class="filebtn">Logo auswählen</label>
+                  <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/gif" class="sr">
+                  <div class="logoframe"><img id="logoPreview" alt="" hidden><span id="logoEmpty" class="hint">Noch kein Logo</span></div>
+                  <button type="button" id="removeLogo" class="ghost" hidden>Logo entfernen</button>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Steuer (Österreich)</legend>
+              <div class="grid3"><label>Standard-Steuersatz<select name="taxRate"></select></label>
+                <label>Währung<input name="currency"></label>
+                <label>Nächste Nummer<input name="nextNumber" type="number" min="1"></label></div>
+              <label>Standard-Steuerhinweis<textarea name="taxNote" rows="2"></textarea></label>
+              <p class="hint">Wird bei neuen Rechnungen mit 0 % Umsatzsteuer vorausgefüllt.</p>
+            </fieldset>
+
+            <fieldset>
+              <legend>Positionsliste</legend>
+              <p class="hint">Diese Positionen erscheinen als Vorschlag, sobald Sie in der Rechnung eine Bezeichnung eintippen.</p>
+              <div id="catalogRows"></div>
+              <button type="button" id="addCatalog" class="ghost"><svg><use href="#i-plus"/></svg>Position hinzufügen</button>
+            </fieldset>
+          </div>
+
+          <div class="liveprev">
+            <p class="livelabel">So sieht der Briefkopf aus</p>
+            <div class="letterhead" id="letterhead">
+              <img id="lhLogo" alt="" hidden>
+              <b id="lhName">Firmenname</b>
+              <span id="lhAddr"></span>
+              <span class="lhrule"></span>
+              <span class="lhmeta" id="lhMeta"></span>
+            </div>
+          </div>
+        </div>
+        <div class="actionbar"><div class="sum"><span id="smsg" class="msg" role="status"></span></div><div class="btns"><button type="submit" class="primary">Einstellungen speichern</button></div></div>
+      </form>
+    </section>
+  </main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script src="../invoice-html.js"></script>
 <script src="app.js"></script>
 </body></html>

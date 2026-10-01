@@ -41,6 +41,7 @@
 <style>
   @page { size: A4; margin: 14mm; }
   * { box-sizing: border-box; }
+  @media screen { body { padding: 14mm; } }
   body { font-family: "Segoe UI", Arial, "Helvetica Neue", sans-serif; color: #222; margin: 0; font-size: 13px; }
   header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid ${color}; padding-bottom: 12px; }
   header img { max-height: 70px; max-width: 160px; display: block; margin-bottom: 6px; }
