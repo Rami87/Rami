@@ -19,6 +19,33 @@
   const TAX_RATES = [0, 10, 13, 20];
   const DEFAULT_TAX_NOTE = 'Umsatzsteuerfrei gemäß § 6 Abs. 1 Z 27 UStG.';
 
+  // EPC-QR-Code ("Zahlen mit Code" / GiroCode): Überweisung per Banking-App scannen. Nur für EUR.
+  function qrLib() {
+    if (typeof module === 'object' && module.exports) return require('./vendor/qrcode');
+    return typeof qrcode !== 'undefined' ? qrcode : null; // eslint-disable-line no-undef
+  }
+  const clean = (v, max) => String(v == null ? '' : v).replace(/[\r\n]+/g, ' ').trim().slice(0, max);
+  function epcPayload(inv, settings, total) {
+    const cur = String(inv.currency || settings.currency || '€').trim().toUpperCase();
+    if (cur !== '€' && cur !== 'EUR') return '';
+    const ibanRaw = String(settings.iban || '').replace(/\s+/g, '').toUpperCase();
+    const amount = Math.round(total * 100) / 100;
+    if (!/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(ibanRaw) || !settings.companyName || !(amount > 0) || amount > 999999999.99) return '';
+    const bic = String(settings.bic || '').replace(/\s+/g, '').toUpperCase();
+    return ['BCD', '002', '1', 'SCT', /^[A-Z0-9]{8}([A-Z0-9]{3})?$/.test(bic) ? bic : '', clean(settings.companyName, 70), ibanRaw,
+      'EUR' + amount.toFixed(2), '', '', clean('Rechnung ' + (inv.number || ''), 140), ''].join('\n');
+  }
+  function epcQr(inv, settings, total) {
+    if (settings.epcQr === false) return '';
+    const payload = epcPayload(inv, settings, total);
+    const lib = qrLib();
+    if (!payload || !lib) return '';
+    try {
+      const q = lib(0, 'M'); q.addData(payload, 'Byte'); q.make();
+      return `<div class="epc">${q.createSvgTag({ cellSize: 1, margin: 0, scalable: true })}<span>Zahlen mit Code</span></div>`;
+    } catch { return ''; }
+  }
+
   function totals(inv) {
     const subtotal = (inv.items || []).reduce((s, it) => s + (Number(it.qty) || 0) * (Number(it.price) || 0), 0);
     const discount = Number(inv.discount) || 0;
@@ -42,7 +69,7 @@
     const col2 = [settings.bank && `Bank: ${settings.bank}`, settings.iban && `IBAN: ${iban(settings.iban)}`, settings.bic && `BIC: ${settings.bic}`].filter(Boolean).join('\n');
     const col3 = [settings.phone && `Tel.: ${settings.phone}`, settings.email && `E-Mail: ${settings.email}`, settings.uid && `UID-Nr.: ${settings.uid}`].filter(Boolean).join('\n');
     const footer = [col1, col2, col3].some(Boolean)
-      ? `<footer><div>${esc(col1)}</div><div>${esc(col2)}</div><div>${esc(col3)}</div></footer>` : '';
+      ? `<footer><div>${esc(col1)}</div><div>${esc(col2)}${epcQr(inv, settings, t.total)}</div><div>${esc(col3)}</div></footer>` : '';
     return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Rechnung ${esc(inv.number)}</title>
 <style>
   @page { size: A4; margin: 14mm; }
@@ -71,6 +98,9 @@
   .page { display: flex; flex-direction: column; min-height: 262mm; }
   .page > .grow { flex: 1; }
   footer { margin-top: 28px; border-top: 1px solid #ccc; padding-top: 10px; color: #444; font-size: 11px; line-height: 1.5; display: grid; grid-template-columns: 1.2fr 1.3fr 1fr; gap: 16px; }
+  .epc { margin-top: 6px; white-space: normal; }
+  .epc svg { width: 22mm; height: 22mm; display: block; }
+  .epc span { font-size: 9px; color: #666; }
   footer div { white-space: pre-line; overflow-wrap: anywhere; }
 </style></head><body><div class="page"><div class="grow">
 <header>
@@ -95,5 +125,5 @@ ${footer}
 </div></body></html>`;
   }
 
-  return { build, totals, esc, TAX_RATES, DEFAULT_TAX_NOTE };
+  return { build, totals, esc, epcPayload, TAX_RATES, DEFAULT_TAX_NOTE };
 });

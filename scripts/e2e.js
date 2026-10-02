@@ -111,6 +111,13 @@ const ok = (name, cond, extra) => { assert(cond, name + (extra ? ' -> ' + extra 
   ok('PDF erzeugt (%PDF)', fs.existsSync(out('r.pdf')) && fs.readFileSync(out('r.pdf')).slice(0, 4).toString() === '%PDF');
   const txt = execFileSync('pdftotext', ['-layout', out('r.pdf'), '-']).toString();
   ok('PDF enthält Nummer, Firma, IBAN-Gruppen, Steuerhinweis, Fußzeile', txt.includes(pre + '0') && txt.includes('Prince') && txt.includes('AT73 6000 0405 1011 7567') && txt.includes('Umsatzsteuerfrei') && txt.includes('Tel.: 0681 81613184'), txt.slice(0, 300));
+  // QR-Code im PDF: als Bild rendern und mit unabhängigem Decoder (OpenCV) lesen
+  try {
+    execFileSync('pdftoppm', ['-r', '300', '-png', '-f', '1', '-l', '1', out('r.pdf'), out('qr')]);
+    const png = fs.readdirSync(tmp).find((f) => /^qr.*\.png$/.test(f));
+    const dec = execFileSync('python3', ['-c', 'import cv2,sys;v,_,_=cv2.QRCodeDetector().detectAndDecode(cv2.imread(sys.argv[1]));print(v,end="")', out(png)]).toString().split('\n');
+    ok('QR-Code im PDF lesbar: EPC-Format, IBAN, Betrag, Rechnungsnummer', dec[0] === 'BCD' && dec[3] === 'SCT' && dec[4] === 'BAWAATWW' && dec[6] === 'AT736000040510117567' && /^EUR\d+\.\d\d$/.test(dec[7]) && dec[10] === 'Rechnung ' + (txt.match(new RegExp(pre + '\\d\\d')) || [''])[0], dec.join('|'));
+  } catch (e) { if (e.code === 'ENOENT' || /No module named/.test(String(e.stderr))) console.log('  --  QR-Test übersprungen (pdftoppm/OpenCV fehlt)'); else throw e; }
   ok('PDF zeigt HTML im Text nur als Text (kein Markup ausgeführt)', txt.includes('<b>fett</b>') || txt.includes('&lt;') === false);
   ok('Speicherordner wird gemerkt (lastDir)', JSON.parse(fs.readFileSync(settingsFile, 'utf8')).lastDir === tmp);
   await set('save', out('r.csv'));

@@ -382,6 +382,7 @@ $('#settingsForm').addEventListener('input', renderLetterhead);
 function fillSettings() {
   const f = $('#settingsForm').elements;
   ['companyName', 'address', 'uid', 'phone', 'email', 'bank', 'iban', 'bic', 'currency', 'taxNote'].forEach((k) => (f[k].value = settings[k] || ''));
+  f.epcQr.checked = settings.epcQr !== false;
   fillTaxSelect(f.taxRate, settings.taxRate || 0);
   buildSwatches(); setColor(settings.color);
   showLogo(settings.logo);
@@ -406,7 +407,7 @@ $('#settingsForm').addEventListener('submit', async (e) => {
   settings = await api.saveSettings({
     companyName: f.companyName.value.trim(), address: f.address.value, uid: f.uid.value.trim(),
     phone: f.phone.value.trim(), email: f.email.value.trim(), bank: f.bank.value.trim(), iban: f.iban.value.trim(), bic: f.bic.value.trim(),
-    color, currency: f.currency.value.trim() || '€', taxRate: +f.taxRate.value || 0,
+    color, epcQr: f.epcQr.checked, currency: f.currency.value.trim() || '€', taxRate: +f.taxRate.value || 0,
     taxNote: f.taxNote.value.trim(), logo: settings.logo, catalog,
   });
   applyBrand(settings.color); renderRail(); toast('Einstellungen gespeichert.');

@@ -31,6 +31,7 @@ function cleanSettings(s) {
     const d = DEFAULT_SETTINGS[k];
     if (k === 'catalog') out.catalog = (Array.isArray(o.catalog) ? o.catalog.slice(0, 2000) : []).map((c) => ({ description: str(c && c.description, 500), price: num(c && c.price) })).filter((c) => c.description);
     else if (k === 'taxRate') out.taxRate = num(o.taxRate);
+    else if (k === 'epcQr') out.epcQr = o.epcQr !== false;
     else if (k === 'color') out.color = /^#[0-9a-fA-F]{6}$/.test(o.color || '') ? o.color : d;
     else if (k === 'logo') out.logo = /^data:image\/(png|jpeg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(o.logo || '') ? o.logo : '';
     else out[k] = o[k] == null ? d : str(o[k], 3000);

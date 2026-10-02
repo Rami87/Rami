@@ -85,4 +85,16 @@ const m = mergeInvoices([{ id: 'a', updatedAt: '2026-01-02' }, { id: 'b', update
 assert.deepStrictEqual([m.added, m.updated, m.list.length], [1, 1, 3]);
 assert.strictEqual(m.list.find((x) => x.id === 'a').updatedAt, '2026-03-01');
 assert.strictEqual(m.list.find((x) => x.id === 'b').updatedAt, '2026-05-01');
+// EPC-QR («Zahlen mit Code»)
+const st = { companyName: 'Prince Sattlerei Ä', iban: 'AT73 6000 0405 1011 7567', bic: 'BAWAATWW', currency: '€' };
+const inv1 = { number: '02102601', currency: '€', taxRate: 0, items: [{ description: 'x', qty: 2, price: 150.5 }] };
+const pl = H.epcPayload(inv1, st, 301).split('\n');
+assert.deepStrictEqual(pl, ['BCD', '002', '1', 'SCT', 'BAWAATWW', 'Prince Sattlerei Ä', 'AT736000040510117567', 'EUR301.00', '', '', 'Rechnung 02102601', '']);
+assert(H.build(inv1, st).includes('class="epc"') && H.build(inv1, st).includes('Zahlen mit Code'));
+assert(!H.build(inv1, { ...st, epcQr: false }).includes('class="epc"'), 'abschaltbar');
+assert(!H.build({ ...inv1, currency: 'USD' }, st).includes('class="epc"'), 'nur EUR');
+assert(!H.build(inv1, { ...st, iban: 'kaputt' }).includes('class="epc"'), 'IBAN ungültig');
+assert(!H.build({ ...inv1, items: [] }, st).includes('class="epc"'), 'Betrag 0');
+assert(!H.epcPayload({ ...inv1, number: 'a\nb' }, st, 1).split('\n')[10].includes('\n') && H.epcPayload({ ...inv1, number: 'a\nb' }, st, 1).split('\n').length === 12, 'Zeilenumbruch eingeschleust');
+
 console.log('Alle Tests bestanden');

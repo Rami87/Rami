@@ -7,6 +7,7 @@ const DEFAULT_SETTINGS = {
   color: '#1f6feb', logo: '', currency: '€',
   lastDir: '', // zuletzt benutzter Ordner beim Speichern von PDF/CSV
   lastBackup: '', // ISO-Zeitpunkt der letzten Sicherung
+  epcQr: true, // EPC-QR-Code («Zahlen mit Code») auf der Rechnung
   taxRate: 0, taxNote: 'Umsatzsteuerfrei gemäß § 6 Abs. 1 Z 27 UStG.',
   catalog: [], // vordefinierte Positionen: [{ description, price }]
 };
