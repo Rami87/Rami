@@ -3,7 +3,9 @@ const fs = require('fs');
 const path = require('path');
 
 const DEFAULT_SETTINGS = {
-  companyName: 'Firmenname', address: '', uid: '', iban: '', bic: '', color: '#1f6feb', logo: '', currency: '€', nextNumber: 1,
+  companyName: 'Firmenname', address: '', uid: '', bank: '', iban: '', bic: '', phone: '', email: '',
+  color: '#1f6feb', logo: '', currency: '€',
+  lastDir: '', // zuletzt benutzter Ordner beim Speichern von PDF/CSV
   taxRate: 0, taxNote: 'Umsatzsteuerfrei gemäß § 6 Abs. 1 Z 27 UStG.',
   catalog: [], // vordefinierte Positionen: [{ description, price }]
 };
@@ -25,23 +27,33 @@ class Store {
   }
   getSettings() { return { ...DEFAULT_SETTINGS, ...this._read(this.settingsFile, {}) }; }
   saveSettings(s) { const merged = { ...this.getSettings(), ...s }; this._write(this.settingsFile, merged); return merged; }
-  listInvoices(query = '', year = '') {
+  // period: '' (alle) | 'JJJJ' | 'JJJJ-MM' | 'JJJJ-MM-TT' (Präfix des ISO-Datums)
+  listInvoices(query = '', period = '') {
     const q = String(query).trim().toLowerCase();
     const all = this._read(this.invoicesFile, []);
-    let res = year ? all.filter((i) => String(i.date || '').startsWith(String(year) + '-')) : all;
+    let res = period ? all.filter((i) => String(i.date || '').startsWith(String(period))) : all;
     res = q ? res.filter((i) => [i.number, i.customer, i.date, i.notes, i.customerUid, ...(i.items || []).map((x) => x.description)]
       .some((v) => String(v || '').toLowerCase().includes(q))) : res;
     return res.sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.number).localeCompare(String(a.number)));
+  }
+  // Rechnungsnummer = TTMMJJ + laufende Nummer des Tages, z. B. 02102601, 02102602 ...
+  nextNumber(date) {
+    const d = /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : new Date().toISOString().slice(0, 10);
+    const prefix = d.slice(8, 10) + d.slice(5, 7) + d.slice(2, 4);
+    let max = 0;
+    for (const i of this._read(this.invoicesFile, [])) {
+      const m = String(i.number || '').match(/^(\d{6})(\d{2,})$/);
+      if (m && m[1] === prefix) max = Math.max(max, parseInt(m[2], 10));
+    }
+    return prefix + String(max + 1).padStart(2, '0');
   }
   getInvoice(id) { return this._read(this.invoicesFile, []).find((i) => i.id === id) || null; }
   saveInvoice(inv) {
     const all = this._read(this.invoicesFile, []);
     const now = new Date().toISOString();
     if (!inv.id) {
-      const s = this.getSettings();
       inv = { ...inv, id: 'inv_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), createdAt: now };
-      if (!inv.number) { inv.number = String(s.nextNumber); }
-      this.saveSettings({ nextNumber: (parseInt(s.nextNumber, 10) || 0) + 1 });
+      if (!inv.number) inv.number = this.nextNumber(inv.date);
       all.push({ ...inv, updatedAt: now });
     } else {
       const idx = all.findIndex((i) => i.id === inv.id);

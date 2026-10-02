@@ -71,7 +71,8 @@ button.danger:hover { background: color-mix(in srgb, var(--danger) 10%, transpar
 button.icon { min-width: 42px; padding: 0; }
 
 /* ---------- Rechnungseditor ---------- */
-.editor { display: grid; grid-template-columns: minmax(420px, 600px) minmax(320px, 1fr); gap: clamp(20px, 3vw, 48px); align-items: start; }
+.pagehead.split { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.editor { display: grid; grid-template-columns: minmax(420px, 680px) minmax(320px, 1fr); gap: clamp(20px, 3vw, 48px); align-items: start; }
 #form { min-width: 0; }
 .item { display: grid; grid-template-columns: minmax(0, 3fr) 76px 108px 100px 42px; gap: 8px; align-items: center; margin-bottom: 8px; }
 .item input { margin: 0; }
@@ -83,7 +84,7 @@ button.icon { min-width: 42px; padding: 0; }
 .sum { display: flex; flex-direction: column; }
 .sumlabel { font-size: 13px; color: var(--muted); font-weight: 600; }
 #total { font-size: 28px; line-height: 1.1; letter-spacing: -.02em; font-weight: 750; }
-.btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; } .btns button { padding: 0 14px; }
 
 .previewcol { position: sticky; top: 28px; }
 .sheetwrap { position: relative; width: 100%; aspect-ratio: 210 / 297; background: var(--sheet); border-radius: 3px; box-shadow: 0 1px 2px rgba(23,34,28,.12), 0 14px 40px rgba(23,34,28,.14); overflow: hidden; }
@@ -91,7 +92,7 @@ button.icon { min-width: 42px; padding: 0; }
 
 /* ---------- Archiv ---------- */
 .years { max-width: 960px; margin-bottom: 26px; }
-.yrow { display: grid; grid-template-columns: 64px minmax(100px, 1fr) 110px 250px; align-items: center; gap: 16px; width: 100%; min-height: 56px; padding: 6px 12px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; color: var(--ink); text-align: left; font: 400 15px var(--font); }
+.yrow { display: grid; grid-template-columns: 120px minmax(100px, 1fr) 110px 250px; align-items: center; gap: 16px; width: 100%; min-height: 56px; padding: 6px 12px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: transparent; color: var(--ink); text-align: left; font: 400 15px var(--font); }
 .yrow:hover { background: var(--brand-tint); }
 .yrow[aria-pressed="true"] { background: var(--brand-tint); box-shadow: inset 4px 0 0 var(--brand); }
 .yrow.total { cursor: default; color: var(--muted); border-bottom: 0; } .yrow.total:hover { background: transparent; }
@@ -170,3 +171,22 @@ table#list { width: 100%; max-width: 960px; border-collapse: collapse; }
 a { color: var(--brand); font-weight: 600; text-underline-offset: 2px; }
 a:hover { text-decoration-thickness: 2px; }
 .about p { margin: 0 0 8px; }
+
+/* ---------- Archiv: Zeitraumwahl und Summen ---------- */
+.periodbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-bottom: 18px; }
+.seg { display: inline-flex; padding: 3px; border-radius: 10px; background: #e4e8df; }
+.seg button { min-height: 36px; padding: 0 18px; border-radius: 8px; background: transparent; color: var(--muted); }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--sheet); color: var(--ink); box-shadow: 0 1px 3px rgba(23,34,28,.18); }
+.pickers { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pickers input, .pickers select { margin: 0; width: auto; min-width: 150px; }
+.pickers .icon { min-width: 42px; }
+.periodtitle { margin: 4px 0 10px; font-size: 22px; letter-spacing: -.01em; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); max-width: 960px; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+.kpi { padding: 12px 16px 14px 0; }
+.kpi + .kpi { padding-left: 16px; border-left: 1px solid var(--line); }
+.kpi .kl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); }
+.kpi .kv { display: block; font-size: 26px; line-height: 1.2; font-weight: 750; letter-spacing: -.02em; }
+.kpi.main .kv { color: var(--brand); }
+.kpi small { display: block; color: var(--muted); font-size: 12px; }
+@media (max-width: 760px) { .kpis { grid-template-columns: 1fr 1fr; } .kpi + .kpi { border-left: 0; padding-left: 0; } }

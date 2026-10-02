@@ -17,7 +17,16 @@ assert.strictEqual(s.getSettings().companyName, 'س');
 
 const a = s.saveInvoice({ date: '2026-01-01', customer: 'أحمد', items: [{ description: 'كرسي', qty: 2, price: 10 }] });
 const b = s.saveInvoice({ date: '2026-02-01', customer: 'سالم', items: [{ description: 'طاولة', qty: 1, price: 50 }] });
-assert.deepStrictEqual([a.number, b.number], ['1', '2']);
+// Rechnungsnummer: TTMMJJ + laufende Nummer pro Tag
+assert.deepStrictEqual([a.number, b.number], ['01012601', '01022601']);
+const a2 = s.saveInvoice({ date: '2026-01-01', customer: 'Zweite', items: [] });
+assert.strictEqual(a2.number, '01012602');
+s.deleteInvoice(a2.id);
+assert.strictEqual(s.nextNumber('2026-01-01'), '01012602'); // nach Löschen der letzten wird die Nummer wieder frei
+assert.strictEqual(s.nextNumber('2026-10-02'), '02102601'); // neuer Tag beginnt wieder bei 01
+const old = new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'inv-')));
+old.saveInvoice({ date: '2026-10-02', customer: 'X', number: '1102604', items: [] }); // alte Nummern stören nicht
+assert.strictEqual(old.nextNumber('2026-10-02'), '02102601');
 assert.strictEqual(s.listInvoices('أحمد').length, 1);
 assert.strictEqual(s.listInvoices('طاولة')[0].id, b.id);
 assert.strictEqual(s.listInvoices()[0].id, b.id);
@@ -43,4 +52,11 @@ const y = new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'inv-')));
 y.saveInvoice({ date: '2025-05-01', customer: 'A', items: [] }); y.saveInvoice({ date: '2026-05-01', customer: 'B', items: [] });
 assert.strictEqual(y.listInvoices('', '2025').length, 1);
 assert.strictEqual(y.listInvoices('B', '2025').length, 0);
+assert.strictEqual(y.listInvoices('', '2026-05').length, 1);
+assert.strictEqual(y.listInvoices('', '2026-05-01').length, 1);
+assert.strictEqual(y.listInvoices('', '2026-05-02').length, 0);
+assert.strictEqual(y.listInvoices('', '2026-04').length, 0);
+// Fußzeile: drei Spalten, IBAN in 4er-Gruppen
+const foot = H.build({ number: '1', items: [] }, { companyName: 'Prince', address: 'Wien', bank: 'BAWAG', iban: 'AT736000040510117567', bic: 'BAWAATWW', phone: '0681', email: 'a@b.at' });
+assert(foot.includes('IBAN: AT73 6000 0405 1011 7567') && foot.includes('Bank: BAWAG') && foot.includes('Tel.: 0681') && foot.includes('E-Mail: a@b.at'));
 console.log('Alle Tests bestanden');

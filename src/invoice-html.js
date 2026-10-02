@@ -11,6 +11,8 @@
   const safeLogo = (l) => (/^data:image\/(png|jpeg|gif|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(l || '') ? l : '');
   const money = (n) => (Math.round((Number(n) || 0) * 100) / 100).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const num = (n) => (Number(n) || 0).toLocaleString('de-DE', { maximumFractionDigits: 3 });
+  // IBAN in 4er-Gruppen: AT73 6000 0405 1011 7567
+  const iban = (v) => String(v || '').replace(/\s+/g, '').replace(/(.{4})(?=.)/g, '$1 ');
   const date = (d) => (/^\d{4}-\d{2}-\d{2}$/.test(d || '') ? d.split('-').reverse().join('.') : esc(d));
 
   // Österreichische Umsatzsteuersätze
@@ -35,8 +37,12 @@
       <tr><td>${i + 1}</td><td class="desc">${esc(it.description)}</td>
       <td>${num(it.qty)}</td><td>${money(it.price)}</td>
       <td>${money((Number(it.qty) || 0) * (Number(it.price) || 0))}</td></tr>`).join('');
-    const footer = [settings.uid && `UID-Nr.: ${esc(settings.uid)}`, settings.iban && `IBAN: ${esc(settings.iban)}`, settings.bic && `BIC: ${esc(settings.bic)}`]
-      .filter(Boolean).join(' &nbsp;|&nbsp; ');
+    // Fußzeile in drei Spalten: Firma + Adresse | Bank, IBAN, BIC | Telefon, E-Mail, UID
+    const col1 = [settings.companyName, settings.address].filter(Boolean).join('\n');
+    const col2 = [settings.bank && `Bank: ${settings.bank}`, settings.iban && `IBAN: ${iban(settings.iban)}`, settings.bic && `BIC: ${settings.bic}`].filter(Boolean).join('\n');
+    const col3 = [settings.phone && `Tel.: ${settings.phone}`, settings.email && `E-Mail: ${settings.email}`, settings.uid && `UID-Nr.: ${settings.uid}`].filter(Boolean).join('\n');
+    const footer = [col1, col2, col3].some(Boolean)
+      ? `<footer><div>${esc(col1)}</div><div>${esc(col2)}</div><div>${esc(col3)}</div></footer>` : '';
     return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Rechnung ${esc(inv.number)}</title>
 <style>
   @page { size: A4; margin: 14mm; }
@@ -62,8 +68,11 @@
   .sum .total { background: ${color}; color: #fff; font-weight: bold; font-size: 15px; border-radius: 4px; }
   .notes { margin-top: 22px; color: #444; white-space: pre-line; }
   .notes b { color: ${color}; }
-  footer { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 8px; color: #666; font-size: 11px; text-align: center; }
-</style></head><body>
+  .page { display: flex; flex-direction: column; min-height: 262mm; }
+  .page > .grow { flex: 1; }
+  footer { margin-top: 28px; border-top: 1px solid #ccc; padding-top: 10px; color: #444; font-size: 11px; line-height: 1.5; display: grid; grid-template-columns: 1.2fr 1.3fr 1fr; gap: 16px; }
+  footer div { white-space: pre-line; overflow-wrap: anywhere; }
+</style></head><body><div class="page"><div class="grow">
 <header>
   <div class="company">${logo ? `<img src="${logo}" alt="">` : ''}<h1>${esc(settings.companyName)}</h1><div>${esc(settings.address)}</div></div>
   <div class="title"><h2>Rechnung</h2></div>
@@ -81,8 +90,9 @@
 </div>
 ${inv.taxNote ? `<div class="notes"><b>Steuerhinweis:</b> ${esc(inv.taxNote)}</div>` : ''}
 ${inv.notes ? `<div class="notes"><b>Anmerkungen:</b><br>${esc(inv.notes)}</div>` : ''}
-${footer ? `<footer>${footer}</footer>` : ''}
-</body></html>`;
+</div>
+${footer}
+</div></body></html>`;
   }
 
   return { build, totals, esc, TAX_RATES, DEFAULT_TAX_NOTE };

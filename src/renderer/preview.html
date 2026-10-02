@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; script-src 'self'; frame-src 'self' about:">
+<title>Vorschau</title><link rel="stylesheet" href="style.css">
+<style>
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+  .pvbar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--sheet); border-bottom: 1px solid var(--line); }
+  .pvbar h1 { font-size: 18px; margin-right: auto; }
+  .pvstage { flex: 1; overflow: auto; padding: 24px; display: flex; justify-content: center; }
+  .pvstage iframe { width: 794px; height: 1123px; flex: none; border: 0; background: #fff; box-shadow: 0 1px 2px rgba(23,34,28,.12), 0 14px 40px rgba(23,34,28,.14); }
+</style></head>
+<body>
+  <div class="pvbar">
+    <h1 id="pvTitle">Vorschau</h1>
+    <button id="pvPrint" class="secondary" type="button">Drucken</button>
+    <button id="pvPdf" class="primary" type="button">Als PDF speichern</button>
+    <button id="pvClose" class="ghost" type="button">Schließen</button>
+  </div>
+  <div class="pvstage"><iframe id="pvFrame" title="Rechnung" sandbox></iframe></div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="preview.js"></script>
+</body></html>

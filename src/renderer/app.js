@@ -3,6 +3,7 @@ const eur = (n, cur) => (Math.round(n * 100) / 100).toLocaleString('de-DE', { mi
 const SWATCHES = ['#1f6feb', '#0b7a4b', '#16a34a', '#d1242f', '#e36209', '#8250df', '#24292f', '#0e7490'];
 let settings = {};
 let currentId = null;
+let suggested = ''; // vorgeschlagene Rechnungsnummer (TTMMJJ01 ...)
 
 
 // ---- Toast ----
@@ -80,6 +81,12 @@ function addItem(it = { description: '', qty: 1, price: 0 }) {
   d.querySelector('button').onclick = () => { d.remove(); refreshPreview(); };
   $('#items').appendChild(d);
 }
+async function updateSuggested() {
+  const f = $('#form').elements;
+  suggested = await api.nextNumber(f.date.value);
+  f.number.placeholder = suggested + ' (automatisch)';
+  if (!currentId) refreshPreview();
+}
 function readInvoice() {
   const f = $('#form').elements;
   return {
@@ -107,14 +114,17 @@ function fillForm(inv) {
   (inv.items && inv.items.length ? inv.items : [undefined]).forEach((i) => addItem(i));
   fillCatalogList();
   refreshPreview();
+  updateSuggested();
 }
 function refreshPreview() {
   const inv = readInvoice();
+  if (!inv.number && !inv.id) inv.number = suggested;
   document.querySelectorAll('.item:not(.head)').forEach((d) => { d.querySelector('.amt').textContent = eur((+d.querySelector('.qty').value || 0) * (+d.querySelector('.price').value || 0), ''); });
   $('#total').textContent = eur(InvoiceHtml.totals(inv).total, settings.currency);
   $('#preview').srcdoc = InvoiceHtml.build(inv, settings);
 }
 $('#form').addEventListener('input', refreshPreview);
+$('#form').elements.date.addEventListener('change', updateSuggested);
 // Steuerhinweis automatisch anpassen: bei 0 % der Standardhinweis, sonst leer
 $('#form').elements.taxRate.addEventListener('change', (e) => {
   const note = $('#form').elements.taxNote;
@@ -135,67 +145,121 @@ async function save() {
 }
 $('#form').addEventListener('submit', (e) => { e.preventDefault(); save(); });
 $('#savePdf').onclick = async () => {
-  const s = await save(); if (!s) return;
-  const r = await api.exportPdf(s.id);
+  const saved = await save(); if (!saved) return;
+  const r = await api.exportPdf(saved);
   if (r.ok) toast('PDF gespeichert: ' + r.filePath);
 };
+$('#previewBtn').onclick = () => api.previewInvoice(readInvoice());
+$('#printBtn').onclick = async () => {
+  const saved = await save(); if (!saved) return; // gedruckte Rechnungen landen immer im Archiv
+  const r = await api.printInvoice(saved);
+  if (r && r.ok === false && r.reason && r.reason !== 'cancelled') toast('Drucken nicht möglich: ' + r.reason, true);
+};
 
-// ---- Archiv ----
+// ---- Archiv: Zeitraum (Tag / Monat / Jahr / Alle) mit Summen ----
 let timer;
-const yearOf = (inv) => String(inv.date || '').slice(0, 4);
+let mode = 'month';
+const pad = (n) => String(n).padStart(2, '0');
+const todayStr = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+const deDate = (iso) => (/^\d{4}-\d{2}-\d{2}$/.test(iso || '') ? iso.split('-').reverse().join('.') : iso || '');
+const monthName = (m) => new Date(2000, m - 1, 1).toLocaleString('de-DE', { month: 'long' });
+const period = { day: todayStr(), month: todayStr().slice(0, 7), year: todayStr().slice(0, 4) };
+const prefix = () => (mode === 'all' ? '' : period[mode]);
+const sum = (list) => list.reduce((a, inv) => { const t = InvoiceHtml.totals(inv); a.n++; a.net += t.net; a.tax += t.tax; a.total += t.total; return a; }, { n: 0, net: 0, tax: 0, total: 0 });
+function periodLabel() {
+  if (mode === 'all') return 'Alle Rechnungen';
+  if (mode === 'year') return 'Jahr ' + period.year;
+  if (mode === 'month') return monthName(+period.month.slice(5)) + ' ' + period.month.slice(0, 4);
+  return deDate(period.day);
+}
+function shiftPeriod(dir) {
+  if (mode === 'day') { const d = new Date(period.day + 'T12:00:00'); d.setDate(d.getDate() + dir); period.day = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  else if (mode === 'month') { const [y, m] = period.month.split('-').map(Number); const d = new Date(y, m - 1 + dir, 1); period.month = d.getFullYear() + '-' + pad(d.getMonth() + 1); }
+  else if (mode === 'year') period.year = String(+period.year + dir);
+  loadList();
+}
+function setMode(m) { mode = m; loadList(); }
+document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+$('#prevPeriod').onclick = () => shiftPeriod(-1);
+$('#nextPeriod').onclick = () => shiftPeriod(1);
+$('#todayBtn').onclick = () => { const t = todayStr(); Object.assign(period, { day: t, month: t.slice(0, 7), year: t.slice(0, 4) }); loadList(); };
+$('#pDay').addEventListener('change', (e) => { if (e.target.value) { period.day = e.target.value; loadList(); } });
+$('#pMonth').addEventListener('change', (e) => { if (e.target.value) { period.month = e.target.value; loadList(); } });
+$('#pYear').addEventListener('change', (e) => { period.year = e.target.value; loadList(); });
 $('#search').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(loadList, 200); });
-$('#yearFilter').addEventListener('change', loadList);
 $('#exportCsv').onclick = async () => {
-  const r = await api.exportCsv($('#search').value, $('#yearFilter').value);
+  const r = await api.exportCsv($('#search').value, prefix());
   if (r.ok) toast(r.count + ' Rechnungen als CSV exportiert: ' + r.filePath);
 };
-async function loadYears() {
-  const all = await api.listInvoices('', '');
-  const by = {};
-  all.forEach((inv) => {
-    const y = yearOf(inv) || '—', t = InvoiceHtml.totals(inv);
-    const o = (by[y] = by[y] || { n: 0, net: 0, tax: 0, total: 0 });
-    o.n++; o.net += t.net; o.tax += t.tax; o.total += t.total;
+
+function renderKpis(t) {
+  const c = settings.currency;
+  const box = $('#kpis'); box.innerHTML = '';
+  [['Rechnungen', String(t.n), '', false], ['Netto', eur(t.net, c), '', false], ['Umsatzsteuer', eur(t.tax, c), '', false], ['Gesamt (brutto)', eur(t.total, c), '', true]].forEach(([l, v, , main]) => {
+    const d = document.createElement('div'); d.className = 'kpi' + (main ? ' main' : '');
+    const a = document.createElement('span'); a.className = 'kl'; a.textContent = l;
+    const b = document.createElement('span'); b.className = 'kv'; b.textContent = v;
+    d.append(a, b); box.appendChild(d);
   });
-  const years = Object.keys(by).sort().reverse();
-  const sel = $('#yearFilter'), cur = sel.value;
-  sel.innerHTML = '<option value="">Alle Jahre</option>' + years.filter((y) => y !== '—').map((y) => `<option value="${y}">${y}</option>`).join('');
-  sel.value = years.includes(cur) ? cur : '';
-  const box = $('#years'); box.innerHTML = '';
-  const max = Math.max(1, ...Object.values(by).map((o) => o.total));
-  const row = (label, o, y) => {
-    const el = document.createElement(y === undefined ? 'div' : 'button');
-    el.className = 'yrow' + (y === undefined ? ' total' : '');
-    if (y !== undefined) { el.type = 'button'; el.setAttribute('aria-pressed', String(y === sel.value)); el.onclick = () => { sel.value = y === sel.value ? '' : y; loadList(); }; }
-    const cnt = o.n + (o.n === 1 ? ' Rechnung' : ' Rechnungen');
-    el.innerHTML = '<span class="y"></span><span class="bar" aria-hidden="true"><i></i></span><span class="n"></span><span class="amt"></span>';
-    el.querySelector('.y').textContent = label;
-    el.querySelector('i').style.width = Math.max(2, (o.total / max) * 100) + '%';
-    el.querySelector('.n').textContent = cnt;
-    el.querySelector('.amt').innerHTML = '';
-    el.querySelector('.amt').append(eur(o.total, settings.currency));
-    const sm = document.createElement('small'); sm.textContent = 'netto ' + eur(o.net, settings.currency) + ' · USt. ' + eur(o.tax, settings.currency);
-    el.querySelector('.amt').appendChild(sm);
-    box.appendChild(el);
-  };
-  years.forEach((y) => row(y, by[y], y));
-  if (years.length > 1) { const t = Object.values(by).reduce((a, o) => ({ n: a.n + o.n, net: a.net + o.net, tax: a.tax + o.tax, total: a.total + o.total }), { n: 0, net: 0, tax: 0, total: 0 }); row('Gesamt', t); box.lastChild.querySelector('.bar').style.visibility = 'hidden'; }
 }
+// Aufschlüsselung: Alle -> Jahre, Jahr -> Monate, Monat -> Tage (Klick wechselt in den Zeitraum)
+function renderBreakdown(inPeriod) {
+  const box = $('#breakdown'); box.innerHTML = '';
+  if (mode === 'day') return;
+  const keyLen = mode === 'all' ? 4 : mode === 'year' ? 7 : 10;
+  const groups = {};
+  inPeriod.forEach((inv) => { const k = String(inv.date || '').slice(0, keyLen) || '—'; (groups[k] = groups[k] || []).push(inv); });
+  const keys = Object.keys(groups).sort().reverse();
+  const totals = keys.map((k) => sum(groups[k]));
+  const max = Math.max(1, ...totals.map((t) => t.total));
+  keys.forEach((k, i) => {
+    const t = totals[i];
+    const el = document.createElement('button'); el.type = 'button'; el.className = 'yrow';
+    el.innerHTML = '<span class="y"></span><span class="bar" aria-hidden="true"><i></i></span><span class="n"></span><span class="amt"></span>';
+    el.querySelector('.y').textContent = mode === 'all' ? k : mode === 'year' ? monthName(+k.slice(5)) : deDate(k).slice(0, 6);
+    el.querySelector('.y').style.fontSize = mode === 'all' ? '' : '17px';
+    el.querySelector('i').style.width = Math.max(2, (t.total / max) * 100) + '%';
+    el.querySelector('.n').textContent = t.n + (t.n === 1 ? ' Rechnung' : ' Rechnungen');
+    const amt = el.querySelector('.amt'); amt.append(eur(t.total, settings.currency));
+    const sm = document.createElement('small'); sm.textContent = 'netto ' + eur(t.net, settings.currency) + ' · USt. ' + eur(t.tax, settings.currency); amt.appendChild(sm);
+    el.onclick = () => {
+      if (k === '—') return;
+      if (mode === 'all') { period.year = k; mode = 'year'; } else if (mode === 'year') { period.month = k; mode = 'month'; } else { period.day = k; mode = 'day'; }
+      loadList();
+    };
+    box.appendChild(el);
+  });
+}
+
 async function loadList() {
-  await loadYears();
-  const list = await api.listInvoices($('#search').value, $('#yearFilter').value);
+  const all = await api.listInvoices('', '');
+  // Auswahlfelder
+  const years = [...new Set(all.map((i) => String(i.date || '').slice(0, 4)).filter(Boolean).concat(todayStr().slice(0, 4), period.year))].sort().reverse();
+  $('#pYear').innerHTML = years.map((y) => `<option value="${y}">${y}</option>`).join('');
+  $('#pYear').value = period.year; $('#pMonth').value = period.month; $('#pDay').value = period.day;
+  document.querySelectorAll('.seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+  $('#pDay').hidden = mode !== 'day'; $('#pMonth').hidden = mode !== 'month'; $('#pYear').hidden = mode !== 'year';
+  $('#pickers').hidden = mode === 'all';
+  $('#periodTitle').textContent = periodLabel();
+
+  const p = prefix();
+  const inPeriod = p ? all.filter((i) => String(i.date || '').startsWith(p)) : all;
+  renderKpis(sum(inPeriod));
+  renderBreakdown(inPeriod);
+
+  const list = await api.listInvoices($('#search').value, p);
   const tb = $('#list tbody'); tb.innerHTML = '';
   $('#empty').hidden = list.length > 0;
   for (const inv of list) {
     const tr = document.createElement('tr');
-    const date = /^\d{4}-\d{2}-\d{2}$/.test(inv.date || '') ? inv.date.split('-').reverse().join('.') : inv.date;
-    [inv.number, date, inv.customer, eur(InvoiceHtml.totals(inv).total, inv.currency)].forEach((c, i) => {
+    [inv.number, deDate(inv.date), inv.customer, eur(InvoiceHtml.totals(inv).total, inv.currency)].forEach((c, i) => {
       const td = document.createElement('td'); td.textContent = c; if (i === 0) td.className = 'num'; if (i === 3) td.className = 'r'; tr.appendChild(td);
     });
     const td = document.createElement('td'); td.className = 'act';
     const mk = (t, cls, fn) => { const b = document.createElement('button'); b.textContent = t; b.className = cls; b.onclick = fn; td.appendChild(b); };
     mk('Öffnen', 'ghost', () => { show('new'); fillForm(inv); });
-    mk('PDF', 'secondary', async () => { const r = await api.exportPdf(inv.id); if (r.ok) toast('PDF gespeichert: ' + r.filePath); });
+    mk('Vorschau', 'ghost', () => api.previewInvoice(inv));
+    mk('PDF', 'secondary', async () => { const r = await api.exportPdf(inv); if (r.ok) toast('PDF gespeichert: ' + r.filePath); });
     mk('Löschen', 'danger', async () => { if (confirm('Rechnung ' + inv.number + ' wirklich löschen?')) { await api.deleteInvoice(inv.id); toast('Rechnung ' + inv.number + ' gelöscht.'); loadList(); } });
     tr.appendChild(td); tb.appendChild(tr);
   }
@@ -280,12 +344,12 @@ function renderLetterhead() {
   $('#lhName').textContent = f.companyName.value || 'Firmenname';
   $('#lhAddr').textContent = f.address.value;
   $('#lhLogo').hidden = !logo; $('#lhLogo').src = logo;
-  $('#lhMeta').textContent = [f.uid.value && 'UID-Nr.: ' + f.uid.value, f.iban.value && 'IBAN: ' + f.iban.value, f.bic.value && 'BIC: ' + f.bic.value].filter(Boolean).join('  |  ');
+  $('#lhMeta').textContent = [f.phone.value && 'Tel.: ' + f.phone.value, f.email.value && 'E-Mail: ' + f.email.value, f.bank.value && 'Bank: ' + f.bank.value, f.iban.value && 'IBAN: ' + f.iban.value, f.bic.value && 'BIC: ' + f.bic.value, f.uid.value && 'UID-Nr.: ' + f.uid.value].filter(Boolean).join('\n');
 }
 $('#settingsForm').addEventListener('input', renderLetterhead);
 function fillSettings() {
   const f = $('#settingsForm').elements;
-  ['companyName', 'address', 'uid', 'iban', 'bic', 'currency', 'nextNumber', 'taxNote'].forEach((k) => (f[k].value = settings[k] || ''));
+  ['companyName', 'address', 'uid', 'phone', 'email', 'bank', 'iban', 'bic', 'currency', 'taxNote'].forEach((k) => (f[k].value = settings[k] || ''));
   fillTaxSelect(f.taxRate, settings.taxRate || 0);
   buildSwatches(); setColor(settings.color);
   showLogo(settings.logo);
@@ -308,8 +372,9 @@ $('#settingsForm').addEventListener('submit', async (e) => {
   if (!validHex(color)) { toast('Ungültige Farbe. Beispiel: #0b7a4b', true); return; }
   const catalog = [...document.querySelectorAll('.cat')].map((d) => ({ description: d.querySelector('.cd').value.trim(), price: +d.querySelector('.cp').value || 0 })).filter((c) => c.description);
   settings = await api.saveSettings({
-    companyName: f.companyName.value.trim(), address: f.address.value, uid: f.uid.value.trim(), iban: f.iban.value.trim(), bic: f.bic.value.trim(),
-    color, currency: f.currency.value.trim() || '€', nextNumber: +f.nextNumber.value || 1, taxRate: +f.taxRate.value || 0,
+    companyName: f.companyName.value.trim(), address: f.address.value, uid: f.uid.value.trim(),
+    phone: f.phone.value.trim(), email: f.email.value.trim(), bank: f.bank.value.trim(), iban: f.iban.value.trim(), bic: f.bic.value.trim(),
+    color, currency: f.currency.value.trim() || '€', taxRate: +f.taxRate.value || 0,
     taxNote: f.taxNote.value.trim(), logo: settings.logo, catalog,
   });
   applyBrand(settings.color); renderRail(); toast('Einstellungen gespeichert.');
