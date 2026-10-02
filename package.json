@@ -6,6 +6,7 @@
   "scripts": {
     "start": "electron .",
     "test": "node scripts/test.js",
+    "e2e": "node scripts/e2e.js",
     "sample": "node scripts/sample-pdf.js",
     "dist": "electron-builder --win portable"
   },
