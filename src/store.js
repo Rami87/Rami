@@ -6,6 +6,7 @@ const DEFAULT_SETTINGS = {
   companyName: 'Firmenname', address: '', uid: '', bank: '', iban: '', bic: '', phone: '', email: '',
   color: '#1f6feb', logo: '', currency: '€',
   lastDir: '', // zuletzt benutzter Ordner beim Speichern von PDF/CSV
+  lastBackup: '', // ISO-Zeitpunkt der letzten Sicherung
   taxRate: 0, taxNote: 'Umsatzsteuerfrei gemäß § 6 Abs. 1 Z 27 UStG.',
   catalog: [], // vordefinierte Positionen: [{ description, price }]
 };
@@ -62,6 +63,8 @@ class Store {
     this._write(this.invoicesFile, all);
     return all.find((i) => i.id === inv.id);
   }
+  allInvoices() { return this._read(this.invoicesFile, []); }
+  replaceInvoices(list) { this._write(this.invoicesFile, list); }
   deleteInvoice(id) { this._write(this.invoicesFile, this._read(this.invoicesFile, []).filter((i) => i.id !== id)); }
 }
 module.exports = { Store, DEFAULT_SETTINGS };

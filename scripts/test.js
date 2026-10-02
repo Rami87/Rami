@@ -59,4 +59,30 @@ assert.strictEqual(y.listInvoices('', '2026-04').length, 0);
 // Fußzeile: drei Spalten, IBAN in 4er-Gruppen
 const foot = H.build({ number: '1', items: [] }, { companyName: 'Prince', address: 'Wien', bank: 'BAWAG', iban: 'AT736000040510117567', bic: 'BAWAATWW', phone: '0681', email: 'a@b.at' });
 assert(foot.includes('IBAN: AT73 6000 0405 1011 7567') && foot.includes('Bank: BAWAG') && foot.includes('Tel.: 0681') && foot.includes('E-Mail: a@b.at'));
+// Datensicherung
+const { createBackup, parseBackup, mergeInvoices } = require('../src/backup');
+const bs = new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'inv-')));
+bs.saveSettings({ companyName: 'Prince', color: '#0b7a4b', logo: 'data:image/png;base64,AAAA', lastDir: 'C:\\x', catalog: [{ description: 'Beratung', price: 90 }] });
+const i1 = bs.saveInvoice({ date: '2026-10-02', customer: 'A', items: [{ description: 'x', qty: 2, price: 10 }], taxRate: 20 });
+const text = createBackup(bs.getSettings(), bs.allInvoices(), new Date('2026-10-02T10:00:00Z'));
+assert(!text.includes('lastDir') && !text.includes('lastBackup'));
+const parsed = parseBackup(text);
+assert.strictEqual(parsed.invoices.length, 1);
+assert.strictEqual(parsed.invoices[0].number, i1.number);
+assert.strictEqual(parsed.settings.companyName, 'Prince');
+assert.strictEqual(parsed.settings.catalog[0].price, 90);
+assert.strictEqual(parsed.settings.logo, 'data:image/png;base64,AAAA');
+assert.throws(() => parseBackup('kein json'), /JSON/);
+assert.throws(() => parseBackup('{"app":"anderes"}'), /nicht aus diesem Programm/);
+assert.throws(() => parseBackup('{"app":"rechnungen-backup","format":9,"invoices":[]}'), /Format/);
+const evil = parseBackup(JSON.stringify({ app: 'rechnungen-backup', format: 1, invoices: [{ id: 'a', customer: 5, items: 'x', date: 'kaputt' }, { nope: 1 }, { id: 'a' }], settings: { logo: 'javascript:alert(1)', color: 'red' } }));
+assert.strictEqual(evil.invoices.length, 1);
+assert.strictEqual(evil.invoices[0].date, '');
+assert.strictEqual(evil.settings.logo, '');
+assert.strictEqual(evil.settings.color, '#1f6feb');
+// Zusammenführen: neue hinzufügen, neuere ersetzen, ältere behalten
+const m = mergeInvoices([{ id: 'a', updatedAt: '2026-01-02' }, { id: 'b', updatedAt: '2026-05-01' }], [{ id: 'a', updatedAt: '2026-03-01' }, { id: 'b', updatedAt: '2026-01-01' }, { id: 'c', updatedAt: '' }]);
+assert.deepStrictEqual([m.added, m.updated, m.list.length], [1, 1, 3]);
+assert.strictEqual(m.list.find((x) => x.id === 'a').updatedAt, '2026-03-01');
+assert.strictEqual(m.list.find((x) => x.id === 'b').updatedAt, '2026-05-01');
 console.log('Alle Tests bestanden');

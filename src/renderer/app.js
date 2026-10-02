@@ -45,7 +45,8 @@ document.querySelectorAll('nav button').forEach((b) => b.addEventListener('click
 function show(v) {
   applyBrand(settings.color); // ungespeicherte Farbänderung verwerfen
   document.querySelectorAll('nav button').forEach((b) => b.classList.toggle('active', b.dataset.view === v));
-  ['new', 'archive', 'settings'].forEach((n) => ($('#view-' + n).hidden = n !== v));
+  ['new', 'archive', 'backup', 'settings'].forEach((n) => ($('#view-' + n).hidden = n !== v));
+  if (v === 'backup') loadBackup();
   if (v === 'archive') loadList();
   if (v === 'settings') fillSettings();
   if (v === 'new') { fillCatalogList(); refreshPreview(); fitPreview(); }
@@ -264,6 +265,37 @@ async function loadList() {
     tr.appendChild(td); tb.appendChild(tr);
   }
 }
+
+// ---- Datensicherung ----
+const deDateTime = (iso) => new Date(iso).toLocaleString('de-AT', { dateStyle: 'medium', timeStyle: 'short' });
+async function loadBackup() {
+  const info = await api.backupInfo();
+  $('#bkDir').textContent = info.dir;
+  const st = $('#bkStatus');
+  const days = info.lastBackup ? Math.floor((Date.now() - new Date(info.lastBackup)) / 86400000) : null;
+  const n = info.count + (info.count === 1 ? ' Rechnung' : ' Rechnungen');
+  if (days === null) { st.className = 'bkstatus warn'; st.textContent = 'Noch keine Sicherung erstellt. Aktuell gespeichert: ' + n + '.'; }
+  else if (days > 30) { st.className = 'bkstatus warn'; st.textContent = 'Die letzte Sicherung ist ' + days + ' Tage alt (' + deDateTime(info.lastBackup) + '). Aktuell gespeichert: ' + n + '.'; }
+  else { st.className = 'bkstatus'; st.textContent = 'Letzte Sicherung: ' + deDateTime(info.lastBackup) + '. Aktuell gespeichert: ' + n + '.'; }
+}
+$('#bkOpen').onclick = () => api.backupFolder();
+$('#bkCreate').onclick = async () => {
+  const r = await api.backupCreate();
+  if (r.ok) { toast('Sicherung gespeichert (' + r.count + ' Rechnungen): ' + r.filePath); loadBackup(); }
+};
+$('#bkRestore').onclick = async () => {
+  const r = await api.backupRestore();
+  if (r.error) { toast(r.error, true); return; }
+  if (!r.ok) return;
+  settings = await api.getSettings(); applyBrand(settings.color); renderRail(); fillForm({});
+  toast(r.mode === 'merge' ? 'Zusammengeführt: ' + r.added + ' neue, ' + r.updated + ' aktualisierte Rechnungen.' : 'Wiederhergestellt: ' + r.count + ' Rechnungen und Einstellungen.');
+  loadBackup();
+};
+$('#bkPdfs').onclick = async () => {
+  toast('PDF-Dateien werden erstellt …');
+  const r = await api.backupPdfs();
+  if (r.ok) toast(r.count + ' PDF-Dateien gespeichert in: ' + r.dir);
+};
 
 // ---- Einstellungen ----
 const validHex = (c) => /^#[0-9a-fA-F]{6}$/.test(c);

@@ -4,6 +4,7 @@ const fs = require('fs');
 const { Store } = require('./store');
 const InvoiceHtml = require('./invoice-html');
 const { toCsv } = require('./csv');
+const { createBackup, parseBackup, mergeInvoices } = require('./backup');
 
 let store;
 const previews = new Map(); // webContents.id des Vorschaufensters -> Rechnung
@@ -102,6 +103,61 @@ app.whenReady().then(() => {
   ipcMain.handle('preview:get', (e) => { const inv = previews.get(e.sender.id); return inv ? { html: buildHtml(inv), number: withNumber(inv).number } : null; });
   ipcMain.handle('preview:print', (e) => printInvoice(previews.get(e.sender.id)));
   ipcMain.handle('preview:pdf', (e) => exportPdf(winOf(e), previews.get(e.sender.id)));
+
+  // ---- Datensicherung ----
+  const day = () => new Date().toISOString().slice(0, 10);
+  ipcMain.handle('backup:info', () => ({ dir: store.dir, lastBackup: store.getSettings().lastBackup, count: store.allInvoices().length }));
+  ipcMain.handle('backup:showFolder', () => shell.openPath(store.dir));
+  ipcMain.handle('backup:create', async (e) => {
+    const filePath = await saveDialog(winOf(e), `Rechnungen-Backup-${day()}.json`, [{ name: 'Sicherung (JSON)', extensions: ['json'] }]);
+    if (!filePath) return { ok: false };
+    const invoices = store.allInvoices();
+    fs.writeFileSync(filePath, createBackup(store.getSettings(), invoices));
+    store.saveSettings({ lastBackup: new Date().toISOString() });
+    return { ok: true, filePath, count: invoices.length };
+  });
+  ipcMain.handle('backup:restore', async (e) => {
+    const win = winOf(e);
+    const { filePaths, canceled } = await dialog.showOpenDialog(win, { defaultPath: startDir(), properties: ['openFile'], filters: [{ name: 'Sicherung (JSON)', extensions: ['json'] }] });
+    if (canceled || !filePaths[0]) return { ok: false };
+    let data;
+    try {
+      if (fs.statSync(filePaths[0]).size > 200 * 1024 * 1024) throw new Error('Die Datei ist zu groß für eine Sicherung.');
+      data = parseBackup(fs.readFileSync(filePaths[0], 'utf8'));
+    } catch (err) { return { ok: false, error: err.message }; }
+    const when = data.exportedAt ? new Date(data.exportedAt).toLocaleString('de-AT') : 'unbekannt';
+    const { response } = await dialog.showMessageBox(win, {
+      type: 'question', title: 'Sicherung wiederherstellen', cancelId: 2, defaultId: 0,
+      buttons: ['Zusammenführen', 'Alles ersetzen', 'Abbrechen'],
+      message: `Sicherung vom ${when}: ${data.invoices.length} Rechnungen.`,
+      detail: 'Zusammenführen: vorhandene Rechnungen bleiben, neue werden hinzugefügt (bei gleicher Rechnung gewinnt die neuere Version). Einstellungen bleiben unverändert.\n\nAlles ersetzen: Einstellungen und Rechnungen werden durch die Sicherung ersetzt. Der aktuelle Stand wird vorher automatisch im Programmordner gesichert.',
+    });
+    if (response === 2) return { ok: false };
+    if (response === 1) {
+      const dir = path.join(store.dir, 'backups'); fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(path.join(dir, `vor-Wiederherstellung-${new Date().toISOString().replace(/[:.]/g, '-')}.json`), createBackup(store.getSettings(), store.allInvoices()));
+      const keep = { lastDir: store.getSettings().lastDir, lastBackup: store.getSettings().lastBackup };
+      store.replaceInvoices(data.invoices);
+      store.saveSettings({ ...data.settings, ...keep });
+      return { ok: true, mode: 'replace', count: data.invoices.length };
+    }
+    const m = mergeInvoices(store.allInvoices(), data.invoices);
+    store.replaceInvoices(m.list);
+    return { ok: true, mode: 'merge', added: m.added, updated: m.updated, count: m.list.length };
+  });
+  // Alle Rechnungen als einzelne PDF-Dateien in einen Ordner (z. B. für den Steuerberater)
+  ipcMain.handle('backup:pdfs', async (e) => {
+    const { filePaths, canceled } = await dialog.showOpenDialog(winOf(e), { defaultPath: startDir(), title: 'Ordner für die PDF-Dateien', properties: ['openDirectory', 'createDirectory'] });
+    if (canceled || !filePaths[0]) return { ok: false };
+    const dir = filePaths[0];
+    store.saveSettings({ lastDir: dir });
+    const list = store.allInvoices();
+    for (const inv of list) {
+      const name = `Rechnung-${String(inv.number || inv.id).replace(/[^\w.-]+/g, '_')}.pdf`;
+      fs.writeFileSync(path.join(dir, name), await renderPdf(buildHtml(inv)));
+    }
+    return { ok: true, dir, count: list.length };
+  });
   createWindow();
 });
 app.on('window-all-closed', () => app.quit());

@@ -190,3 +190,17 @@ a:hover { text-decoration-thickness: 2px; }
 .kpi.main .kv { color: var(--brand); }
 .kpi small { display: block; color: var(--muted); font-size: 12px; }
 @media (max-width: 760px) { .kpis { grid-template-columns: 1fr 1fr; } .kpi + .kpi { border-left: 0; padding-left: 0; } }
+
+/* ---------- Datensicherung ---------- */
+.bk { max-width: 780px; }
+.bkstatus { margin-bottom: 14px; padding: 12px 14px; border-radius: var(--radius); background: var(--brand-tint); border-left: 4px solid var(--brand); font-weight: 600; }
+.bkstatus.warn { background: #fdf0e3; border-left-color: #e36209; }
+.bkrow { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 0; border-top: 1px solid var(--line); }
+.bkrow h3, .bkhelp h3 { margin: 0 0 4px; font-size: 17px; }
+.bkrow p { margin: 0; color: var(--muted); max-width: 520px; }
+.bkrow button { flex: none; }
+.bkhelp { border-top: 1px solid var(--line); padding-top: 18px; }
+.bkhelp h3 + p { margin-top: 0; } .bkhelp h3:not(:first-child) { margin-top: 22px; }
+.path { padding: 10px 12px; border-radius: var(--radius); background: var(--sheet); border: 1px solid var(--line); font-family: Consolas, "Courier New", monospace; font-size: 13px; overflow-wrap: anywhere; }
+.bkhelp ol { margin: 6px 0 0; padding-left: 20px; } .bkhelp li { margin-bottom: 4px; }
+@media (max-width: 760px) { .bkrow { flex-direction: column; align-items: flex-start; } }

@@ -16,6 +16,7 @@
   <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V3h10v6 M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2 M7 14h10v7H7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
   <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
 </svg>
 
@@ -25,6 +26,7 @@
     <nav aria-label="Hauptnavigation">
       <button data-view="new" class="active"><svg><use href="#i-doc"/></svg>Neue Rechnung</button>
       <button data-view="archive"><svg><use href="#i-archive"/></svg>Archiv</button>
+      <button data-view="backup"><svg><use href="#i-shield"/></svg>Datensicherung</button>
       <button data-view="settings"><svg><use href="#i-gear"/></svg>Einstellungen</button>
     </nav>
     <p class="railnote">Alle Daten bleiben auf diesem Computer.</p>
@@ -115,6 +117,36 @@
         <p class="emptytitle">Keine Rechnungen gefunden</p>
         <p>Ändern Sie Zeitraum oder Suche, oder legen Sie eine neue Rechnung an.</p>
         <button type="button" class="primary" data-goto="new">Neue Rechnung</button>
+      </div>
+    </section>
+
+    <!-- ============ Datensicherung ============ -->
+    <section id="view-backup" hidden>
+      <header class="pagehead"><h1>Datensicherung</h1><p class="sub">Sichern Sie Ihre Daten, damit sie bei einem neuen Computer nicht verloren gehen.</p></header>
+      <div class="bk">
+        <div id="bkStatus" class="bkstatus" role="status"></div>
+
+        <div class="bkrow">
+          <div><h3>Sicherung erstellen</h3><p>Speichert Einstellungen, Logo und alle Rechnungen in <b>einer Datei</b>. Legen Sie sie auf einen USB-Stick oder in die Cloud.</p></div>
+          <button type="button" id="bkCreate" class="primary"><svg><use href="#i-dl"/></svg>Sicherung erstellen</button>
+        </div>
+        <div class="bkrow">
+          <div><h3>Sicherung wiederherstellen</h3><p>Wählen Sie eine Sicherungsdatei. Sie können die Daten <b>zusammenführen</b> oder <b>alles ersetzen</b>.</p></div>
+          <button type="button" id="bkRestore" class="secondary">Sicherung öffnen</button>
+        </div>
+        <div class="bkrow">
+          <div><h3>Alle Rechnungen als PDF</h3><p>Erstellt für jede Rechnung eine PDF-Datei in einem Ordner Ihrer Wahl, z. B. für den Steuerberater.</p></div>
+          <button type="button" id="bkPdfs" class="secondary">PDFs exportieren</button>
+        </div>
+
+        <div class="bkhelp">
+          <h3>Wo liegen meine Daten?</h3>
+          <p>Die Daten liegen <b>nicht in der exe-Datei</b>, sondern in diesem Ordner auf dem Computer:</p>
+          <p class="path" id="bkDir"></p>
+          <button type="button" id="bkOpen" class="ghost">Ordner öffnen</button>
+          <h3>Umzug auf einen neuen Computer</h3>
+          <ol><li>Hier eine Sicherung erstellen und die Datei mitnehmen.</li><li>Die exe-Datei auf dem neuen Computer starten.</li><li>Unter «Sicherung wiederherstellen» die Datei auswählen.</li></ol>
+        </div>
       </div>
     </section>
 
