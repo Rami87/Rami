@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Websites &amp; Onlineshops"><g fill="none" stroke="#0F2E40" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+<rect x="6" y="10" width="52" height="42" rx="4.500" fill="none"/>
+<path d="M6 21h52" fill="none"/>
+<circle cx="12" cy="15.500" r="1.500" fill="#0F2E40" stroke="none"/>
+<circle cx="17.500" cy="15.500" r="1.500" fill="#0F2E40" stroke="none"/>
+<path d="M12 28h11M12 34h9M12 40h7" fill="none"/>
+<path d="M29 27h4l3 12h13l3-9H34" fill="rgba(51,161,194,0.18)"/>
+<circle cx="38" cy="44" r="2.300" fill="#33A1C2" stroke="none"/>
+<circle cx="47" cy="44" r="2.300" fill="#33A1C2" stroke="none"/></g></svg>
