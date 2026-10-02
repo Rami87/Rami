@@ -1,0 +1,37 @@
+{
+  "name": "invoice-app",
+  "version": "0.1.0",
+  "description": "برنامج فواتير بسيط يعمل بدون إنترنت ويحفظ PDF",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node scripts/test.js",
+    "e2e": "node scripts/e2e.js",
+    "sample": "node scripts/sample-pdf.js",
+    "dist": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "local.invoice.app",
+    "productName": "Invoices",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "copyright": "© Rami Horani, HoraniQ IT-Lösungen"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "playwright-core": "^1.48.0"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Rami Horani",
+    "email": "Rami@horaniq.at",
+    "url": "https://horaniq.at"
+  },
+  "homepage": "https://horaniq.at"
+}

@@ -1,0 +1,39 @@
+name: build
+on: [push, pull_request]
+jobs:
+  test-and-sample:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npx playwright-core install --with-deps chromium
+      - run: npm run sample
+      - uses: actions/upload-artifact@v4
+        with: { name: sample-pdf, path: sample/*.pdf }
+  windows-portable:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      - run: npm run dist
+      - uses: actions/upload-artifact@v4
+        with: { name: windows-portable, path: dist/*.exe }
+      # Entwurf-Release (Draft): nur für Personen mit Schreibrechte sichtbar, bleibt dauerhaft verfügbar.
+      - name: Draft release with latest exe
+        if: github.event_name == 'push'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NAME="Rechnungen (neueste Version)"
+          for id in $(gh api "repos/${{ github.repository }}/releases" --jq ".[] | select(.draft and .name==\"$NAME\") | .id"); do
+            gh api -X DELETE "repos/${{ github.repository }}/releases/$id"
+          done
+          gh release create latest-build dist/*.exe --draft --title "$NAME" --notes "Automatisch gebaut aus dem Branch ${{ github.ref_name }} (Commit ${{ github.sha }})." --target "${{ github.sha }}"
