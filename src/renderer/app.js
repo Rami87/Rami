@@ -134,7 +134,7 @@ $('#form').elements.taxRate.addEventListener('change', (e) => {
   refreshPreview();
 });
 $('#addItem').onclick = () => addItem();
-$('#reset').onclick = () => { fillForm({}); };
+$('#reset').onclick = () => { if (confirm('Wirklich neu beginnen?\n\nAlle Eingaben dieser Rechnung gehen verloren.')) fillForm({}); };
 async function save() {
   const inv = readInvoice();
   if (!inv.customer || !inv.items.length) { toast('Bitte Kunde und mindestens eine Position eingeben.', true); return null; }

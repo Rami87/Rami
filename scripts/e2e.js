@@ -66,6 +66,18 @@ const ok = (name, cond, extra) => { assert(cond, name + (extra ? ' -> ' + extra 
   ok('Kein XSS über Firmenname (Seitenleiste, Briefkopf)', !(await win.evaluate(() => window.__xss)) && (await win.locator('#railName').textContent()).includes('<img'));
 
   console.log('Rechnungen');
+  // Neu beginnen: rot, mit Rückfrage; Abbrechen behält die Eingaben
+  await win.click('nav [data-view=new]');
+  await win.fill('#form [name=customer]', 'Behalten');
+  const rb = await win.locator('#reset').evaluate((b) => getComputedStyle(b).backgroundColor);
+  ok('Neu beginnen ist rot (Gefahr)', rb === 'rgb(180, 35, 24)', rb);
+  await win.evaluate(() => { window.__ans = false; window.__asked = ''; window.confirm = (m) => { window.__asked = m; return window.__ans; }; });
+  await win.click('#reset');
+  const asked = await win.evaluate(() => window.__asked);
+  ok('Rückfrage erscheint, bei Abbrechen bleiben die Eingaben', /neu beginnen/i.test(asked) && (await win.inputValue('#form [name=customer]')) === 'Behalten', asked);
+  await win.evaluate(() => { window.__ans = true; });
+  await win.click('#reset');
+  ok('Nach Bestätigen ist das Formular leer', (await win.inputValue('#form [name=customer]')) === '');
   const today = new Date().toISOString().slice(0, 10);
   const pre = today.slice(8, 10) + today.slice(5, 7) + today.slice(2, 4);
   async function createInvoice(customer, price) {

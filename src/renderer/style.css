@@ -68,6 +68,8 @@ button.ghost { background: transparent; color: var(--ink); }
 button.ghost:hover { background: color-mix(in srgb, var(--ink) 7%, transparent); }
 button.danger { background: transparent; color: var(--danger); }
 button.danger:hover { background: color-mix(in srgb, var(--danger) 10%, transparent); }
+button.danger-solid { background: var(--danger); color: #fff; }
+button.danger-solid:hover { background: color-mix(in srgb, var(--danger) 85%, #000); }
 button.icon { min-width: 42px; padding: 0; }
 
 /* ---------- Rechnungseditor ---------- */
