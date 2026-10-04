@@ -4,6 +4,6 @@
 <circle cx="12" cy="15.500" r="1.500" fill="#0F2E40" stroke="none"/>
 <circle cx="17.500" cy="15.500" r="1.500" fill="#0F2E40" stroke="none"/>
 <path d="M12 28h11M12 34h9M12 40h7" fill="none"/>
-<path d="M29 27h4l3 12h13l3-9H34" fill="rgba(51,161,194,0.18)"/>
+<g class="a-cart"><path d="M29 27h4l3 12h13l3-9H34" fill="rgba(51,161,194,0.18)"/>
 <circle cx="38" cy="44" r="2.300" fill="#33A1C2" stroke="none"/>
-<circle cx="47" cy="44" r="2.300" fill="#33A1C2" stroke="none"/></g></svg>
+<circle cx="47" cy="44" r="2.300" fill="#33A1C2" stroke="none"/></g></g></svg>

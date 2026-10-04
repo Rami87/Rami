@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="HORANiQ IT-Check"><g fill="none" stroke="#0F2E40" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
 <rect x="8" y="6" width="34" height="46" rx="4" fill="none"/>
-<circle cx="17" cy="17" r="3.200" fill="#2FA672" stroke="none"/>
-<circle cx="17" cy="28" r="3.200" fill="#E0A02C" stroke="none"/>
-<circle cx="17" cy="39" r="3.200" fill="#C8443B" stroke="none"/>
+<circle class="a-d1" cx="17" cy="17" r="3.200" fill="#2FA672" stroke="none"/>
+<circle class="a-d2" cx="17" cy="28" r="3.200" fill="#E0A02C" stroke="none"/>
+<circle class="a-d3" cx="17" cy="39" r="3.200" fill="#C8443B" stroke="none"/>
 <path d="M25 17h10M25 28h10M25 39h6" fill="none"/>
-<circle cx="43" cy="41" r="10" fill="#FFFFFF"/>
+<g class="a-lens"><circle cx="43" cy="41" r="10" fill="#FFFFFF"/>
 <path d="M50.500 48.500L58 56" fill="none" stroke-width="4"/>
-<path d="M38.500 41l3 3 5-6" fill="none" stroke="#33A1C2"/></g></svg>
+<path class="a-check" d="M38.500 41l3 3 5-6" fill="none" stroke="#33A1C2"/></g></g></svg>

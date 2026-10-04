@@ -353,8 +353,8 @@ def asset_version(name):
 
 
 def icon_svg(slug, size=""):
-    cls = "ico" + (f" ico-{size}" if size else "")
-    return f'<svg class="{cls}" aria-hidden="true" focusable="false"><use href="/assets/img/icons.svg?v={asset_version("icons.svg")}#i-{slug}"/></svg>'
+    """Service and contact icons are inlined so their parts can move on hover, focus and press."""
+    return icons.inline(slug, "ico" + (f" ico-{size}" if size else ""))
 
 
 ICON_RE = re.compile(r"\{\{ICON:([a-z0-9-]+)(?::(sm|lg|xl))?\}\}")

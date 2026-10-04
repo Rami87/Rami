@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="IT-Sicherheit"><g fill="none" stroke="#0F2E40" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-<path d="M22 28v-6a10 10 0 0 1 20 0v6" fill="none"/>
-<rect x="14" y="28" width="36" height="26" rx="5" fill="rgba(51,161,194,0.18)"/>
-<circle cx="24" cy="41" r="2.400" fill="#0F2E40" stroke="none"/>
-<circle cx="32" cy="41" r="2.400" fill="#0F2E40" stroke="none"/>
-<circle cx="40" cy="41" r="2.400" fill="#0F2E40" stroke="none"/></g></svg>
+<rect x="7" y="10" width="42" height="40" rx="4" fill="none"/>
+<path d="M7 23h42M7 37h42M21 10v13M35 23v14M21 37v13" fill="none"/>
+<rect x="35" y="23" width="14" height="14" fill="rgba(51,161,194,0.18)" stroke="none"/>
+<g class="a-badge"><circle cx="48" cy="46" r="11" fill="#FFFFFF"/>
+<path class="a-check" d="M42.500 46l4 4 7.500-8.500" fill="none" stroke="#2FA672" stroke-width="3.600"/></g></g></svg>
