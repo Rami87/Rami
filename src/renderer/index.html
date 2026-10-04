@@ -17,6 +17,7 @@
   <symbol id="i-chev-l" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z M9 8h6 M9 12h6 M9 16h3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
 </svg>
 
@@ -26,6 +27,7 @@
     <nav aria-label="Hauptnavigation">
       <button data-view="new" class="active"><svg><use href="#i-doc"/></svg>Neue Rechnung</button>
       <button data-view="archive"><svg><use href="#i-archive"/></svg>Archiv</button>
+      <button data-view="expenses"><svg><use href="#i-receipt"/></svg>Ausgaben</button>
       <button data-view="backup"><svg><use href="#i-shield"/></svg>Datensicherung</button>
       <button data-view="settings"><svg><use href="#i-gear"/></svg>Einstellungen</button>
     </nav>
@@ -120,6 +122,58 @@
       </div>
     </section>
 
+    <!-- ============ Ausgaben ============ -->
+    <section id="view-expenses" hidden>
+      <header class="pagehead"><h1>Ausgaben</h1><p class="sub">Belege erfassen, Vorsteuer automatisch berechnen und am Monats- oder Jahresende für den Steuerberater exportieren.</p></header>
+      <form id="xform" class="xform" autocomplete="off">
+        <h2 id="xFormTitle" class="xtitle">Neue Ausgabe</h2>
+        <div class="grid3">
+          <label>Belegdatum<input name="date" type="date" required></label>
+          <label>Lieferant<input name="supplier" required placeholder="z. B. Hornbach"></label>
+          <label>Belegnummer <span class="opt">optional</span><input name="number"></label>
+        </div>
+        <label>Beschreibung <span class="opt">optional</span><input name="description" placeholder="Was wurde gekauft?"></label>
+        <div class="grid3">
+          <label>Kategorie<select name="category"></select></label>
+          <label>Bruttobetrag (laut Beleg)<input name="gross" type="number" min="0.01" step="0.01" required placeholder="0,00"></label>
+          <label>Umsatzsteuer im Beleg<select name="taxRate"></select></label>
+        </div>
+        <p id="xCalc" class="xcalc" aria-live="polite"></p>
+        <div class="xreceipt">
+          <button type="button" id="xPick" class="secondary"><svg><use href="#i-plus"/></svg>Beleg hinzufügen (PDF oder Foto)</button>
+          <span id="xReceiptName" class="xrname"></span>
+          <button type="button" id="xRemove" class="ghost" hidden>Beleg entfernen</button>
+        </div>
+        <div class="btns">
+          <button type="submit" class="primary" id="xSave">Ausgabe speichern</button>
+          <button type="button" id="xCancel" class="ghost" hidden>Abbrechen</button>
+        </div>
+      </form>
+
+      <div class="periodbar">
+        <div class="seg" role="group" aria-label="Zeitraum">
+          <button type="button" data-xmode="month">Monat</button><button type="button" data-xmode="year">Jahr</button><button type="button" data-xmode="all">Alle</button>
+        </div>
+        <div class="pickers" id="xPickers">
+          <button type="button" id="xPrev" class="icon secondary" aria-label="Vorheriger Zeitraum"><svg><use href="#i-chev-l"/></svg></button>
+          <input type="month" id="xMonth" aria-label="Monat"><select id="xYear" aria-label="Jahr"></select>
+          <button type="button" id="xNext" class="icon secondary" aria-label="Nächster Zeitraum"><svg><use href="#i-chev-r"/></svg></button>
+        </div>
+      </div>
+      <h2 id="xPeriodTitle" class="periodtitle"></h2>
+      <div class="kpis" id="xKpis"></div>
+      <div id="xRates" class="xrates"></div>
+      <div class="toolbar">
+        <label class="searchbox"><svg><use href="#i-search"/></svg><input id="xSearch" type="search" placeholder="Im Zeitraum suchen: Lieferant, Beschreibung, Kategorie" aria-label="Suche"></label>
+        <button type="button" id="xExport" class="primary"><svg><use href="#i-dl"/></svg>Für Steuerberater exportieren</button>
+      </div>
+      <table id="xlist"><thead><tr><th>Datum</th><th>Lieferant</th><th>Kategorie</th><th class="r">Netto</th><th class="r">Vorsteuer</th><th class="r">Brutto</th><th><span class="sr">Aktionen</span></th></tr></thead><tbody></tbody></table>
+      <div id="xEmpty" class="empty" hidden>
+        <p class="emptytitle">Keine Ausgaben in diesem Zeitraum</p>
+        <p>Erfassen Sie oben einen Beleg oder wählen Sie einen anderen Zeitraum.</p>
+      </div>
+    </section>
+
     <!-- ============ Datensicherung ============ -->
     <section id="view-backup" hidden>
       <header class="pagehead"><h1>Datensicherung</h1><p class="sub">Sichern Sie Ihre Daten, damit sie bei einem neuen Computer nicht verloren gehen.</p></header>
@@ -127,7 +181,7 @@
         <div id="bkStatus" class="bkstatus" role="status"></div>
 
         <div class="bkrow">
-          <div><h3>Sicherung erstellen</h3><p>Speichert Einstellungen, Logo und alle Rechnungen in <b>einer Datei</b>. Legen Sie sie auf einen USB-Stick oder in die Cloud.</p></div>
+          <div><h3>Sicherung erstellen</h3><p>Speichert Einstellungen, Logo, alle Rechnungen, Ausgaben und Belege in <b>einer Datei</b>. Legen Sie sie auf einen USB-Stick oder in die Cloud.</p></div>
           <button type="button" id="bkCreate" class="primary"><svg><use href="#i-dl"/></svg>Sicherung erstellen</button>
         </div>
         <div class="bkrow">

@@ -20,4 +20,4 @@ function toCsv(invoices) {
   rows.push(['Summe (' + invoices.length + ' Rechnungen)', '', '', '', '', dec(sum.net), '', dec(sum.tax), dec(sum.total), '']);
   return '﻿' + [head, ...rows].map((r) => r.map(cell).join(';')).join('\r\n') + '\r\n';
 }
-module.exports = { toCsv };
+module.exports = { toCsv, cell, dec, fmtDate };

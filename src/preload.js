@@ -7,5 +7,7 @@ contextBridge.exposeInMainWorld('api', {
   exportPdf: call('invoices:pdf'), exportCsv: call('invoices:csv'),
   printInvoice: call('invoices:print'), previewInvoice: call('invoices:preview'),
   backupInfo: call('backup:info'), backupFolder: call('backup:showFolder'), backupCreate: call('backup:create'), backupRestore: call('backup:restore'), backupPdfs: call('backup:pdfs'),
+  listExpenses: call('expenses:list'), pickReceipt: call('expenses:pickReceipt'), saveExpense: call('expenses:save'), discardPendingReceipt: call('expenses:discardPending'),
+  deleteExpense: call('expenses:delete'), openReceipt: call('expenses:openReceipt'), exportExpenses: call('expenses:export'),
   getPreview: call('preview:get'), printPreview: call('preview:print'), pdfPreview: call('preview:pdf'),
 });

@@ -109,14 +109,14 @@ button.icon { min-width: 42px; padding: 0; }
 .searchbox svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
 .searchbox input { margin: 0; padding-left: 38px; }
 .yearsel { margin: 0; } .yearsel select { margin: 0; min-width: 130px; }
-table#list { width: 100%; max-width: 960px; border-collapse: collapse; }
-#list th { text-align: left; font-size: 13px; font-weight: 600; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--ink); }
-#list td { padding: 10px 12px; border-bottom: 1px solid var(--line); }
-#list th.r, #list td.r { text-align: right; }
-#list td.num { font-weight: 700; }
-#list td.act { white-space: nowrap; text-align: right; }
-#list tbody tr:hover { background: color-mix(in srgb, var(--brand) 5%, transparent); }
-#list td.act button { min-height: 36px; padding: 0 12px; }
+table#list, table#xlist { width: 100%; max-width: 960px; border-collapse: collapse; }
+#list th, #xlist th { text-align: left; font-size: 13px; font-weight: 600; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--ink); }
+#list td, #xlist td { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+#list th.r, #list td.r, #xlist th.r, #xlist td.r { text-align: right; }
+#list td.num, #xlist td.num { font-weight: 700; }
+#list td.act, #xlist td.act { white-space: nowrap; text-align: right; }
+#list tbody tr:hover, #xlist tbody tr:hover { background: color-mix(in srgb, var(--brand) 5%, transparent); }
+#list td.act button, #xlist td.act button { min-height: 36px; padding: 0 12px; }
 .empty { max-width: 460px; padding: 36px 0; }
 .emptytitle { font-size: 20px; font-weight: 700; margin: 0 0 6px; }
 
@@ -209,3 +209,14 @@ a:hover { text-decoration-thickness: 2px; }
 
 label.check { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 600; }
 label.check input { width: 18px; min-height: 0; height: 18px; margin: 0; accent-color: var(--brand); }
+
+/* Ausgaben */
+.xform { max-width: 960px; padding: 18px 20px 6px; margin-bottom: 26px; background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; }
+.xtitle { margin: 0 0 12px; font-size: 18px; }
+.xcalc { margin: -4px 0 12px; font-weight: 600; color: var(--ink); min-height: 1.4em; }
+.xreceipt { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 16px; }
+.xrname { font-weight: 600; overflow-wrap: anywhere; }
+.xform .btns { display: flex; gap: 10px; margin-bottom: 16px; }
+.xrates { max-width: 960px; margin: -6px 0 14px; color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.xrates b { color: var(--ink); }
+#xlist td.sup small { display: block; color: var(--muted); font-size: 12px; }

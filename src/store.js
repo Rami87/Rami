@@ -1,6 +1,7 @@
 // تخزين محلي بسيط (ملفات JSON) داخل مجلد بيانات المستخدم. لا يحتاج إنترنت.
 const fs = require('fs');
 const path = require('path');
+const Ex = require('./expenses');
 
 const DEFAULT_SETTINGS = {
   companyName: 'Firmenname', address: '', uid: '', bank: '', iban: '', bic: '', phone: '', email: '',
@@ -18,6 +19,8 @@ class Store {
     fs.mkdirSync(dir, { recursive: true });
     this.settingsFile = path.join(dir, 'settings.json');
     this.invoicesFile = path.join(dir, 'invoices.json');
+    this.expensesFile = path.join(dir, 'expenses.json');
+    this.receiptsDir = path.join(dir, 'belege'); // Belegdateien: <id>.<pdf|png|jpg|webp|gif>
   }
   _read(file, fallback) {
     try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return fallback; }
@@ -63,6 +66,76 @@ class Store {
     }
     this._write(this.invoicesFile, all);
     return all.find((i) => i.id === inv.id);
+  }
+  // ---- Ausgaben (Belege für den Steuerberater) ----
+  allExpenses() { return this._read(this.expensesFile, []); }
+  replaceExpenses(list) { this._write(this.expensesFile, list); }
+  getExpense(id) { return this.allExpenses().find((e) => e.id === id) || null; }
+  listExpenses(query = '', period = '') {
+    const q = String(query).trim().toLowerCase();
+    let res = this.allExpenses();
+    if (period) res = res.filter((e) => String(e.date || '').startsWith(String(period)));
+    if (q) res = res.filter((e) => [e.supplier, e.description, e.category, e.number, e.date].some((v) => String(v || '').toLowerCase().includes(q)));
+    return res.sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.createdAt).localeCompare(String(a.createdAt)));
+  }
+  // Der Beleg (receipt) wird nie aus der Oberfläche übernommen, nur über setReceipt
+  saveExpense(x) {
+    const all = this.allExpenses();
+    const now = new Date().toISOString();
+    const idx = x && x.id ? all.findIndex((e) => e.id === x.id) : -1;
+    const base = idx >= 0 ? all[idx] : null;
+    const id = base ? base.id : 'exp_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const c = Ex.cleanExpense({ ...x, id, receipt: base ? base.receipt : null, createdAt: base ? base.createdAt : now, updatedAt: now });
+    if (idx >= 0) all[idx] = c; else all.push(c);
+    this._write(this.expensesFile, all);
+    return c;
+  }
+  receiptPath(e) {
+    if (!e || !Ex.safeId(e.id) || !e.receipt || !Ex.RECEIPT_EXTS.includes(e.receipt.ext)) return '';
+    return path.join(this.receiptsDir, e.id + '.' + e.receipt.ext);
+  }
+  _rmReceipt(e) { const p = this.receiptPath(e); if (p) try { fs.unlinkSync(p); } catch { /* war schon weg */ } }
+  setReceipt(id, receipt, data) {
+    const all = this.allExpenses();
+    const e = all.find((x) => x.id === id);
+    if (!e) return null;
+    this._rmReceipt(e);
+    if (receipt && data) {
+      fs.mkdirSync(this.receiptsDir, { recursive: true });
+      e.receipt = { name: String(receipt.name || '').slice(0, 120), ext: receipt.ext };
+      fs.writeFileSync(this.receiptPath(e), data);
+    } else e.receipt = null;
+    e.updatedAt = new Date().toISOString();
+    this._write(this.expensesFile, all);
+    return e;
+  }
+  deleteExpense(id) {
+    const all = this.allExpenses();
+    const e = all.find((x) => x.id === id);
+    if (e) this._rmReceipt(e);
+    this._write(this.expensesFile, all.filter((x) => x.id !== id));
+  }
+  // Sicherung: alle Belegdateien als { id: { ext, data(base64) } }
+  readReceipts() {
+    const out = {};
+    for (const e of this.allExpenses()) {
+      const p = this.receiptPath(e);
+      try { if (p) out[e.id] = { ext: e.receipt.ext, data: fs.readFileSync(p).toString('base64') }; } catch { /* Datei fehlt */ }
+    }
+    return out;
+  }
+  // Wiederherstellung: Liste übernehmen, Belegdateien schreiben, Beleg-Verweise ohne Datei entfernen, verwaiste Dateien löschen
+  restoreExpenses(list, receipts = {}) {
+    fs.mkdirSync(this.receiptsDir, { recursive: true });
+    const out = list.map((e) => {
+      const r = receipts[e.id];
+      if (r && e.receipt && r.ext === e.receipt.ext) fs.writeFileSync(this.receiptPath(e), r.buf);
+      const has = e.receipt && fs.existsSync(this.receiptPath(e));
+      return { ...e, receipt: has ? e.receipt : null };
+    });
+    const keep = new Set(out.filter((e) => e.receipt).map((e) => path.basename(this.receiptPath(e))));
+    for (const f of fs.readdirSync(this.receiptsDir)) if (!keep.has(f)) try { fs.unlinkSync(path.join(this.receiptsDir, f)); } catch { /* ignorieren */ }
+    this._write(this.expensesFile, out);
   }
   allInvoices() { return this._read(this.invoicesFile, []); }
   replaceInvoices(list) { this._write(this.invoicesFile, list); }

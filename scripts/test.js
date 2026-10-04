@@ -97,4 +97,51 @@ assert(!H.build(inv1, { ...st, iban: 'kaputt' }).includes('class="epc"'), 'IBAN 
 assert(!H.build({ ...inv1, items: [] }, st).includes('class="epc"'), 'Betrag 0');
 assert(!H.epcPayload({ ...inv1, number: 'a\nb' }, st, 1).split('\n')[10].includes('\n') && H.epcPayload({ ...inv1, number: 'a\nb' }, st, 1).split('\n').length === 12, 'Zeilenumbruch eingeschleust');
 
+// Ausgaben: Vorsteuer, Summen, CSV, Belege, Sicherung
+const Ex = require('../src/expenses');
+assert.deepStrictEqual(Ex.amounts({ gross: 120, taxRate: 20 }), { gross: 120, rate: 20, vat: 20, net: 100 });
+assert.deepStrictEqual(Ex.amounts({ gross: 110, taxRate: 10 }), { gross: 110, rate: 10, vat: 10, net: 100 });
+assert.strictEqual(Ex.amounts({ gross: 113, taxRate: 13 }).vat, 13);
+assert.strictEqual(Ex.amounts({ gross: 19.99, taxRate: 20 }).vat, 3.33);
+assert.strictEqual(Ex.amounts({ gross: 50, taxRate: 0 }).vat, 0);
+assert.strictEqual(Ex.amounts({ gross: 50, taxRate: 7 }).vat, 0, 'unbekannter Satz wird 0');
+const PDF = Buffer.from('%PDF-1.4\n%test file\n');
+const PNG = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(8)]);
+assert.strictEqual(Ex.sniffExt(PDF), 'pdf'); assert.strictEqual(Ex.sniffExt(PNG), 'png');
+assert.strictEqual(Ex.sniffExt(Buffer.from('MZ\x90\x00 programm.exe geht nicht durch')), '', 'exe als pdf getarnt');
+assert.strictEqual(Ex.sniffExt(Buffer.from('<html><script>alert(1)</script></html>')), '');
+const xs = new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'exp-')));
+const x1 = xs.saveExpense({ date: '2026-10-02', supplier: 'Hornbach', description: 'Material', category: 'Material / Waren', gross: 120, taxRate: 20, receipt: { name: 'hack', ext: 'pdf' }, id: '../../x' });
+assert(x1.id.startsWith('exp_') && x1.receipt === null, 'Beleg und id kommen nie aus der Oberfläche');
+const x2 = xs.saveExpense({ date: '2026-10-15', supplier: '=SUM(A1)', category: 'Erfunden', gross: 55, taxRate: 10 });
+const x3 = xs.saveExpense({ date: '2026-11-03', supplier: 'A1', gross: 30, taxRate: 20 });
+assert.strictEqual(x2.category, 'Sonstiges');
+xs.setReceipt(x1.id, { name: 'beleg.pdf', ext: 'pdf' }, PDF);
+assert(fs.existsSync(path.join(xs.receiptsDir, x1.id + '.pdf')) && xs.getExpense(x1.id).receipt.name === 'beleg.pdf');
+xs.saveExpense({ id: x1.id, date: '2026-10-02', supplier: 'Hornbach 2', gross: 120, taxRate: 20 });
+assert(xs.getExpense(x1.id).receipt && xs.getExpense(x1.id).supplier === 'Hornbach 2', 'Bearbeiten behält den Beleg');
+assert.strictEqual(xs.listExpenses('', '2026-10').length, 2);
+assert.strictEqual(xs.listExpenses('', '2026').length, 3);
+assert.strictEqual(xs.listExpenses('hornbach', '').length, 1);
+const sm = Ex.summarize(xs.listExpenses('', '2026-10'));
+assert.deepStrictEqual([sm.n, sm.gross, sm.vat, sm.net], [2, 175, 25, 150]);
+assert.deepStrictEqual(sm.byRate.map((r) => [r.rate, r.vat]), [[20, 20], [10, 5]]);
+const csvX = Ex.toCsv(xs.listExpenses('', '2026-10'));
+assert(csvX.startsWith('﻿') && csvX.includes("'=SUM(A1)") && csvX.includes('Summe (2 Belege)') && csvX.includes('001_Hornbach_2_2026-10-02.pdf'), csvX);
+assert(Ex.summaryHtml([{ ...x2, supplier: '<img src=x onerror=alert(1)>' }], { companyName: 'F' }, 'T').includes('&lt;img'), 'HTML in Zusammenfassung escaped');
+// Sicherung mit Belegen
+const bk = require('../src/backup').createBackup(xs.getSettings(), [], new Date(), { expenses: xs.allExpenses(), receipts: xs.readReceipts() });
+const pb = require('../src/backup').parseBackup(bk);
+assert.strictEqual(pb.expenses.length, 3); assert(pb.receipts[x1.id].buf.equals(PDF));
+const ys = new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'exp-')));
+ys.restoreExpenses(pb.expenses, pb.receipts);
+assert(fs.readFileSync(path.join(ys.receiptsDir, x1.id + '.pdf')).equals(PDF) && ys.allExpenses().length === 3);
+assert.strictEqual(require('../src/backup').parseBackup(JSON.stringify({ app: 'rechnungen-backup', format: 1, invoices: [] })).expenses, null, 'alte Sicherung ohne Ausgaben');
+const badB = require('../src/backup').parseBackup(JSON.stringify({ app: 'rechnungen-backup', format: 1, invoices: [],
+  expenses: [{ id: 'e1', receipt: { name: 'x', ext: 'pdf' }, gross: 'abc' }, { id: '../x', receipt: { ext: 'pdf' } }, { id: 'e2', receipt: { name: 'y', ext: 'exe' } }, { id: 'e3', receipt: { name: 'z', ext: 'png' } }],
+  receipts: { e1: { ext: 'pdf', data: Buffer.from('MZ-kein-pdf-----').toString('base64') }, e3: { ext: 'png', data: PDF.toString('base64') } } }));
+assert.deepStrictEqual(badB.expenses.map((e) => [e.id, e.receipt]), [['e1', null], ['e2', null], ['e3', null]], 'Belege mit falschem Inhalt/Typ werden verworfen, ungültige IDs entfernt');
+xs.deleteExpense(x1.id);
+assert(!fs.existsSync(path.join(xs.receiptsDir, x1.id + '.pdf')) && xs.allExpenses().length === 2, 'Löschen entfernt die Belegdatei');
+
 console.log('Alle Tests bestanden');

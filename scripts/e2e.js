@@ -21,6 +21,7 @@ const ok = (name, cond, extra) => { assert(cond, name + (extra ? ' -> ' + extra 
     dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [globalThis.__next.open] });
     dialog.showMessageBox = async () => ({ response: globalThis.__next.box });
     shell.openExternal = async (u) => { globalThis.__opened.push(u); };
+    globalThis.__paths = []; shell.openPath = async (p) => { globalThis.__paths.push(p); return ''; };
     app.on('browser-window-created', (_, w) => { w.webContents.print = (o, cb) => { globalThis.__prints++; cb(true, ''); }; });
   });
   const set = (k, v) => app.evaluate((_, [k, v]) => { globalThis.__next[k] = v; }, [k, v]);
@@ -139,9 +140,81 @@ const ok = (name, cond, extra) => { assert(cond, name + (extra ? ' -> ' + extra 
   await win.click('#printBtn'); await win.waitForTimeout(2000);
   ok('Drucken speichert zuerst im Archiv und druckt', (await app.evaluate(() => globalThis.__prints)) === 2 && JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8')).length === 3);
 
+  console.log('Ausgaben');
+  const data = path.join(out('profile'), 'data');
+  const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+  fs.writeFileSync(out('foto.png'), PNG);
+  fs.writeFileSync(out('fake.pdf'), Buffer.concat([Buffer.from('MZ'), Buffer.alloc(200)])); // Programm, als PDF getarnt
+  await win.evaluate(() => { window.confirm = () => true; });
+  await win.click('nav [data-view=expenses]');
+  const readX = () => JSON.parse(fs.readFileSync(path.join(data, 'expenses.json'), 'utf8'));
+  async function addExpense(o) {
+    await win.fill('#xform [name=date]', o.date || today); await win.fill('#xform [name=supplier]', o.supplier);
+    await win.fill('#xform [name=gross]', String(o.gross)); await win.selectOption('#xform [name=taxRate]', String(o.rate));
+    if (o.category) await win.selectOption('#xform [name=category]', o.category);
+    if (o.file) { await set('open', o.file); await win.click('#xPick'); await win.waitForTimeout(300); }
+    await win.click('#xSave'); await win.waitForTimeout(500);
+  }
+  await win.fill('#xform [name=gross]', '120'); await win.selectOption('#xform [name=taxRate]', '20');
+  ok('Vorsteuer wird live berechnet (120 brutto, 20 % -> 100 netto, 20 Vorsteuer)', (await win.locator('#xCalc').textContent()).includes('100,00') && (await win.locator('#xCalc').textContent()).includes('20,00'));
+  await set('open', out('fake.pdf')); await win.click('#xPick'); await win.waitForTimeout(400);
+  ok('Getarntes Programm (exe als pdf) wird als Beleg abgelehnt', (await win.locator('#toast').textContent()).includes('nicht unterstützt') && (await win.locator('#xReceiptName').textContent()).includes('Noch kein Beleg'));
+  await addExpense({ supplier: 'Hornbach <img src=x onerror=window.__xss=7>', gross: 120, rate: 20, category: 'Material / Waren', file: out('r.pdf') });
+  await addExpense({ supplier: 'Kleinteile', gross: 55, rate: 10, category: 'Büro / Software', file: out('foto.png') });
+  await addExpense({ supplier: 'Parkgebühr', gross: 12.5, rate: 0 });
+  const prevMonth = (() => { const d = new Date(today.slice(0, 4), +today.slice(5, 7) - 2, 15); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-15'; })();
+  await addExpense({ date: prevMonth, supplier: 'Vormonat', gross: 24, rate: 20 });
+  let ex = readX();
+  ok('4 Ausgaben gespeichert, Belege als Dateien im Programmordner', ex.length === 4 && ex.filter((e) => e.receipt).length === 2 && ex.filter((e) => e.receipt).every((e) => fs.existsSync(path.join(data, 'belege', e.id + '.' + e.receipt.ext))));
+  ok('Beleg-Typ nach Inhalt erkannt (pdf, png)', ex.filter((e) => e.receipt).map((e) => e.receipt.ext).sort().join() === 'pdf,png');
+  ok('Kein XSS über den Lieferantennamen', !(await win.evaluate(() => window.__xss)));
+  await win.click('[data-xmode=month]'); await win.fill('#xMonth', today.slice(0, 7)); await win.dispatchEvent('#xMonth', 'change'); await win.waitForTimeout(400);
+  const xkv = await win.locator('#xKpis .kv').allTextContents();
+  ok('Monat: 3 Belege, Vorsteuer 25,00 € (20 + 5 + 0)', xkv[0] === '3' && xkv[2].startsWith('25,00') && xkv[3].startsWith('187,50'), xkv.join(' / '));
+  await win.click('[data-xmode=all]'); await win.waitForTimeout(300);
+  const xkv2 = await win.locator('#xKpis .kv').allTextContents();
+  ok('Alle: 4 Belege, Vorsteuer 29,00 €', xkv2[0] === '4' && xkv2[2].startsWith('29,00'), xkv2.join(' / '));
+  await win.click('[data-xmode=month]'); await win.waitForTimeout(300);
+  await win.fill('#xSearch', 'kleinteile'); await win.waitForTimeout(500);
+  ok('Suche in Ausgaben filtert', (await win.locator('#xlist tbody tr').count()) === 1);
+  await win.fill('#xSearch', ''); await win.waitForTimeout(400);
+  // Beleg ansehen
+  await win.locator('#xlist tbody tr', { hasText: 'Hornbach' }).getByText('Beleg ansehen').click(); await win.waitForTimeout(300);
+  const pdfEx = ex.find((e) => e.receipt && e.receipt.ext === 'pdf');
+  ok('Beleg ansehen öffnet genau die gespeicherte Belegdatei', (await app.evaluate(() => globalThis.__paths)).some((p) => p.endsWith(path.join('belege', pdfEx.id + '.pdf')) || p.endsWith('belege/' + pdfEx.id + '.pdf')));
+  // Bearbeiten (Beleg bleibt), Beleg entfernen
+  await win.locator('#xlist tbody tr', { hasText: 'Hornbach' }).getByText('Bearbeiten').click();
+  ok('Bearbeiten füllt das Formular', (await win.locator('#xFormTitle').textContent()) === 'Ausgabe bearbeiten' && (await win.inputValue('#xform [name=gross]')) === '120');
+  await win.fill('#xform [name=gross]', '240'); await win.click('#xSave'); await win.waitForTimeout(500);
+  ex = readX(); const hb = ex.find((e) => e.id === pdfEx.id);
+  ok('Änderung gespeichert, Beleg bleibt erhalten, keine Dublette', hb.gross === 240 && hb.receipt && ex.length === 4 && fs.existsSync(path.join(data, 'belege', hb.id + '.pdf')));
+  const pngEx = ex.find((e) => e.receipt && e.receipt.ext === 'png');
+  await win.locator('#xlist tbody tr', { hasText: 'Kleinteile' }).getByText('Bearbeiten').click(); await win.click('#xRemove'); await win.click('#xSave'); await win.waitForTimeout(500);
+  ok('Beleg entfernen löscht die Belegdatei', !readX().find((e) => e.id === pngEx.id).receipt && !fs.existsSync(path.join(data, 'belege', pngEx.id + '.png')));
+  // Export für den Steuerberater
+  fs.mkdirSync(out('export'), { recursive: true });
+  await set('open', out('export')); await win.click('#xExport'); await win.waitForTimeout(3500);
+  const xdir = path.join(out('export'), 'Ausgaben-' + today.slice(0, 7));
+  ok('Export-Ordner mit CSV, PDF-Zusammenfassung und Belege-Ordner', ['Ausgaben-' + today.slice(0, 7) + '.csv', 'Zusammenfassung-Ausgaben-' + today.slice(0, 7) + '.pdf', 'Belege'].every((f) => fs.existsSync(path.join(xdir, f))), fs.existsSync(xdir) ? fs.readdirSync(xdir).join() : 'kein Ordner');
+  const xcsv = fs.readFileSync(path.join(xdir, 'Ausgaben-' + today.slice(0, 7) + '.csv'), 'utf8');
+  ok('CSV: 3 Belege des Monats, Vorsteuer 45,00 (40 + 5 + 0), Summe', xcsv.startsWith('﻿') && xcsv.includes('Summe (3 Belege)') && /;45,00;[\d,]+;/.test(xcsv.split('Summe')[1] || '') && !xcsv.includes('Vormonat'), xcsv);
+  ok('Belegdatei trägt die laufende Nummer aus der CSV', fs.readdirSync(path.join(xdir, 'Belege')).length === 1 && /^00\d_Hornbach.*\.pdf$/.test(fs.readdirSync(path.join(xdir, 'Belege'))[0]) && xcsv.includes(fs.readdirSync(path.join(xdir, 'Belege'))[0]), fs.readdirSync(path.join(xdir, 'Belege')).join());
+  const xtxt = execFileSync('pdftotext', ['-layout', path.join(xdir, 'Zusammenfassung-Ausgaben-' + today.slice(0, 7) + '.pdf'), '-']).toString();
+  ok('PDF-Zusammenfassung zeigt Belege und Vorsteuer', xtxt.includes('Vorsteuer') && xtxt.includes('45,00') && xtxt.includes('Kleinteile') && xtxt.includes('Material / Waren'), xtxt.slice(0, 400));
+  ok('PDF-Zusammenfassung führt kein Markup aus', xtxt.includes('<img src=x'));
+  await set('open', out('export')); await win.click('#xExport'); await win.waitForTimeout(3500);
+  ok('Zweiter Export überschreibt nichts (neuer Ordner -2)', fs.existsSync(xdir + '-2'));
+  // Löschen
+  await win.locator('#xlist tbody tr', { hasText: 'Hornbach' }).getByText('Löschen').click(); await win.waitForTimeout(500);
+  ok('Löschen entfernt Ausgabe und Belegdatei', readX().length === 3 && !fs.existsSync(path.join(data, 'belege', pdfEx.id + '.pdf')));
+  await win.evaluate(() => { document.querySelector('nav [data-view=expenses]').click(); });
+  await addExpense({ supplier: 'Für die Sicherung', gross: 36, rate: 20, file: out('r.pdf') });
+  ok('Für die Sicherung: 4 Ausgaben, davon 1 mit Beleg', readX().length === 4 && readX().filter((e) => e.receipt).length === 1);
+
   console.log('Datensicherung');
   await win.click('nav [data-view=backup]'); await set('save', out('backup.json')); await win.click('#bkCreate'); await win.waitForTimeout(500);
   const bk = JSON.parse(fs.readFileSync(out('backup.json'), 'utf8'));
+  ok('Sicherung enthält Ausgaben und die Belegdatei (base64)', bk.expenses.length === 4 && Object.keys(bk.receipts).length === 1 && Buffer.from(Object.values(bk.receipts)[0].data, 'base64').slice(0, 4).toString() === '%PDF');
   ok('Sicherung enthält Einstellungen und 3 Rechnungen, keine Rechner-Pfade', bk.invoices.length === 3 && bk.settings.companyName.startsWith('Prince') && !('lastDir' in bk.settings));
   // Weitere Rechnung anlegen, dann "Alles ersetzen" -> zurück auf 3
   await createInvoice('Nach dem Backup', 9);
@@ -149,6 +222,7 @@ const ok = (name, cond, extra) => { assert(cond, name + (extra ? ' -> ' + extra 
   await set('open', out('backup.json')); await set('box', 1); await win.click('#bkRestore'); await win.waitForTimeout(800);
   let now = JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8'));
   ok('Alles ersetzen: Stand wie in der Sicherung (3 Rechnungen)', now.length === 3);
+  ok('Ausgaben und Beleg nach „Alles ersetzen“ unverändert vorhanden', readX().length === 4 && fs.readdirSync(path.join(data, 'belege')).length === 1);
   ok('Vor dem Ersetzen wurde automatisch gesichert', fs.readdirSync(path.join(out('profile'), 'data', 'backups')).length === 1);
   await createInvoice('Neu nach Restore', 7);
   await win.click('nav [data-view=backup]');

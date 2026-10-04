@@ -1,6 +1,7 @@
-// Datensicherung: eine einzelne JSON-Datei mit Einstellungen (inkl. Logo) und allen Rechnungen.
+// Datensicherung: eine einzelne JSON-Datei mit Einstellungen (inkl. Logo), allen Rechnungen, Ausgaben und Belegdateien.
 // Eine Sicherungsdatei kommt von außen und wird deshalb beim Einlesen geprüft und bereinigt.
 const { DEFAULT_SETTINGS } = require('./store');
+const Ex = require('./expenses');
 
 const APP = 'rechnungen-backup';
 const FORMAT = 1;
@@ -39,9 +40,29 @@ function cleanSettings(s) {
   return out;
 }
 
-function createBackup(settings, invoices, now = new Date()) {
+// extra: { expenses, receipts } (Ausgaben und Belegdateien als base64); ältere Sicherungen haben beides nicht
+function createBackup(settings, invoices, now = new Date(), extra = {}) {
   const { lastDir, lastBackup, ...data } = settings; // eslint-disable-line no-unused-vars
-  return JSON.stringify({ app: APP, format: FORMAT, exportedAt: now.toISOString(), settings: data, invoices }, null, 2);
+  const o = { app: APP, format: FORMAT, exportedAt: now.toISOString(), settings: data, invoices };
+  if (extra.expenses) { o.expenses = extra.expenses; o.receipts = extra.receipts || {}; }
+  return JSON.stringify(o, null, 2);
+}
+
+function cleanExpenses(d) {
+  if (!Array.isArray(d.expenses)) return { expenses: null, receipts: {} };
+  const seen = new Set(), expenses = [];
+  for (const raw of d.expenses.slice(0, MAX_INVOICES)) { const c = Ex.cleanExpense(raw); if (c && !seen.has(c.id)) { seen.add(c.id); expenses.push(c); } }
+  const receipts = {};
+  const src = d.receipts && typeof d.receipts === 'object' ? d.receipts : {};
+  for (const e of expenses) {
+    const r = e.receipt && src[e.id];
+    if (!r || typeof r.data !== 'string' || r.data.length > Math.ceil(Ex.MAX_RECEIPT * 4 / 3) + 8) { e.receipt = null; continue; }
+    const buf = Buffer.from(r.data, 'base64');
+    // Dateityp muss zum Inhalt passen (nur PDF und Bilder)
+    if (buf.length > Ex.MAX_RECEIPT || Ex.sniffExt(buf) !== e.receipt.ext) { e.receipt = null; continue; }
+    receipts[e.id] = { ext: e.receipt.ext, buf };
+  }
+  return { expenses, receipts };
 }
 
 // wirft Error mit deutscher Meldung, wenn die Datei keine gültige Sicherung ist
@@ -54,7 +75,7 @@ function parseBackup(text) {
   const seen = new Set();
   const invoices = [];
   for (const raw of d.invoices) { const c = cleanInvoice(raw); if (c && !seen.has(c.id)) { seen.add(c.id); invoices.push(c); } }
-  return { exportedAt: str(d.exportedAt, 40), settings: cleanSettings(d.settings), invoices };
+  return { exportedAt: str(d.exportedAt, 40), settings: cleanSettings(d.settings), invoices, ...cleanExpenses(d) };
 }
 
 // Zusammenführen: gleiche ID -> die zuletzt geänderte Version gewinnt

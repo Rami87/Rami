@@ -45,9 +45,10 @@ document.querySelectorAll('nav button').forEach((b) => b.addEventListener('click
 function show(v) {
   applyBrand(settings.color); // ungespeicherte Farbänderung verwerfen
   document.querySelectorAll('nav button').forEach((b) => b.classList.toggle('active', b.dataset.view === v));
-  ['new', 'archive', 'backup', 'settings'].forEach((n) => ($('#view-' + n).hidden = n !== v));
+  ['new', 'archive', 'expenses', 'backup', 'settings'].forEach((n) => ($('#view-' + n).hidden = n !== v));
   if (v === 'backup') loadBackup();
   if (v === 'archive') loadList();
+  if (v === 'expenses') { fillExpenseForm(null); loadExpenses(); }
   if (v === 'settings') fillSettings();
   if (v === 'new') { fillCatalogList(); refreshPreview(); fitPreview(); }
 }
@@ -266,6 +267,115 @@ async function loadList() {
   }
 }
 
+// ---- Ausgaben (Belege für den Steuerberater) ----
+const EXPENSE_CATEGORIES = ['Material / Waren', 'Werkzeug / Geräte', 'Büro / Software', 'Fahrzeug / Treibstoff', 'Telefon / Internet', 'Miete / Betriebskosten',
+  'Versicherung', 'Reise / Bewirtung', 'Werbung / Marketing', 'Fremdleistungen', 'Sonstiges'];
+const xs = { mode: 'month', month: todayStr().slice(0, 7), year: todayStr().slice(0, 4), editing: null, hasReceipt: false, newReceipt: false, removeReceipt: false };
+const xf = () => $('#xform').elements;
+const xPrefix = () => (xs.mode === 'all' ? '' : xs[xs.mode]);
+const xLabel = () => (xs.mode === 'all' ? 'Alle' : xs.mode === 'year' ? 'Jahr ' + xs.year : monthName(+xs.month.slice(5)) + ' ' + xs.month.slice(0, 4));
+// Vorsteuer aus dem Bruttobetrag (gleiche Rechnung wie im Hauptprozess, src/expenses.js)
+const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+function vatOf(gross, rate) { const g = r2(gross), v = r2(g - g / (1 + rate / 100)); return { net: r2(g - v), vat: v }; }
+function updateXCalc() {
+  const f = xf(); const g = +f.gross.value;
+  $('#xCalc').textContent = g > 0 ? (() => { const a = vatOf(g, +f.taxRate.value); return 'Netto ' + eur(a.net, '€') + ' · Vorsteuer ' + eur(a.vat, '€'); })() : '';
+}
+function fillExpenseForm(x) {
+  const f = xf();
+  if (!f.category.options.length) {
+    EXPENSE_CATEGORIES.forEach((c) => { const o = document.createElement('option'); o.value = c; o.textContent = c; f.category.appendChild(o); });
+    InvoiceHtml.TAX_RATES.forEach((r) => { const o = document.createElement('option'); o.value = r; o.textContent = r + ' %'; f.taxRate.appendChild(o); });
+  }
+  api.discardPendingReceipt();
+  xs.editing = x ? x.id : null; xs.newReceipt = false; xs.removeReceipt = false; xs.hasReceipt = !!(x && x.receipt);
+  f.date.value = x ? x.date : todayStr(); f.supplier.value = x ? x.supplier : ''; f.number.value = x ? x.number : '';
+  f.description.value = x ? x.description : ''; f.category.value = x ? x.category : 'Sonstiges';
+  f.gross.value = x ? x.gross : ''; f.taxRate.value = x ? x.taxRate : 20;
+  $('#xFormTitle').textContent = x ? 'Ausgabe bearbeiten' : 'Neue Ausgabe';
+  $('#xCancel').hidden = !x; $('#xSave').textContent = x ? 'Änderungen speichern' : 'Ausgabe speichern';
+  showReceiptState(x && x.receipt ? x.receipt.name : '');
+  updateXCalc();
+}
+function showReceiptState(name) {
+  $('#xReceiptName').textContent = name ? 'Beleg: ' + name : 'Noch kein Beleg angehängt.';
+  $('#xRemove').hidden = !name;
+  $('#xPick').lastChild.textContent = name ? 'Anderen Beleg wählen' : 'Beleg hinzufügen (PDF oder Foto)';
+}
+['gross', 'taxRate'].forEach((n) => xf()[n].addEventListener('input', updateXCalc));
+$('#xPick').onclick = async () => {
+  const r = await api.pickReceipt();
+  if (r.error) { toast(r.error, true); return; }
+  if (r.ok) { xs.newReceipt = true; xs.removeReceipt = false; showReceiptState(r.name); }
+};
+$('#xRemove').onclick = () => { api.discardPendingReceipt(); xs.newReceipt = false; xs.removeReceipt = xs.hasReceipt; showReceiptState(''); };
+$('#xCancel').onclick = () => fillExpenseForm(null);
+$('#xform').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = xf();
+  const saved = await api.saveExpense({
+    id: xs.editing, date: f.date.value, supplier: f.supplier.value.trim(), number: f.number.value.trim(), description: f.description.value.trim(),
+    category: f.category.value, gross: +f.gross.value, taxRate: +f.taxRate.value, useNewReceipt: xs.newReceipt, removeReceipt: xs.removeReceipt,
+  });
+  toast('Ausgabe gespeichert: ' + saved.supplier + ', ' + eur(saved.gross, '€') + ' (Vorsteuer ' + eur(saved.vat, '€') + ').');
+  const d = saved.date.slice(0, 7); // Zeitraum auf den gespeicherten Beleg stellen, damit er sichtbar ist
+  if (xs.mode === 'month') xs.month = d; else if (xs.mode === 'year') xs.year = d.slice(0, 4);
+  fillExpenseForm(null); loadExpenses();
+});
+document.querySelectorAll('[data-xmode]').forEach((b) => b.addEventListener('click', () => { xs.mode = b.dataset.xmode; loadExpenses(); }));
+function shiftX(dir) {
+  if (xs.mode === 'month') { const [y, m] = xs.month.split('-').map(Number); const d = new Date(y, m - 1 + dir, 1); xs.month = d.getFullYear() + '-' + pad(d.getMonth() + 1); }
+  else if (xs.mode === 'year') xs.year = String(+xs.year + dir);
+  loadExpenses();
+}
+$('#xPrev').onclick = () => shiftX(-1); $('#xNext').onclick = () => shiftX(1);
+$('#xMonth').addEventListener('change', (e) => { if (e.target.value) { xs.month = e.target.value; loadExpenses(); } });
+$('#xYear').addEventListener('change', (e) => { xs.year = e.target.value; loadExpenses(); });
+let xTimer;
+$('#xSearch').addEventListener('input', () => { clearTimeout(xTimer); xTimer = setTimeout(loadExpenses, 200); });
+$('#xExport').onclick = async () => {
+  toast('Export wird erstellt …');
+  const r = await api.exportExpenses(xPrefix(), xLabel());
+  if (r.error) { toast(r.error, true); return; }
+  if (r.ok) toast('Export für den Steuerberater gespeichert (' + r.count + ' Belege, ' + r.receipts + ' Belegdateien): ' + r.dir);
+};
+async function loadExpenses() {
+  const r = await api.listExpenses($('#xSearch').value, xPrefix());
+  const years = [...new Set(r.years.concat(todayStr().slice(0, 4), xs.year))].sort().reverse();
+  $('#xYear').innerHTML = years.map((y) => `<option value="${y}">${y}</option>`).join('');
+  $('#xYear').value = xs.year; $('#xMonth').value = xs.month;
+  document.querySelectorAll('[data-xmode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.xmode === xs.mode)));
+  $('#xMonth').hidden = xs.mode !== 'month'; $('#xYear').hidden = xs.mode !== 'year'; $('#xPickers').hidden = xs.mode === 'all';
+  $('#xPeriodTitle').textContent = xLabel();
+  const sm = r.summary;
+  const box = $('#xKpis'); box.innerHTML = '';
+  [['Belege', String(sm.n), false], ['Netto', eur(sm.net, '€'), false], ['Vorsteuer (USt)', eur(sm.vat, '€'), true], ['Brutto', eur(sm.gross, '€'), false]].forEach(([l, v, main]) => {
+    const d = document.createElement('div'); d.className = 'kpi' + (main ? ' main' : '');
+    const a = document.createElement('span'); a.className = 'kl'; a.textContent = l;
+    const b = document.createElement('span'); b.className = 'kv'; b.textContent = v;
+    d.append(a, b); box.appendChild(d);
+  });
+  const rates = $('#xRates'); rates.innerHTML = '';
+  sm.byRate.forEach((x) => { const sp = document.createElement('span'); sp.append(x.rate + ' %: Vorsteuer '); const b = document.createElement('b'); b.textContent = eur(x.vat, '€'); sp.append(b, ' (netto ' + eur(x.net, '€') + ')'); rates.appendChild(sp); });
+  const tb = $('#xlist tbody'); tb.innerHTML = '';
+  $('#xEmpty').hidden = r.items.length > 0;
+  for (const x of r.items) {
+    const tr = document.createElement('tr');
+    const cells = [deDate(x.date), x.supplier, x.category, eur(x.net, '€'), eur(x.vat, '€'), eur(x.gross, '€')];
+    cells.forEach((c, i) => {
+      const td = document.createElement('td'); td.textContent = c; if (i >= 3) td.className = 'r';
+      if (i === 1) { td.className = 'sup'; if (x.description) { const sm2 = document.createElement('small'); sm2.textContent = x.description; td.appendChild(sm2); } }
+      tr.appendChild(td);
+    });
+    const td = document.createElement('td'); td.className = 'act';
+    const mk = (t, cls, fn) => { const b = document.createElement('button'); b.textContent = t; b.className = cls; b.onclick = fn; td.appendChild(b); };
+    if (x.receipt) mk('Beleg ansehen', 'secondary', async () => { const o = await api.openReceipt(x.id); if (!o.ok) toast(o.error, true); });
+    mk('Bearbeiten', 'ghost', () => { fillExpenseForm(x); window.scrollTo(0, 0); $('#view-expenses').scrollIntoView(); });
+    mk('Löschen', 'danger', async () => { if (confirm('Ausgabe von ' + x.supplier + ' (' + eur(x.gross, '€') + ') wirklich löschen? Die Belegdatei wird ebenfalls gelöscht.')) { await api.deleteExpense(x.id); toast('Ausgabe gelöscht.'); loadExpenses(); } });
+    tr.appendChild(td); tb.appendChild(tr);
+  }
+}
+
 // ---- Datensicherung ----
 const deDateTime = (iso) => new Date(iso).toLocaleString('de-AT', { dateStyle: 'medium', timeStyle: 'short' });
 async function loadBackup() {
@@ -273,7 +383,7 @@ async function loadBackup() {
   $('#bkDir').textContent = info.dir;
   const st = $('#bkStatus');
   const days = info.lastBackup ? Math.floor((Date.now() - new Date(info.lastBackup)) / 86400000) : null;
-  const n = info.count + (info.count === 1 ? ' Rechnung' : ' Rechnungen');
+  const n = info.count + (info.count === 1 ? ' Rechnung' : ' Rechnungen') + ' und ' + info.expenses + (info.expenses === 1 ? ' Ausgabe' : ' Ausgaben');
   if (days === null) { st.className = 'bkstatus warn'; st.textContent = 'Noch keine Sicherung erstellt. Aktuell gespeichert: ' + n + '.'; }
   else if (days > 30) { st.className = 'bkstatus warn'; st.textContent = 'Die letzte Sicherung ist ' + days + ' Tage alt (' + deDateTime(info.lastBackup) + '). Aktuell gespeichert: ' + n + '.'; }
   else { st.className = 'bkstatus'; st.textContent = 'Letzte Sicherung: ' + deDateTime(info.lastBackup) + '. Aktuell gespeichert: ' + n + '.'; }
@@ -281,14 +391,14 @@ async function loadBackup() {
 $('#bkOpen').onclick = () => api.backupFolder();
 $('#bkCreate').onclick = async () => {
   const r = await api.backupCreate();
-  if (r.ok) { toast('Sicherung gespeichert (' + r.count + ' Rechnungen): ' + r.filePath); loadBackup(); }
+  if (r.ok) { toast('Sicherung gespeichert (' + r.count + ' Rechnungen, ' + r.expenses + ' Ausgaben): ' + r.filePath); loadBackup(); }
 };
 $('#bkRestore').onclick = async () => {
   const r = await api.backupRestore();
   if (r.error) { toast(r.error, true); return; }
   if (!r.ok) return;
   settings = await api.getSettings(); applyBrand(settings.color); renderRail(); fillForm({});
-  toast(r.mode === 'merge' ? 'Zusammengeführt: ' + r.added + ' neue, ' + r.updated + ' aktualisierte Rechnungen.' : 'Wiederhergestellt: ' + r.count + ' Rechnungen und Einstellungen.');
+  toast(r.mode === 'merge' ? 'Zusammengeführt: ' + r.added + ' neue, ' + r.updated + ' aktualisierte Rechnungen; ' + r.expAdded + ' neue, ' + r.expUpdated + ' aktualisierte Ausgaben.' : 'Wiederhergestellt: ' + r.count + ' Rechnungen, ' + r.expenses + ' Ausgaben und Einstellungen.');
   loadBackup();
 };
 $('#bkPdfs').onclick = async () => {
