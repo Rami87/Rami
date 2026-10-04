@@ -17,26 +17,25 @@
     return _push(o);
   };
 
-  /* Mobile menu */
+  /* Mobile menu: a full-screen panel that wipes up; the button label switches between Menu and Close. */
   var btn = document.querySelector(".menu-btn");
-  var nav = document.getElementById("nav");
-  function closeMenu(focusBtn) {
-    if (!nav) return;
-    nav.classList.remove("open");
-    document.body.classList.remove("menu-open");
-    btn.setAttribute("aria-expanded", "false");
-    if (focusBtn) btn.focus();
+  var wipe = document.getElementById("wipe");
+  function setMenu(open, focusBtn) {
+    if (!wipe || !btn) return;
+    wipe.classList.toggle("open", open);
+    wipe.setAttribute("aria-hidden", open ? "false" : "true");
+    document.body.classList.toggle("menu-open", open);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    btn.textContent = open ? btn.dataset.close : btn.dataset.open;
+    if (!open && focusBtn) btn.focus();
   }
-  if (btn && nav) {
-    btn.addEventListener("click", function () {
-      var open = nav.classList.toggle("open");
-      document.body.classList.toggle("menu-open", open);
-      btn.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-    nav.addEventListener("click", function (e) { if (e.target.closest("a")) closeMenu(false); });
+  if (btn && wipe) {
+    btn.addEventListener("click", function () { setMenu(!wipe.classList.contains("open")); });
+    wipe.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && nav.classList.contains("open")) closeMenu(true);
+      if (e.key === "Escape" && wipe.classList.contains("open")) setMenu(false, true);
     });
+    window.addEventListener("resize", function () { if (window.innerWidth > 1240) setMenu(false); });
   }
 
   /* Leistungen submenu: hover and keyboard focus open it via CSS; the toggle button serves touch and screen readers. */
@@ -77,6 +76,79 @@
     }, { threshold: 0.4 });
     io.observe(report);
   });
+
+  /* Services stage: the card nearest the centre is active; it sets the section colour and the curved group title. */
+  var stage = document.querySelector(".stage");
+  var stageSec = document.querySelector(".svc-stage");
+  if (stage && stageSec) {
+    var track = stage.querySelector(".track");
+    var cards = [].slice.call(track.children);
+    var arc = stage.querySelector(".stage-arc");
+    var arcPath = arc.querySelector("path");
+    var arcText = arc.querySelector("textPath");
+    var chips = [].slice.call(stage.querySelectorAll(".chip"));
+    var current = -1;
+    var smooth = reduce ? "auto" : "smooth";
+    var layoutArc = function () {
+      var D = cards[0].querySelector(".disc").offsetWidth, r = D / 2 + 30, w = 2 * r + 120, cy = r + 34;
+      arc.setAttribute("width", w);
+      arc.setAttribute("height", cy + 6);
+      arc.setAttribute("viewBox", "0 0 " + w + " " + (cy + 6));
+      arcPath.setAttribute("d", "M " + (w / 2 - r) + " " + cy + " A " + r + " " + r + " 0 0 1 " + (w / 2 + r) + " " + cy);
+      arc.style.top = (56 + D / 2 - cy) + "px"; /* the arc is centred on the active disc */
+    };
+    var nearest = function () {
+      var box = track.getBoundingClientRect(), mid = box.left + box.width / 2, best = 0, bestD = Infinity;
+      cards.forEach(function (el, i) {
+        var b = el.getBoundingClientRect(), d = Math.abs(b.left + b.width / 2 - mid);
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      return best;
+    };
+    var activate = function (i) {
+      if (i === current) return;
+      var before = current < 0 ? -1 : +cards[current].dataset.g;
+      current = i;
+      cards.forEach(function (el, k) { el.classList.toggle("is-active", k === i); });
+      var g = +cards[i].dataset.g;
+      stageSec.style.setProperty("--stage-bg", cards[i].dataset.color);
+      chips.forEach(function (c, k) { c.setAttribute("aria-current", k === g ? "true" : "false"); });
+      if (g !== before) {
+        arc.classList.add("swap");
+        setTimeout(function () { arcText.textContent = cards[i].dataset.gname; arc.classList.remove("swap"); }, reduce ? 0 : 220);
+      }
+    };
+    var goTo = function (i) {
+      i = Math.max(0, Math.min(cards.length - 1, i));
+      cards[i].scrollIntoView({ behavior: smooth, inline: "center", block: "nearest" });
+    };
+    var queued = false;
+    track.addEventListener("scroll", function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; activate(nearest()); });
+    });
+    stage.querySelector(".stage-prev").addEventListener("click", function () { goTo(current - 1); });
+    stage.querySelector(".stage-next").addEventListener("click", function () { goTo(current + 1); });
+    chips.forEach(function (c, k) {
+      c.addEventListener("click", function () {
+        goTo(cards.findIndex(function (el) { return +el.dataset.g === k; }));
+      });
+    });
+    track.addEventListener("keydown", function (e) {
+      var rtl = doc.lang === "ar" || doc.dir === "rtl";
+      if (e.key === "ArrowRight") { goTo(current + (rtl ? -1 : 1)); e.preventDefault(); }
+      if (e.key === "ArrowLeft") { goTo(current + (rtl ? 1 : -1)); e.preventDefault(); }
+    });
+    track.addEventListener("focusin", function (e) {
+      var card = e.target.closest(".card");
+      if (card) goTo(cards.indexOf(card));
+    });
+    window.addEventListener("resize", layoutArc);
+    layoutArc();
+    arcText.textContent = cards[0].dataset.gname;
+    activate(nearest());
+  }
 
   /* Click hooks: pushes to dataLayer only. Nothing is sent anywhere until a consented tag manager is added.
      Events never carry form contents or personal data. */
