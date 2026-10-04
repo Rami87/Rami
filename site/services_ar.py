@@ -86,7 +86,7 @@ def render_hub_ar():
   <div class="wrap">
     <h1>كل الخدمات من جهة واحدة</h1>
     <p class="lead">IT والشبكات والأمان وتقنيات المبنى وحلول رقمية مثل المواقع والمتاجر الإلكترونية، للشركات في فيينا ومحيطها. شخص واحد يعرف الصورة كاملة.</p>
-    <div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="hero-primary" data-interest="erstgespraech">احجز استشارة أولى مجانية</a></div>
+    <div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="hero-primary" data-interest="erstgespraech">احجز استشارة مجانية</a></div>
   </div>
 </section>
 

@@ -546,7 +546,7 @@ def render_fragment(slug, lang="de"):
     <div>
       <h3>{L["check_h3"]}</h3>
       <ul class="checks">{checks}</ul>
-      <p style="margin-top:26px">{legend}</p>
+      <p class="mt-26">{legend}</p>
     </div>
   </div>
 </section>
@@ -622,7 +622,7 @@ def render_hub():
   <div class="wrap">
     <h1>Alle Leistungen aus einer Hand</h1>
     <p class="lead">IT, Netzwerk, Sicherheit, Gebäudetechnik und digitale Lösungen wie Websites und Onlineshops für Unternehmen in Wien und Umgebung. Ein Ansprechpartner, der das Ganze kennt.</p>
-    <div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="hero-primary" data-interest="erstgespraech">Kostenloses Erstgespräch anfragen</a></div>
+    <div class="btn-row"><a class="btn btn-primary" href="#kontakt" data-track="hero-primary" data-interest="erstgespraech">Erstgespräch anfragen</a></div>
   </div>
 </section>
 
