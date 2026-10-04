@@ -22,7 +22,6 @@ sys.path.insert(0, str(Path(__file__).parent))
 import services
 import services_ar
 import services_en
-import stage
 import icons
 
 ROOT = Path(__file__).parent
@@ -50,7 +49,6 @@ I18N = {
         "skip": "Zum Inhalt springen",
         "menu": "Menü",
         "menu_close": "Schließen",
-        "stage_more": "Mehr erfahren", "stage_aria": "Leistungen", "stage_prev": "Vorherige Leistung", "stage_next": "Nächste Leistung",
         "nav": [("Leistungen", "/leistungen/"), ("Für Praxen", "/arztpraxis/"), ("Für Büros", "/unternehmen/"), ("IT-Check", "/#it-check"), ("Kontakt", "/#kontakt")],
         "cta": "Kostenloses Erstgespräch anfragen",
         "sub_sr": "Untermenü Leistungen",
@@ -103,7 +101,6 @@ I18N = {
         "skip": "انتقل إلى المحتوى",
         "menu": "القائمة",
         "menu_close": "إغلاق",
-        "stage_more": "اعرف المزيد", "stage_aria": "الخدمات", "stage_prev": "الخدمة السابقة", "stage_next": "الخدمة التالية",
         "nav": [("الخدمات", "/leistungen/"), ("للعيادات", "/arztpraxis/"), ("للمكاتب", "/unternehmen/"), ("فحص IT", "/#it-check"), ("تواصل", "/#kontakt")],
         "cta": "استشارة مجانية",
         "sub_sr": "قائمة الخدمات الفرعية",
@@ -156,7 +153,6 @@ I18N = {
         "skip": "Skip to content",
         "menu": "Menu",
         "menu_close": "Close",
-        "stage_more": "Learn more", "stage_aria": "Services", "stage_prev": "Previous service", "stage_next": "Next service",
         "nav": [("Services", "/leistungen/"), ("For practices", "/arztpraxis/"), ("For offices", "/unternehmen/"), ("IT check", "/#it-check"), ("Contact", "/#kontakt")],
         "cta": "Request a free first call",
         "call": "Call",
@@ -540,9 +536,6 @@ def _render(meta, body):
     body = body.replace("{{SERVICE_GROUPS}}", services.groups_html("h3"))
     body = body.replace("{{SERVICE_GROUPS_AR}}", services_ar.groups_ar("h3"))
     body = body.replace("{{SERVICE_GROUPS_EN}}", services_en.groups_en("h3"))
-    if "{{SERVICE_STAGE}}" in body:
-        _g, _n = svc_data(meta["lang"])
-        body = body.replace("{{SERVICE_STAGE}}", stage.stage_html(_g, _n, PREFIX[meta["lang"]], t))
     body = ICON_RE.sub(lambda m: icon_svg(m.group(1), m.group(2) or ""), body)
     body = PHOTO_RE.sub(photo_html, body)
     body = body.replace("{{FORM}}", form_html(t, sector, meta.get("interest", "erstgespraech")))

@@ -77,10 +77,10 @@
     io.observe(report);
   });
 
-  /* Services stage: the card nearest the centre is active; it sets the section colour and the curved group title. */
-  var stage = document.querySelector(".stage");
-  var stageSec = document.querySelector(".svc-stage");
-  if (stage && stageSec) {
+  /* Circle carousel (Care packages): the card nearest the centre is active; it sets the section colour and the curved title. */
+  function initStage(stage) {
+    var stageSec = stage.closest(".svc-stage");
+    if (!stageSec) return;
     var track = stage.querySelector(".track");
     var cards = [].slice.call(track.children);
     var arc = stage.querySelector(".stage-arc");
@@ -149,6 +149,7 @@
     arcText.textContent = cards[0].dataset.gname;
     activate(nearest());
   }
+  document.querySelectorAll(".stage").forEach(initStage);
 
   /* Click hooks: pushes to dataLayer only. Nothing is sent anywhere until a consented tag manager is added.
      Events never carry form contents or personal data. */
