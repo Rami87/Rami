@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import services
 import services_ar
 import services_en
+import hero_art
 import icons
 
 ROOT = Path(__file__).parent
@@ -525,6 +526,7 @@ def _render(meta, body):
     body = body.replace("{{SERVICE_GROUPS}}", services.groups_html("h3"))
     body = body.replace("{{SERVICE_GROUPS_AR}}", services_ar.groups_ar("h3"))
     body = body.replace("{{SERVICE_GROUPS_EN}}", services_en.groups_en("h3"))
+    body = body.replace("{{HERO_NETWORK}}", hero_art.network_svg())
     body = ICON_RE.sub(lambda m: icon_svg(m.group(1), m.group(2) or ""), body)
     body = PHOTO_RE.sub(photo_html, body)
     body = body.replace("{{FORM}}", form_html(t, sector, meta.get("interest", "erstgespraech")))
