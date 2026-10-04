@@ -455,24 +455,3 @@ p { margin: 0 0 1em; max-width: 62ch; }
 .care-card.is-praxis .care-aud { background: rgba(255, 255, 255, .14); color: #fff; }
 .care-cta { margin-block-start: 22px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
 @media (max-width: 640px) { .care-grid { grid-template-columns: 1fr; } }
-
-/* Home hero: full-height light stage, very large headline, a network diagram (switches and devices) behind the report card. */
-.hero-xl { position: relative; isolation: isolate; background: linear-gradient(180deg, #f7fafc 0%, #e6f0f5 100%); color: var(--ink); min-height: calc(100vh - 69px); min-height: calc(100svh - 69px); display: flex; align-items: flex-end; overflow: hidden; padding-block: clamp(48px, 9vw, 112px) clamp(36px, 5vw, 72px); }
-.hero-xl-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; align-items: end; width: 100%; }
-.hero-xl .hero-kicker { margin: 0 0 clamp(14px, 2vw, 22px); font-size: 1.02rem; font-weight: 600; color: var(--teal-deep); }
-.hero-xl h1 { font-size: clamp(2.5rem, 6.2vw, 5rem); line-height: 1; letter-spacing: -.035em; max-width: 13em; text-wrap: balance; }
-.hero-xl .nb { white-space: nowrap; }
-html[lang="ar"] .hero-xl h1 { font-size: clamp(2.3rem, 6.4vw, 4.9rem); line-height: 1.22; letter-spacing: 0; max-width: 11em; }
-.hero-xl .lead { margin-block-start: clamp(20px, 3vw, 32px); max-width: 44ch; }
-.hero-xl .btn-row { margin-block-start: 28px; }
-.hero-xl .assure { list-style: none; padding: 0; margin: 30px 0 0; display: grid; gap: 8px; color: var(--ink-soft); font-size: .98rem; }
-.hero-xl .report { max-width: 440px; width: 100%; border: 1px solid var(--line); box-shadow: 0 24px 60px -34px rgba(15, 46, 64, .45); }
-@media (min-width: 1100px) { .hero-xl-grid { grid-template-columns: minmax(0, 1fr) 400px; gap: 64px; } .hero-xl .report { justify-self: end; } }
-.net { position: absolute; z-index: -1; pointer-events: none; inset-inline-end: 28px; top: 5%; width: min(450px, 42vw); }
-.net svg { width: 100%; height: auto; display: block; }
-html[lang="ar"] .net svg { transform: scaleX(-1); }
-@media (max-width: 1099px) { .net { width: min(520px, 90vw); opacity: .55; top: 2%; } }
-@media (max-width: 640px) { .hero-xl { align-items: flex-start; } .net { width: 130vw; inset-inline-end: -28vw; top: 1%; opacity: .5; } }
-@keyframes hero-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.js .hero-xl .reveal { opacity: 0; animation: hero-in .7s cubic-bezier(.23, 1, .32, 1) forwards; animation-delay: calc(var(--d, 0) * .09s + .1s); }
-@media (prefers-reduced-motion: reduce) { .js .hero-xl .reveal { opacity: 1; animation: none; } .net .pkt { display: none; } }
