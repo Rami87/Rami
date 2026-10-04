@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import services
 import services_ar
 import services_en
+import stage
 import icons
 
 ROOT = Path(__file__).parent
@@ -48,6 +49,8 @@ I18N = {
         "dir": "ltr",
         "skip": "Zum Inhalt springen",
         "menu": "Menü",
+        "menu_close": "Schließen",
+        "stage_more": "Mehr erfahren", "stage_aria": "Leistungen", "stage_prev": "Vorherige Leistung", "stage_next": "Nächste Leistung",
         "nav": [("Leistungen", "/leistungen/"), ("Für Praxen", "/arztpraxis/"), ("Für Büros", "/unternehmen/"), ("IT-Check", "/#it-check"), ("Kontakt", "/#kontakt")],
         "cta": "Kostenloses Erstgespräch anfragen",
         "sub_sr": "Untermenü Leistungen",
@@ -99,6 +102,8 @@ I18N = {
         "dir": "rtl",
         "skip": "انتقل إلى المحتوى",
         "menu": "القائمة",
+        "menu_close": "إغلاق",
+        "stage_more": "اعرف المزيد", "stage_aria": "الخدمات", "stage_prev": "الخدمة السابقة", "stage_next": "الخدمة التالية",
         "nav": [("الخدمات", "/leistungen/"), ("للعيادات", "/arztpraxis/"), ("للمكاتب", "/unternehmen/"), ("فحص IT", "/#it-check"), ("تواصل", "/#kontakt")],
         "cta": "استشارة مجانية",
         "sub_sr": "قائمة الخدمات الفرعية",
@@ -150,6 +155,8 @@ I18N = {
         "dir": "ltr",
         "skip": "Skip to content",
         "menu": "Menu",
+        "menu_close": "Close",
+        "stage_more": "Learn more", "stage_aria": "Services", "stage_prev": "Previous service", "stage_next": "Next service",
         "nav": [("Services", "/leistungen/"), ("For practices", "/arztpraxis/"), ("For offices", "/unternehmen/"), ("IT check", "/#it-check"), ("Contact", "/#kontakt")],
         "cta": "Request a free first call",
         "call": "Call",
@@ -390,7 +397,10 @@ def photo_html(m):
 def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
     code = code_of(t)
     pre = PREFIX[code]
+    groups, names = svc_data(code)
     links = ""
+    wipe = ""   # the same destinations as the desktop nav, for the full-screen mobile menu
+    n = 0
     for label, h in t["nav"]:
         if h.startswith("/#") and h[2:] in ids:
             href = h[1:]  # target exists on this page: stay on the page
@@ -399,8 +409,12 @@ def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
         cur = ' aria-current="page"' if href == path else ""
         if h == "/leistungen/":
             links += services_menu_html(t, label, href, cur)
+            subs = "".join(f'<li><a href="{pre}/{sl}/">{names[sl][0]}</a></li>' for _, _, slugs in groups for sl in slugs)
+            wipe += f'<li style="--i:{n}"><a href="{href}"{cur}>{label}</a><ul class="wipe-sub">{subs}</ul></li>'
         else:
             links += f'<a href="{href}"{cur}>{label}</a>'
+            wipe += f'<li style="--i:{n}"><a href="{href}"{cur}>{label}</a></li>'
+        n += 1
     for oc in ("de", "en", "ar"):
         if oc == code or (oc == "en" and not ENABLE_EN):
             continue
@@ -409,13 +423,17 @@ def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
         extra = "" if ENABLE_EN else (' dir="rtl"' if oc == "ar" else "")
         text = short if ENABLE_EN else full
         links += f'<a class="lang" href="{target}" hreflang="{oc}" lang="{oc}" aria-label="{full}"{extra}>{text}</a>'
+        wipe += f'<li style="--i:{n}"><a class="lang-link" href="{target}" hreflang="{oc}" lang="{oc}"{extra}>{text}</a></li>'
+        n += 1
     links += f'<a class="btn btn-primary btn-sm" href="{cta}" data-track="nav-cta" data-interest="erstgespraech">{t["cta"]}</a>'
+    wipe_cta = f'<a class="btn btn-primary" href="{cta}" data-track="menu-cta" data-interest="erstgespraech">{t["cta"]}</a>'
     return f'''<a class="skip" href="#main">{t["skip"]}</a>
 <header class="site-header"><div class="wrap bar">
   {logo_html(t)}
-  <button class="menu-btn" aria-expanded="false" aria-controls="nav">{t["menu"]}</button>
+  <button class="menu-btn" aria-expanded="false" aria-controls="wipe" data-open="{t["menu"]}" data-close="{t["menu_close"]}">{t["menu"]}</button>
   <nav class="nav" id="nav" aria-label="Hauptnavigation">{links}</nav>
-</div></header>'''
+</div></header>
+<div class="wipe" id="wipe" aria-hidden="true"><nav aria-label="{t["menu"]}"><ul>{wipe}</ul>{wipe_cta}</nav></div>'''
 
 
 def lang_attr(h):
@@ -522,6 +540,9 @@ def _render(meta, body):
     body = body.replace("{{SERVICE_GROUPS}}", services.groups_html("h3"))
     body = body.replace("{{SERVICE_GROUPS_AR}}", services_ar.groups_ar("h3"))
     body = body.replace("{{SERVICE_GROUPS_EN}}", services_en.groups_en("h3"))
+    if "{{SERVICE_STAGE}}" in body:
+        _g, _n = svc_data(meta["lang"])
+        body = body.replace("{{SERVICE_STAGE}}", stage.stage_html(_g, _n, PREFIX[meta["lang"]], t))
     body = ICON_RE.sub(lambda m: icon_svg(m.group(1), m.group(2) or ""), body)
     body = PHOTO_RE.sub(photo_html, body)
     body = body.replace("{{FORM}}", form_html(t, sector, meta.get("interest", "erstgespraech")))
