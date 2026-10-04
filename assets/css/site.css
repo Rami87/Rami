@@ -439,7 +439,7 @@ p { margin: 0 0 1em; max-width: 62ch; }
 
 .foot a.ct-mini { color: var(--ink); }
 
-/* Services stage: circle carousel on the home page. One colour per service group. */
+/* Circle carousel (Care packages on the home page). One colour per package. */
 .svc-stage { --D: 280px; background: var(--stage-bg, #0F2E40); color: #fff; transition: background-color .7s cubic-bezier(.65, 0, .35, 1); overflow: hidden; padding-block: clamp(48px, 7vw, 96px); }
 .svc-stage h2 { color: #fff; }
 .svc-stage .s-head p { color: #d6e1ea; }
@@ -462,6 +462,7 @@ html[lang="ar"] .stage-arc text { letter-spacing: 0; text-transform: none; font-
 html[lang="ar"] .card h3 { letter-spacing: 0; line-height: 1.35; }
 .card .tag { margin: 0; font-style: italic; color: #d6e1ea; max-width: 30ch; font-size: 1rem; }
 html[lang="ar"] .card .tag { font-style: normal; }
+.card .detail { margin: 0; color: #d6e1ea; font-size: .95rem; max-width: 30ch; }
 .card .go { font-weight: 700; font-size: .95rem; border-block-end: 2px solid #9fe0dc; padding-block-end: 2px; color: #fff; }
 .stage-ctl { display: flex; align-items: center; justify-content: center; gap: 18px; margin-block-start: 34px; flex-wrap: wrap; padding-inline: var(--gutter); }
 html:not(.js) .stage-ctl, html:not(.js) .stage-arc { display: none; }
