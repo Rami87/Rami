@@ -393,10 +393,7 @@ def photo_html(m):
 def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
     code = code_of(t)
     pre = PREFIX[code]
-    groups, names = svc_data(code)
     links = ""
-    wipe = ""   # the same destinations as the desktop nav, for the full-screen mobile menu
-    n = 0
     for label, h in t["nav"]:
         if h.startswith("/#") and h[2:] in ids:
             href = h[1:]  # target exists on this page: stay on the page
@@ -405,12 +402,8 @@ def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
         cur = ' aria-current="page"' if href == path else ""
         if h == "/leistungen/":
             links += services_menu_html(t, label, href, cur)
-            subs = "".join(f'<li><a href="{pre}/{sl}/">{names[sl][0]}</a></li>' for _, _, slugs in groups for sl in slugs)
-            wipe += f'<li style="--i:{n}"><a href="{href}"{cur}>{label}</a><ul class="wipe-sub">{subs}</ul></li>'
         else:
             links += f'<a href="{href}"{cur}>{label}</a>'
-            wipe += f'<li style="--i:{n}"><a href="{href}"{cur}>{label}</a></li>'
-        n += 1
     for oc in ("de", "en", "ar"):
         if oc == code or (oc == "en" and not ENABLE_EN):
             continue
@@ -419,17 +412,13 @@ def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
         extra = "" if ENABLE_EN else (' dir="rtl"' if oc == "ar" else "")
         text = short if ENABLE_EN else full
         links += f'<a class="lang" href="{target}" hreflang="{oc}" lang="{oc}" aria-label="{full}"{extra}>{text}</a>'
-        wipe += f'<li style="--i:{n}"><a class="lang-link" href="{target}" hreflang="{oc}" lang="{oc}"{extra}>{text}</a></li>'
-        n += 1
     links += f'<a class="btn btn-primary btn-sm" href="{cta}" data-track="nav-cta" data-interest="erstgespraech">{t["cta"]}</a>'
-    wipe_cta = f'<a class="btn btn-primary" href="{cta}" data-track="menu-cta" data-interest="erstgespraech">{t["cta"]}</a>'
     return f'''<a class="skip" href="#main">{t["skip"]}</a>
 <header class="site-header"><div class="wrap bar">
   {logo_html(t)}
-  <button class="menu-btn" aria-expanded="false" aria-controls="wipe" data-open="{t["menu"]}" data-close="{t["menu_close"]}">{t["menu"]}</button>
+  <button class="menu-btn" aria-expanded="false" aria-controls="nav" data-open="{t["menu"]}" data-close="{t["menu_close"]}">{t["menu"]}</button>
   <nav class="nav" id="nav" aria-label="Hauptnavigation">{links}</nav>
-</div></header>
-<div class="wipe" id="wipe" aria-hidden="true"><nav aria-label="{t["menu"]}"><ul>{wipe}</ul>{wipe_cta}</nav></div>'''
+</div></header>'''
 
 
 def lang_attr(h):
