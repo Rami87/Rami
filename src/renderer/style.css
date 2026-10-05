@@ -75,7 +75,7 @@ button.icon { min-width: 42px; padding: 0; }
 /* ---------- Rechnungseditor ---------- */
 .pagehead.split { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .editor { display: grid; grid-template-columns: minmax(420px, 680px) minmax(320px, 1fr); gap: clamp(20px, 3vw, 48px); align-items: start; }
-#form { min-width: 0; }
+#form, #kvForm { min-width: 0; }
 .item { display: grid; grid-template-columns: minmax(0, 3fr) 76px 108px 100px 42px; gap: 8px; align-items: center; margin-bottom: 8px; }
 .item input { margin: 0; }
 .item.head { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
@@ -85,12 +85,12 @@ button.icon { min-width: 42px; padding: 0; }
 .actionbar { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin: 18px -12px 0; padding: 14px 12px; background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(6px); border-top: 1px solid var(--line); }
 .sum { display: flex; flex-direction: column; }
 .sumlabel { font-size: 13px; color: var(--muted); font-weight: 600; }
-#total { font-size: 28px; line-height: 1.1; letter-spacing: -.02em; font-weight: 750; }
+#total, #kvTotal { font-size: 28px; line-height: 1.1; letter-spacing: -.02em; font-weight: 750; }
 .btns { display: flex; gap: 8px; flex-wrap: wrap; } .btns button { padding: 0 14px; }
 
 .previewcol { position: sticky; top: 28px; }
 .sheetwrap { position: relative; width: 100%; aspect-ratio: 210 / 297; background: var(--sheet); border-radius: 3px; box-shadow: 0 1px 2px rgba(23,34,28,.12), 0 14px 40px rgba(23,34,28,.14); overflow: hidden; }
-#preview { position: absolute; left: 0; top: 0; width: 794px; height: 1123px; border: 0; transform-origin: 0 0; background: #fff; pointer-events: none; }
+#preview, #kvPreview { position: absolute; left: 0; top: 0; width: 794px; height: 1123px; border: 0; transform-origin: 0 0; background: #fff; pointer-events: none; }
 
 /* ---------- Archiv ---------- */
 .years { max-width: 960px; margin-bottom: 26px; }
@@ -220,3 +220,23 @@ label.check input { width: 18px; min-height: 0; height: 18px; margin: 0; accent-
 .xrates { max-width: 960px; margin: -6px 0 14px; color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 18px; }
 .xrates b { color: var(--ink); }
 #xlist td.sup small { display: block; color: var(--muted); font-size: 12px; }
+
+/* ---------- Kostenvoranschlag ---------- */
+.kvkind { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+.kindopt { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1px solid #b9c1b5; border-radius: var(--radius); background: var(--sheet); cursor: pointer; margin: 0; }
+.kindopt:has(input:checked) { border-color: var(--brand); box-shadow: inset 0 0 0 1px var(--brand); background: var(--brand-tint); }
+.kindopt input { width: auto; margin: 4px 0 0; }
+.kindopt small { display: block; font-weight: 400; color: var(--muted); margin-top: 2px; }
+.clauses { margin-bottom: 12px; }
+.clauses label.clause { display: flex; gap: 10px; align-items: flex-start; padding: 8px 4px; margin: 0; border-bottom: 1px solid var(--line); font-weight: 400; cursor: pointer; }
+.clauses label.clause input { width: auto; margin: 3px 0 0; }
+.clauses label.clause b { display: block; font-weight: 650; }
+.clauses label.clause small { display: block; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.clauserow { display: grid; grid-template-columns: 1fr 42px; gap: 6px 8px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.clauserow input, .clauserow select, .clauserow textarea { margin: 0; }
+.clauserow .cmeta { display: grid; grid-template-columns: minmax(0, 1fr) 150px auto; gap: 8px; align-items: center; }
+.clauserow .cmeta label.check { margin: 0; white-space: nowrap; }
+.clauserow textarea { grid-column: 1 / 2; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 12px; font-weight: 650; background: #e4e8df; color: var(--ink); }
+.badge.angenommen { background: #d8f0e0; color: #0b5d34; } .badge.abgelehnt { background: #fbe0dd; color: var(--danger); } .badge.abgelaufen { background: #fdeccb; color: #8a4b00; }
+@media (max-width: 900px) { .kvkind { grid-template-columns: 1fr; } }

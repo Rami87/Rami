@@ -2,6 +2,7 @@
 // Eine Sicherungsdatei kommt von außen und wird deshalb beim Einlesen geprüft und bereinigt.
 const { DEFAULT_SETTINGS } = require('./store');
 const Ex = require('./expenses');
+const Est = require('./estimate');
 
 const APP = 'rechnungen-backup';
 const FORMAT = 1;
@@ -31,6 +32,8 @@ function cleanSettings(s) {
     if (k === 'lastDir' || k === 'lastBackup') continue; // gehören zum Computer, nicht zu den Daten
     const d = DEFAULT_SETTINGS[k];
     if (k === 'catalog') out.catalog = (Array.isArray(o.catalog) ? o.catalog.slice(0, 2000) : []).map((c) => ({ description: str(c && c.description, 500), price: num(c && c.price) })).filter((c) => c.description);
+    else if (k === 'kvClauses') out.kvClauses = Array.isArray(o.kvClauses) ? Est.cleanClauses(o.kvClauses) : d;
+    else if (k === 'kvValidDays') out.kvValidDays = Math.min(365, Math.max(1, Math.round(num(o.kvValidDays)) || d));
     else if (k === 'taxRate') out.taxRate = num(o.taxRate);
     else if (k === 'epcQr') out.epcQr = o.epcQr !== false;
     else if (k === 'color') out.color = /^#[0-9a-fA-F]{6}$/.test(o.color || '') ? o.color : d;
@@ -45,6 +48,7 @@ function createBackup(settings, invoices, now = new Date(), extra = {}) {
   const { lastDir, lastBackup, ...data } = settings; // eslint-disable-line no-unused-vars
   const o = { app: APP, format: FORMAT, exportedAt: now.toISOString(), settings: data, invoices };
   if (extra.expenses) { o.expenses = extra.expenses; o.receipts = extra.receipts || {}; }
+  if (extra.estimates) o.estimates = extra.estimates;
   return JSON.stringify(o, null, 2);
 }
 
@@ -75,7 +79,12 @@ function parseBackup(text) {
   const seen = new Set();
   const invoices = [];
   for (const raw of d.invoices) { const c = cleanInvoice(raw); if (c && !seen.has(c.id)) { seen.add(c.id); invoices.push(c); } }
-  return { exportedAt: str(d.exportedAt, 40), settings: cleanSettings(d.settings), invoices, ...cleanExpenses(d) };
+  let estimates = null; // ältere Sicherungen haben keine Kostenvoranschläge
+  if (Array.isArray(d.estimates)) {
+    const seenE = new Set(); estimates = [];
+    for (const raw of d.estimates.slice(0, MAX_INVOICES)) { const c = Est.cleanEstimate(raw); if (c && !seenE.has(c.id)) { seenE.add(c.id); estimates.push(c); } }
+  }
+  return { exportedAt: str(d.exportedAt, 40), settings: cleanSettings(d.settings), invoices, estimates, ...cleanExpenses(d) };
 }
 
 // Zusammenführen: gleiche ID -> die zuletzt geänderte Version gewinnt

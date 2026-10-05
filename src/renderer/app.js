@@ -35,22 +35,27 @@ function renderRail() {
 
 // ---- Vorschau passend skalieren (A4 = 794 px Breite) ----
 function fitPreview() {
-  const w = $('#sheetwrap').clientWidth;
-  if (w) $('#preview').style.transform = 'scale(' + w / 794 + ')';
+  [['#sheetwrap', '#preview'], ['#kvSheetwrap', '#kvPreview']].forEach(([wrap, frame]) => {
+    const w = $(wrap).clientWidth;
+    if (w) $(frame).style.transform = 'scale(' + w / 794 + ')';
+  });
 }
 new ResizeObserver(fitPreview).observe($('#sheetwrap'));
+new ResizeObserver(fitPreview).observe($('#kvSheetwrap'));
 
 // ---- Navigation ----
 document.querySelectorAll('nav button').forEach((b) => b.addEventListener('click', () => show(b.dataset.view)));
 function show(v) {
   applyBrand(settings.color); // ungespeicherte Farbänderung verwerfen
   document.querySelectorAll('nav button').forEach((b) => b.classList.toggle('active', b.dataset.view === v));
-  ['new', 'archive', 'expenses', 'backup', 'settings'].forEach((n) => ($('#view-' + n).hidden = n !== v));
+  ['new', 'archive', 'kv', 'kvlist', 'expenses', 'backup', 'settings'].forEach((n) => ($('#view-' + n).hidden = n !== v));
   if (v === 'backup') loadBackup();
   if (v === 'archive') loadList();
   if (v === 'expenses') { fillExpenseForm(null); loadExpenses(); }
   if (v === 'settings') fillSettings();
   if (v === 'new') { fillCatalogList(); refreshPreview(); fitPreview(); }
+  if (v === 'kv') { fillCatalogList(); if (!kvInit) { kvInit = true; fillKv({}); } refreshKv(); fitPreview(); }
+  if (v === 'kvlist') loadKvList();
 }
 
 document.addEventListener('click', (e) => { const g = e.target.closest('[data-goto]'); if (g) show(g.dataset.goto); });
@@ -111,7 +116,7 @@ function fillForm(inv) {
   f.number.value = inv.number || ''; f.date.value = inv.date || today(); f.serviceDate.value = inv.serviceDate || '';
   f.customer.value = inv.customer || ''; f.customerAddress.value = inv.customerAddress || ''; f.customerUid.value = inv.customerUid || '';
   f.discount.value = inv.discount || 0; f.notes.value = inv.notes || '';
-  f.taxNote.value = isNew ? (rate === 0 ? settings.taxNote || '' : '') : (inv.taxNote || '');
+  f.taxNote.value = isNew ? (inv.taxNote != null ? inv.taxNote : rate === 0 ? settings.taxNote || '' : '') : (inv.taxNote || '');
   $('#items').innerHTML = '';
   (inv.items && inv.items.length ? inv.items : [undefined]).forEach((i) => addItem(i));
   fillCatalogList();
@@ -263,6 +268,169 @@ async function loadList() {
     mk('Vorschau', 'ghost', () => api.previewInvoice(inv));
     mk('PDF', 'secondary', async () => { const r = await api.exportPdf(inv); if (r.ok) toast('PDF gespeichert: ' + r.filePath); });
     mk('Löschen', 'danger', async () => { if (confirm('Rechnung ' + inv.number + ' wirklich löschen?')) { await api.deleteInvoice(inv.id); toast('Rechnung ' + inv.number + ' gelöscht.'); loadList(); } });
+    tr.appendChild(td); tb.appendChild(tr);
+  }
+}
+
+// ---- Kostenvoranschlag ----
+let kvInit = false, kvId = null, kvSuggested = '', kvStatus = 'offen', kvSnap = {}, kvShown = new Set();
+const kf = () => $('#kvForm').elements;
+function kvAddItem(it = { description: '', qty: 1, price: 0 }) {
+  const d = document.createElement('div');
+  d.className = 'item';
+  d.innerHTML = '<input class="desc" list="catalogList" placeholder="Bezeichnung" aria-label="Bezeichnung"><input class="qty" type="number" min="0" step="any" aria-label="Menge"><input class="price" type="number" min="0" step="any" aria-label="Preis netto"><span class="amt">0,00</span><button type="button" class="danger icon" title="Position entfernen" aria-label="Position entfernen"><svg><use href="#i-x"/></svg></button>';
+  d.querySelector('.desc').value = it.description;
+  d.querySelector('.qty').value = it.qty;
+  d.querySelector('.price').value = it.price;
+  d.querySelector('.desc').addEventListener('change', (e) => {
+    const c = (settings.catalog || []).find((x) => x.description === e.target.value);
+    if (c) { d.querySelector('.price').value = c.price; refreshKv(); }
+  });
+  d.querySelector('button').onclick = () => { d.remove(); refreshKv(); };
+  $('#kvItems').appendChild(d);
+}
+// Textbausteine als Haken-Liste; passend zur Art (unverbindlich / verbindlich)
+function renderClauses(selected) {
+  const kind = kf().kind.value;
+  const prevChecked = new Set([...document.querySelectorAll('#kvClauses input:checked')].map((i) => i.dataset.id));
+  const list = (settings.kvClauses || []).filter((c) => c.for === 'beide' || c.for === kind).map((c) => ({ id: c.id, title: c.title, text: kvSnap[c.id] || c.text, on: c.on }));
+  Object.keys(kvSnap).forEach((id) => { if (!list.some((c) => c.id === id) && !(settings.kvClauses || []).some((c) => c.id === id)) list.push({ id, title: 'Gespeicherter Text', text: kvSnap[id], on: true }); });
+  const box = $('#kvClauses'); box.innerHTML = '';
+  const nowShown = new Set();
+  list.forEach((c) => {
+    nowShown.add(c.id);
+    const on = selected ? selected.has(c.id) : kvShown.has(c.id) ? prevChecked.has(c.id) : c.on;
+    const l = document.createElement('label'); l.className = 'clause';
+    const i = document.createElement('input'); i.type = 'checkbox'; i.dataset.id = c.id; i.dataset.text = c.text; i.checked = on;
+    const d = document.createElement('span'); const b = document.createElement('b'); b.textContent = c.title || 'Textbaustein';
+    const sm = document.createElement('small'); sm.textContent = c.text; d.append(b, sm); l.append(i, d); box.appendChild(l);
+  });
+  kvShown = nowShown;
+}
+function readEstimate() {
+  const f = kf();
+  return {
+    docType: 'estimate', id: kvId || undefined, number: f.number.value.trim(), date: f.date.value, validUntil: f.validUntil.value, inspectionDate: f.inspectionDate.value,
+    subject: f.subject.value.trim(), kind: f.kind.value, status: kvStatus,
+    customer: f.customer.value.trim(), customerAddress: f.customerAddress.value.trim(), customerUid: f.customerUid.value.trim(),
+    discount: +f.discount.value || 0, taxRate: +f.taxRate.value || 0, taxNote: f.taxNote.value.trim(), notes: f.notes.value.trim(), currency: settings.currency,
+    fee: +f.fee.value || 0, creditFee: f.creditFee.checked,
+    clauses: [...document.querySelectorAll('#kvClauses input:checked')].map((i) => ({ id: i.dataset.id, text: i.dataset.text })),
+    items: [...document.querySelectorAll('#kvItems .item')].map((d) => ({
+      description: d.querySelector('.desc').value.trim(), qty: +d.querySelector('.qty').value || 0, price: +d.querySelector('.price').value || 0,
+    })).filter((i) => i.description || i.price),
+  };
+}
+async function updateKvSuggested() {
+  const f = kf();
+  kvSuggested = await api.nextEstimateNumber(f.date.value);
+  f.number.placeholder = kvSuggested + ' (automatisch)';
+  if (!kvId) refreshKv();
+}
+function fillKv(e) {
+  const f = kf();
+  kvId = e.id || null; kvStatus = e.status || 'offen';
+  $('#kvTitle').textContent = e.id ? 'Kostenvoranschlag ' + e.number : 'Neuer Kostenvoranschlag';
+  const rate = e.taxRate != null ? e.taxRate : (settings.taxRate || 0);
+  fillTaxSelect(f.taxRate, rate);
+  f.kind.value = e.kind || 'unverbindlich';
+  f.number.value = e.number || ''; f.date.value = e.date || today();
+  f.validUntil.value = e.validUntil || (e.id ? '' : EstimateHtml.addDays(f.date.value, settings.kvValidDays || 30));
+  f.inspectionDate.value = e.inspectionDate || ''; f.subject.value = e.subject || '';
+  f.customer.value = e.customer || ''; f.customerAddress.value = e.customerAddress || ''; f.customerUid.value = e.customerUid || '';
+  f.discount.value = e.discount || 0; f.notes.value = e.notes || '';
+  f.taxNote.value = e.id ? (e.taxNote || '') : (rate === 0 ? settings.taxNote || '' : '');
+  f.fee.value = e.fee || 0; f.creditFee.checked = e.creditFee !== false;
+  kvSnap = {}; (e.clauses || []).forEach((c) => { kvSnap[c.id] = c.text; });
+  kvShown = new Set();
+  renderClauses(e.id ? new Set((e.clauses || []).map((c) => c.id)) : null);
+  $('#kvItems').innerHTML = '';
+  (e.items && e.items.length ? e.items : [undefined]).forEach((i) => kvAddItem(i));
+  refreshKv();
+  updateKvSuggested();
+}
+function refreshKv() {
+  const e = readEstimate();
+  if (!e.number && !e.id) e.number = kvSuggested;
+  document.querySelectorAll('#kvItems .item').forEach((d) => { d.querySelector('.amt').textContent = eur((+d.querySelector('.qty').value || 0) * (+d.querySelector('.price').value || 0), ''); });
+  $('#kvTotal').textContent = eur(InvoiceHtml.totals(e).total, settings.currency);
+  $('#kvPreview').srcdoc = EstimateHtml.build(e, settings);
+}
+$('#kvForm').addEventListener('input', refreshKv);
+$('#kvForm').addEventListener('change', (e) => {
+  if (e.target.name === 'kind') { renderClauses(null); refreshKv(); }
+  if (e.target.name === 'date') { if (!kvId) kf().validUntil.value = EstimateHtml.addDays(e.target.value, settings.kvValidDays || 30); updateKvSuggested(); refreshKv(); }
+  if (e.target.name === 'taxRate') {
+    const note = kf().taxNote;
+    if (+e.target.value === 0) { if (!note.value.trim()) note.value = settings.taxNote || ''; }
+    else if (note.value.trim() === (settings.taxNote || '').trim()) note.value = '';
+    refreshKv();
+  }
+});
+$('#kvAddItem').onclick = () => kvAddItem();
+$('#kvReset').onclick = () => { if (confirm('Wirklich neu beginnen?\n\nAlle Eingaben dieses Kostenvoranschlags gehen verloren.')) fillKv({}); };
+async function saveKv() {
+  const e = readEstimate();
+  if (!e.customer || !e.items.length) { toast('Bitte Kunde und mindestens eine Position eingeben.', true); return null; }
+  const saved = await api.saveEstimate(e);
+  kvId = saved.id; kf().number.value = saved.number;
+  $('#kvTitle').textContent = 'Kostenvoranschlag ' + saved.number; toast('Gespeichert: Kostenvoranschlag ' + saved.number);
+  return saved;
+}
+$('#kvForm').addEventListener('submit', (e) => { e.preventDefault(); saveKv(); });
+$('#kvSavePdf').onclick = async () => {
+  const saved = await saveKv(); if (!saved) return;
+  const r = await api.exportPdf(saved);
+  if (r.ok) toast('PDF gespeichert: ' + r.filePath);
+};
+$('#kvPreviewBtn').onclick = () => api.previewInvoice(readEstimate());
+$('#kvPrintBtn').onclick = async () => {
+  const saved = await saveKv(); if (!saved) return;
+  const r = await api.printInvoice(saved);
+  if (r && r.ok === false && r.reason && r.reason !== 'cancelled') toast('Drucken nicht möglich: ' + r.reason, true);
+};
+
+// ---- KV-Archiv ----
+let kvFilter = '', kvTimer;
+document.querySelectorAll('[data-kvstatus]').forEach((b) => b.addEventListener('click', () => { kvFilter = b.dataset.kvstatus; loadKvList(); }));
+$('#kvSearch').addEventListener('input', () => { clearTimeout(kvTimer); kvTimer = setTimeout(loadKvList, 200); });
+// Angenommenen Kostenvoranschlag als neue Rechnung öffnen (Entgelt wird, falls vereinbart, als Rabatt angerechnet)
+async function estimateToInvoice(est) {
+  const credit = Number(est.fee) > 0 && est.creditFee !== false ? Number(est.fee) : 0;
+  show('new');
+  fillForm({
+    customer: est.customer, customerAddress: est.customerAddress, customerUid: est.customerUid, items: est.items, taxRate: est.taxRate, taxNote: est.taxNote,
+    discount: (Number(est.discount) || 0) + credit,
+    notes: 'Gemäß Kostenvoranschlag ' + est.number + ' vom ' + deDate(est.date) + '.' + (credit ? ' Das Entgelt für den Kostenvoranschlag wurde angerechnet.' : ''),
+  });
+  if (est.status !== 'angenommen') await api.saveEstimate({ ...est, status: 'angenommen' });
+  toast('Rechnung aus Kostenvoranschlag ' + est.number + ' vorbereitet. Bitte prüfen und speichern.');
+}
+async function loadKvList() {
+  document.querySelectorAll('[data-kvstatus]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.kvstatus === kvFilter)));
+  const list = await api.listEstimates($('#kvSearch').value, kvFilter);
+  const tb = $('#kvList tbody'); tb.innerHTML = '';
+  $('#kvEmpty').hidden = list.length > 0;
+  for (const est of list) {
+    const tr = document.createElement('tr');
+    [est.number, deDate(est.date), est.customer, est.kind === 'verbindlich' ? 'Verbindlich' : 'Unverbindlich', eur(InvoiceHtml.totals(est).total, est.currency)].forEach((c, i) => {
+      const td = document.createElement('td'); td.textContent = c; if (i === 0) td.className = 'num'; if (i === 4) td.className = 'r'; tr.appendChild(td);
+    });
+    const st = document.createElement('td');
+    const sel = document.createElement('select'); sel.setAttribute('aria-label', 'Status');
+    EstimateHtml.STATUSES.forEach((v) => { const o = document.createElement('option'); o.value = v; o.textContent = v[0].toUpperCase() + v.slice(1); sel.appendChild(o); });
+    sel.value = est.status;
+    sel.onchange = async () => { await api.saveEstimate({ ...est, status: sel.value }); loadKvList(); };
+    st.appendChild(sel);
+    if (est.status === 'offen' && est.validUntil && est.validUntil < todayStr()) { const b = document.createElement('span'); b.className = 'badge abgelaufen'; b.textContent = 'abgelaufen'; st.appendChild(b); }
+    tr.appendChild(st);
+    const td = document.createElement('td'); td.className = 'act';
+    const mk = (t, cls, fn) => { const b = document.createElement('button'); b.textContent = t; b.className = cls; b.onclick = fn; td.appendChild(b); };
+    mk('Öffnen', 'ghost', () => { show('kv'); fillKv(est); });
+    mk('Vorschau', 'ghost', () => api.previewInvoice(est));
+    mk('PDF', 'secondary', async () => { const r = await api.exportPdf(est); if (r.ok) toast('PDF gespeichert: ' + r.filePath); });
+    mk('In Rechnung', 'secondary', () => estimateToInvoice(est));
+    mk('Löschen', 'danger', async () => { if (confirm('Kostenvoranschlag ' + est.number + ' wirklich löschen?')) { await api.deleteEstimate(est.id); toast('Kostenvoranschlag ' + est.number + ' gelöscht.'); loadKvList(); } });
     tr.appendChild(td); tb.appendChild(tr);
   }
 }
@@ -475,6 +643,16 @@ function addCatalogRow(c = { description: '', price: '' }) {
   $('#catalogRows').appendChild(d);
 }
 $('#addCatalog').onclick = () => addCatalogRow();
+// Textbausteine für Kostenvoranschläge (Einstellungen)
+function addClauseRow(c = { id: '', title: '', text: '', for: 'beide', on: false }) {
+  const d = document.createElement('div'); d.className = 'clauserow'; d.dataset.id = c.id || 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  d.innerHTML = '<div class="cmeta"><input class="ct" placeholder="Titel" aria-label="Titel" maxlength="120"><select class="cf" aria-label="Gilt für"><option value="beide">für beide Arten</option><option value="unverbindlich">nur unverbindlich</option><option value="verbindlich">nur verbindlich</option></select><label class="check"><input type="checkbox" class="co"> Standard</label></div><button type="button" class="danger icon" title="Entfernen" aria-label="Textbaustein entfernen"><svg><use href="#i-x"/></svg></button><textarea class="cx" rows="3" placeholder="Text auf dem Kostenvoranschlag" aria-label="Text" maxlength="1500"></textarea>';
+  d.querySelector('.ct').value = c.title; d.querySelector('.cx').value = c.text; d.querySelector('.cf').value = c.for; d.querySelector('.co').checked = !!c.on;
+  d.querySelector('button').onclick = () => d.remove();
+  $('#clauseRows').appendChild(d);
+}
+$('#addClause').onclick = () => addClauseRow();
+$('#resetClauses').onclick = () => { if (confirm('Alle Textbausteine auf die Standardtexte zurücksetzen?\n\nEigene Änderungen gehen verloren.')) { $('#clauseRows').innerHTML = ''; EstimateHtml.DEFAULT_CLAUSES.forEach(addClauseRow); } };
 function showLogo(src) {
   const on = /^data:image\//.test(src || '');
   $('#logoPreview').src = on ? src : ''; $('#logoPreview').hidden = !on; $('#logoEmpty').hidden = on; $('#removeLogo').hidden = !on;
@@ -498,6 +676,9 @@ function fillSettings() {
   showLogo(settings.logo);
   $('#catalogRows').innerHTML = '';
   (settings.catalog || []).forEach(addCatalogRow);
+  f.kvValidDays.value = settings.kvValidDays || 30;
+  $('#clauseRows').innerHTML = '';
+  (settings.kvClauses || []).forEach(addClauseRow);
   renderLetterhead();
 }
 $('#logoFile').addEventListener('change', (e) => {
@@ -519,6 +700,8 @@ $('#settingsForm').addEventListener('submit', async (e) => {
     phone: f.phone.value.trim(), email: f.email.value.trim(), bank: f.bank.value.trim(), iban: f.iban.value.trim(), bic: f.bic.value.trim(),
     color, epcQr: f.epcQr.checked, currency: f.currency.value.trim() || '€', taxRate: +f.taxRate.value || 0,
     taxNote: f.taxNote.value.trim(), logo: settings.logo, catalog,
+    kvValidDays: +f.kvValidDays.value || 30,
+    kvClauses: [...document.querySelectorAll('.clauserow')].map((d) => ({ id: d.dataset.id, title: d.querySelector('.ct').value.trim(), text: d.querySelector('.cx').value.trim(), for: d.querySelector('.cf').value, on: d.querySelector('.co').checked })).filter((c) => c.text),
   });
   applyBrand(settings.color); renderRail(); toast('Einstellungen gespeichert.');
 });

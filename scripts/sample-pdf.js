@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright-core');
 const InvoiceHtml = require('../src/invoice-html');
+const EstimateHtml = require('../src/estimate');
 const { settings, invoice, invoice20 } = require('./sample-data');
 
 (async () => {
@@ -20,5 +21,13 @@ const { settings, invoice, invoice20 } = require('./sample-data');
     await page.pdf({ path: out, format: 'A4', printBackground: true, preferCSSPageSize: true });
     console.log('wrote', out, fs.statSync(out).size, 'bytes');
   }
+  // Kostenvoranschlag (unverbindlich, mit den Standard-Textbausteinen)
+  const est = { docType: 'estimate', number: 'KV-05102601', date: '2026-10-05', validUntil: '2026-11-04', inspectionDate: '2026-10-02', subject: 'Neubezug Sattel', kind: 'unverbindlich',
+    customer: invoice.customer, customerAddress: invoice.customerAddress, items: invoice.items, taxRate: 0, taxNote: settings.taxNote,
+    clauses: EstimateHtml.DEFAULT_CLAUSES.filter((c) => c.on && (c.for === 'beide' || c.for === 'unverbindlich')).map(({ id, text }) => ({ id, text })) };
+  await page.setContent(EstimateHtml.build(est, settings));
+  out = path.join(__dirname, '..', 'sample', 'kostenvoranschlag-muster.pdf');
+  await page.pdf({ path: out, format: 'A4', printBackground: true, preferCSSPageSize: true });
+  console.log('wrote', out, fs.statSync(out).size, 'bytes');
   await browser.close();
 })();

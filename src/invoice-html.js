@@ -54,23 +54,19 @@
     return { subtotal, discount, net, tax, total: net + tax };
   }
 
-  function build(inv, settings) {
+  // Gemeinsames Layout für Rechnung und Kostenvoranschlag (src/estimate.js).
+  // o: { docTitle, pageTitle, titleSize, meta (HTML), customerLabel, rows (HTML), sum (HTML), after (HTML), qr (bool), extraCss }
+  function layout(inv, settings, o) {
     const color = safeColor(settings.color);
     const logo = safeLogo(settings.logo);
-    const cur = esc(inv.currency || settings.currency || '€');
     const t = totals(inv);
-    const rate = Number(inv.taxRate) || 0;
-    const rows = (inv.items || []).map((it, i) => `
-      <tr><td>${i + 1}</td><td class="desc">${esc(it.description)}</td>
-      <td>${num(it.qty)}</td><td>${money(it.price)}</td>
-      <td>${money((Number(it.qty) || 0) * (Number(it.price) || 0))}</td></tr>`).join('');
     // Fußzeile in drei Spalten: Firma + Adresse | Bank, IBAN, BIC | Telefon, E-Mail, UID
     const col1 = [settings.companyName, settings.address].filter(Boolean).join('\n');
     const col2 = [settings.bank && `Bank: ${settings.bank}`, settings.iban && `IBAN: ${iban(settings.iban)}`, settings.bic && `BIC: ${settings.bic}`].filter(Boolean).join('\n');
     const col3 = [settings.phone && `Tel.: ${settings.phone}`, settings.email && `E-Mail: ${settings.email}`, settings.uid && `UID-Nr.: ${settings.uid}`].filter(Boolean).join('\n');
     const footer = [col1, col2, col3].some(Boolean)
-      ? `<footer><div>${esc(col1)}</div><div>${esc(col2)}${epcQr(inv, settings, t.total)}</div><div>${esc(col3)}</div></footer>` : '';
-    return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Rechnung ${esc(inv.number)}</title>
+      ? `<footer><div>${esc(col1)}</div><div>${esc(col2)}${o.qr ? epcQr(inv, settings, t.total) : ''}</div><div>${esc(col3)}</div></footer>` : '';
+    return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>${esc(o.pageTitle)}</title>
 <style>
   @page { size: A4; margin: 14mm; }
   * { box-sizing: border-box; }
@@ -97,33 +93,50 @@
   .notes b { color: ${color}; }
   .page { display: flex; flex-direction: column; min-height: 262mm; }
   .page > .grow { flex: 1; }
-  footer { margin-top: 28px; border-top: 1px solid #ccc; padding-top: 10px; color: #444; font-size: 11px; line-height: 1.5; display: grid; grid-template-columns: 1.2fr 1.3fr 1fr; gap: 16px; }
+  footer { break-inside: avoid; margin-top: 28px; border-top: 1px solid #ccc; padding-top: 10px; color: #444; font-size: 11px; line-height: 1.5; display: grid; grid-template-columns: 1.2fr 1.3fr 1fr; gap: 16px; }
   .epc { margin-top: 6px; white-space: normal; }
   .epc svg { width: 22mm; height: 22mm; display: block; }
   .epc span { font-size: 9px; color: #666; }
   footer div { white-space: pre-line; overflow-wrap: anywhere; }
+  ${o.extraCss || ''}
 </style></head><body><div class="page"><div class="grow">
 <header>
   <div class="company">${logo ? `<img src="${logo}" alt="">` : ''}<h1>${esc(settings.companyName)}</h1><div>${esc(settings.address)}</div></div>
-  <div class="title"><h2>Rechnung</h2></div>
+  <div class="title"><h2${o.titleSize ? ` style="font-size:${o.titleSize}px"` : ''}>${esc(o.docTitle)}</h2></div>
 </header>
 <div class="meta">
-  <div class="box"><b>Rechnungsnummer:</b> ${esc(inv.number)}<br><b>Rechnungsdatum:</b> ${date(inv.date)}${inv.serviceDate ? `<br><b>Leistungsdatum:</b> ${date(inv.serviceDate)}` : ''}</div>
-  <div class="box"><b>Kunde:</b> ${esc(inv.customer)}<br><span style="white-space:pre-line">${esc(inv.customerAddress)}</span>${inv.customerUid ? `<br><b>UID-Nr.:</b> ${esc(inv.customerUid)}` : ''}</div>
+  <div class="box">${o.meta}</div>
+  <div class="box"><b>${esc(o.customerLabel)}:</b> ${esc(inv.customer)}<br><span style="white-space:pre-line">${esc(inv.customerAddress)}</span>${inv.customerUid ? `<br><b>UID-Nr.:</b> ${esc(inv.customerUid)}` : ''}</div>
 </div>
-<table><thead><tr><th>Pos.</th><th class="desc">Bezeichnung</th><th>Menge</th><th>Einzelpreis</th><th>Betrag</th></tr></thead><tbody>${rows}</tbody></table>
-<div class="sum">
-  ${t.discount ? `<div><span>Zwischensumme</span><span>${money(t.subtotal)} ${cur}</span></div><div><span>Rabatt</span><span>- ${money(t.discount)} ${cur}</span></div>` : ''}
-  <div><span>Nettobetrag</span><span>${money(t.net)} ${cur}</span></div>
-  ${rate ? `<div><span>zzgl. ${num(rate)} % USt.</span><span>${money(t.tax)} ${cur}</span></div>` : ''}
-  <div class="total"><span>Gesamtbetrag</span><span>${money(t.total)} ${cur}</span></div>
-</div>
+<table><thead><tr><th>Pos.</th><th class="desc">Bezeichnung</th><th>Menge</th><th>Einzelpreis</th><th>Betrag</th></tr></thead><tbody>${o.rows}</tbody></table>
+<div class="sum">${o.sum}</div>
 ${inv.taxNote ? `<div class="notes"><b>Steuerhinweis:</b> ${esc(inv.taxNote)}</div>` : ''}
-${inv.notes ? `<div class="notes"><b>Anmerkungen:</b><br>${esc(inv.notes)}</div>` : ''}
+${o.after}
 </div>
 ${footer}
 </div></body></html>`;
   }
 
-  return { build, totals, esc, epcPayload, TAX_RATES, DEFAULT_TAX_NOTE };
+  const itemRows = (inv) => (inv.items || []).map((it, i) => `
+      <tr><td>${i + 1}</td><td class="desc">${esc(it.description)}</td>
+      <td>${num(it.qty)}</td><td>${money(it.price)}</td>
+      <td>${money((Number(it.qty) || 0) * (Number(it.price) || 0))}</td></tr>`).join('');
+  // Summenblock; totalLabel: Beschriftung der letzten Zeile
+  function sumBlock(inv, settings, totalLabel) {
+    const t = totals(inv), cur = esc(inv.currency || settings.currency || '€'), rate = Number(inv.taxRate) || 0;
+    return `${t.discount ? `<div><span>Zwischensumme</span><span>${money(t.subtotal)} ${cur}</span></div><div><span>Rabatt</span><span>- ${money(t.discount)} ${cur}</span></div>` : ''}
+  <div><span>Nettobetrag</span><span>${money(t.net)} ${cur}</span></div>
+  ${rate ? `<div><span>zzgl. ${num(rate)} % USt.</span><span>${money(t.tax)} ${cur}</span></div>` : ''}
+  <div class="total"><span>${esc(totalLabel)}</span><span>${money(t.total)} ${cur}</span></div>`;
+  }
+
+  function build(inv, settings) {
+    return layout(inv, settings, {
+      docTitle: 'Rechnung', pageTitle: 'Rechnung ' + inv.number, qr: true, customerLabel: 'Kunde', rows: itemRows(inv), sum: sumBlock(inv, settings, 'Gesamtbetrag'),
+      meta: `<b>Rechnungsnummer:</b> ${esc(inv.number)}<br><b>Rechnungsdatum:</b> ${date(inv.date)}${inv.serviceDate ? `<br><b>Leistungsdatum:</b> ${date(inv.serviceDate)}` : ''}`,
+      after: inv.notes ? `<div class="notes"><b>Anmerkungen:</b><br>${esc(inv.notes)}</div>` : '',
+    });
+  }
+
+  return { build, layout, itemRows, sumBlock, money, date, num, totals, esc, epcPayload, TAX_RATES, DEFAULT_TAX_NOTE };
 });

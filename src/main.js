@@ -6,6 +6,7 @@ const InvoiceHtml = require('./invoice-html');
 const { toCsv } = require('./csv');
 const { createBackup, parseBackup, mergeInvoices } = require('./backup');
 const Ex = require('./expenses');
+const Est = require('./estimate');
 
 let store;
 let pendingReceipt = null; // gewählter, noch nicht gespeicherter Beleg { name, ext, data }
@@ -14,8 +15,14 @@ const previews = new Map(); // webContents.id des Vorschaufensters -> Rechnung
 const htmlUrl = (html) => 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
 
 // Rechnung ohne Nummer (noch nicht gespeichert): Nummer nur für Anzeige/Druck vorschlagen
-function withNumber(inv) { return inv.number ? inv : { ...inv, number: store.nextNumber(inv.date) }; }
-const buildHtml = (inv) => InvoiceHtml.build(withNumber(inv), store.getSettings());
+// Dokument: Rechnung oder Kostenvoranschlag (docType 'estimate'); Vorschau, Druck und PDF nutzen dieselben Wege
+const isEstimate = (d) => !!d && d.docType === 'estimate';
+function withNumber(doc) {
+  if (doc.number) return doc;
+  return { ...doc, number: isEstimate(doc) ? store.nextEstimateNumber(doc.date) : store.nextNumber(doc.date) };
+}
+const buildHtml = (doc) => (isEstimate(doc) ? Est.build(Est.cleanEstimate({ ...withNumber(doc), id: 'preview' }), store.getSettings()) : InvoiceHtml.build(withNumber(doc), store.getSettings()));
+const docFileName = (doc) => `${isEstimate(doc) ? 'Kostenvoranschlag' : 'Rechnung'}-${String(withNumber(doc).number).replace(/[^\w.-]+/g, '_')}.pdf`;
 
 async function renderPdf(html) {
   const win = new BrowserWindow({ show: false, webPreferences: { javascript: false } });
@@ -40,7 +47,7 @@ async function saveDialog(win, fileName, filters) {
 
 async function exportPdf(win, inv) {
   const pdf = await renderPdf(buildHtml(inv));
-  const filePath = await saveDialog(win, `Rechnung-${withNumber(inv).number}.pdf`, [{ name: 'PDF', extensions: ['pdf'] }]);
+  const filePath = await saveDialog(win, docFileName(inv), [{ name: 'PDF', extensions: ['pdf'] }]);
   if (!filePath) return { ok: false };
   fs.writeFileSync(filePath, pdf);
   return { ok: true, filePath };
@@ -97,12 +104,18 @@ app.whenReady().then(() => {
     fs.writeFileSync(filePath, toCsv(list));
     return { ok: true, filePath, count: list.length };
   });
+  // ---- Kostenvoranschläge ----
+  ipcMain.handle('estimates:list', (_, q, status) => store.listEstimates(q, status));
+  ipcMain.handle('estimates:get', (_, id) => store.getEstimate(id));
+  ipcMain.handle('estimates:save', (_, x) => store.saveEstimate(x));
+  ipcMain.handle('estimates:delete', (_, id) => { store.deleteEstimate(id); return true; });
+  ipcMain.handle('estimates:nextNumber', (_, date) => store.nextEstimateNumber(date));
   // Rechnung wird als Objekt übergeben, damit auch ungespeicherte Rechnungen angezeigt, gedruckt und exportiert werden können
   ipcMain.handle('invoices:pdf', (e, inv) => exportPdf(winOf(e), inv));
   ipcMain.handle('invoices:print', (e, inv) => printInvoice(inv));
   ipcMain.handle('invoices:preview', (e, inv) => { openPreview(winOf(e), inv); return { ok: true }; });
   // Vorschaufenster
-  ipcMain.handle('preview:get', (e) => { const inv = previews.get(e.sender.id); return inv ? { html: buildHtml(inv), number: withNumber(inv).number } : null; });
+  ipcMain.handle('preview:get', (e) => { const inv = previews.get(e.sender.id); return inv ? { html: buildHtml(inv), number: withNumber(inv).number, title: isEstimate(inv) ? 'Kostenvoranschlag' : 'Rechnung' } : null; });
   ipcMain.handle('preview:print', (e) => printInvoice(previews.get(e.sender.id)));
   ipcMain.handle('preview:pdf', (e) => exportPdf(winOf(e), previews.get(e.sender.id)));
 
@@ -170,9 +183,9 @@ app.whenReady().then(() => {
   });
 
   // ---- Datensicherung ----
-  const extra = () => ({ expenses: store.allExpenses(), receipts: store.readReceipts() });
+  const extra = () => ({ expenses: store.allExpenses(), receipts: store.readReceipts(), estimates: store.allEstimates() });
   const day = () => new Date().toISOString().slice(0, 10);
-  ipcMain.handle('backup:info', () => ({ dir: store.dir, lastBackup: store.getSettings().lastBackup, count: store.allInvoices().length, expenses: store.allExpenses().length }));
+  ipcMain.handle('backup:info', () => ({ dir: store.dir, lastBackup: store.getSettings().lastBackup, count: store.allInvoices().length, expenses: store.allExpenses().length, estimates: store.allEstimates().length }));
   ipcMain.handle('backup:showFolder', () => shell.openPath(store.dir));
   ipcMain.handle('backup:create', async (e) => {
     const filePath = await saveDialog(winOf(e), `Rechnungen-Backup-${day()}.json`, [{ name: 'Sicherung (JSON)', extensions: ['json'] }]);
@@ -195,7 +208,7 @@ app.whenReady().then(() => {
     const { response } = await dialog.showMessageBox(win, {
       type: 'question', title: 'Sicherung wiederherstellen', cancelId: 2, defaultId: 0,
       buttons: ['Zusammenführen', 'Alles ersetzen', 'Abbrechen'],
-      message: `Sicherung vom ${when}: ${data.invoices.length} Rechnungen` + (data.expenses ? ` und ${data.expenses.length} Ausgaben.` : '.'),
+      message: `Sicherung vom ${when}: ${data.invoices.length} Rechnungen` + (data.expenses ? `, ${data.expenses.length} Ausgaben` : '') + (data.estimates ? `, ${data.estimates.length} Kostenvoranschläge` : '') + '.',
       detail: 'Zusammenführen: vorhandene Rechnungen bleiben, neue werden hinzugefügt (bei gleicher Rechnung gewinnt die neuere Version). Einstellungen bleiben unverändert.\n\nAlles ersetzen: Einstellungen und Rechnungen werden durch die Sicherung ersetzt. Der aktuelle Stand wird vorher automatisch im Programmordner gesichert.',
     });
     if (response === 2) return { ok: false };
@@ -205,11 +218,13 @@ app.whenReady().then(() => {
       const keep = { lastDir: store.getSettings().lastDir, lastBackup: store.getSettings().lastBackup };
       store.replaceInvoices(data.invoices);
       if (data.expenses) store.restoreExpenses(data.expenses, data.receipts);
+      if (data.estimates) store.replaceEstimates(data.estimates);
       store.saveSettings({ ...data.settings, ...keep });
       return { ok: true, mode: 'replace', count: data.invoices.length, expenses: data.expenses ? data.expenses.length : 0 };
     }
     const m = mergeInvoices(store.allInvoices(), data.invoices);
     store.replaceInvoices(m.list);
+    if (data.estimates) store.replaceEstimates(mergeInvoices(store.allEstimates(), data.estimates).list);
     let xm = { added: 0, updated: 0 };
     if (data.expenses) { xm = mergeInvoices(store.allExpenses(), data.expenses); const take = new Set(xm.list.filter((x) => data.expenses.includes(x)).map((x) => x.id)); // nur Belege der übernommenen Versionen
       store.restoreExpenses(xm.list, Object.fromEntries(Object.entries(data.receipts).filter(([id]) => take.has(id)))); }

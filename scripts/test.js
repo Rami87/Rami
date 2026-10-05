@@ -144,4 +144,32 @@ assert.deepStrictEqual(badB.expenses.map((e) => [e.id, e.receipt]), [['e1', null
 xs.deleteExpense(x1.id);
 assert(!fs.existsSync(path.join(xs.receiptsDir, x1.id + '.pdf')) && xs.allExpenses().length === 2, 'Löschen entfernt die Belegdatei');
 
+// Kostenvoranschlag: Nummern, Bereinigung, Vorlage, Sicherung
+const Est = require('../src/estimate');
+const es = new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'kv-')));
+const q1 = es.saveEstimate({ date: '2026-10-05', customer: 'A', kind: 'verbindlich', items: [{ description: 'x', qty: 1, price: 10 }], status: 'angenommen', docType: 'invoice' });
+const q2 = es.saveEstimate({ date: '2026-10-05', customer: 'B', kind: 'quatsch', status: 'hack', items: [] });
+assert.deepStrictEqual([q1.number, q2.number], ['KV-05102601', 'KV-05102602']);
+assert.strictEqual(q1.docType, 'estimate'); assert.strictEqual(q2.kind, 'unverbindlich'); assert.strictEqual(q2.status, 'offen');
+assert.strictEqual(es.nextEstimateNumber('2026-10-06'), 'KV-06102601');
+es.deleteEstimate(q2.id); assert.strictEqual(es.nextEstimateNumber('2026-10-05'), 'KV-05102602');
+assert.strictEqual(es.saveEstimate({ ...q1, customer: 'A2' }).number, 'KV-05102601', 'Bearbeiten behält die Nummer');
+assert.strictEqual(es.listEstimates('', 'angenommen').length, 1); assert.strictEqual(es.listEstimates('a2', 'offen').length, 0);
+assert.strictEqual(Est.cleanEstimate({ id: '../x' }), null);
+assert.deepStrictEqual(Est.cleanEstimate({ id: 'k1', clauses: [{ id: 'a b', text: 'x' }, { id: 'ok', text: 'y', extra: 1 }] }).clauses, [{ id: 'ok', text: 'y' }]);
+assert.strictEqual(Est.addDays('2026-10-05', 30), '2026-11-04'); assert.strictEqual(Est.addDays('2026-12-15', 30), '2027-01-14'); assert.strictEqual(Est.addDays('x', 3), '');
+const hv = Est.build({ number: 'KV-1', kind: 'unverbindlich', date: '2026-10-05', validUntil: '2026-11-04', customer: '<b>X</b>', items: [{ description: '<i>y</i>', qty: 1, price: 5 }], clauses: [{ id: 'z', text: '<script>1</script>' }] }, { companyName: 'F' });
+assert(hv.includes('Unverbindlicher Kostenvoranschlag') && hv.includes('§ 1170a Abs. 2 ABGB') && hv.includes('gültig bis 04.11.2026') && !hv.includes('<script>1') && !hv.includes('<b>X</b>'));
+assert(!Est.build({ kind: 'verbindlich', items: [] }, { companyName: 'F' }).includes('unverbindlich'), 'verbindlich ohne Unverbindlich-Text');
+assert(!hv.includes('Zahlen mit Code'), 'kein EPC-QR beim Kostenvoranschlag');
+assert.strictEqual(new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'kv-'))).getSettings().kvClauses.length, Est.DEFAULT_CLAUSES.length);
+const ks = new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'kv-')));
+ks.saveSettings({ kvValidDays: 9999, kvClauses: [{ id: 'a', text: 'T', title: 'x' }, { id: '<bad>', text: 'weg' }, 'quatsch'] });
+assert.strictEqual(ks.getSettings().kvValidDays, 365); assert.deepStrictEqual(ks.getSettings().kvClauses.map((c) => c.id), ['a']);
+const BK = require('../src/backup');
+const pbk = BK.parseBackup(BK.createBackup(es.getSettings(), [], new Date(), { estimates: es.allEstimates() }));
+assert.strictEqual(pbk.estimates.length, 1); assert.strictEqual(pbk.settings.kvClauses.length, Est.DEFAULT_CLAUSES.length);
+assert.strictEqual(BK.parseBackup(JSON.stringify({ app: 'rechnungen-backup', format: 1, invoices: [] })).estimates, null, 'alte Sicherung ohne Kostenvoranschläge');
+assert.strictEqual(BK.parseBackup(JSON.stringify({ app: 'rechnungen-backup', format: 1, invoices: [], settings: { kvClauses: 'x', kvValidDays: -5 } })).settings.kvValidDays, 1);
+
 console.log('Alle Tests bestanden');

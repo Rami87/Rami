@@ -249,6 +249,108 @@ const ok = (name, cond, extra) => { assert(cond, name + (extra ? ' -> ' + extra 
   await set('open', pdfDir); await win.click('#bkPdfs'); await win.waitForTimeout(4000);
   ok('Alle Rechnungen als PDF exportiert, Dateinamen bereinigt', fs.readdirSync(pdfDir).length === 1 && fs.readdirSync(pdfDir).every((f) => /^Rechnung-[\w.-]+\.pdf$/.test(f)), fs.readdirSync(pdfDir).join(','));
 
+
+  console.log('Kostenvoranschlag');
+  const estFile = path.join(out('profile'), 'data', 'estimates.json');
+  const readE = () => JSON.parse(fs.readFileSync(estFile, 'utf8'));
+  const flat = (t) => t.replace(/\s+/g, ' ');
+  await win.click('nav [data-view=kv]'); await win.waitForSelector('#kvForm');
+  const clauseIds = () => win.locator('#kvClauses input').evaluateAll((l) => l.map((i) => i.dataset.id));
+  ok('Textbausteine sichtbar, Standard angehakt (Rücksprache), Schätzwerte nur bei unverbindlich',
+    (await win.locator('#kvClauses input[data-id=zusatz]').isChecked()) && (await clauseIds()).includes('regie') && !(await win.locator('#kvClauses input[data-id=anzahlung]').isChecked()));
+  await win.check('#kvForm [name=kind][value=verbindlich]');
+  ok('Bei „verbindlich“ verschwindet der Baustein „Schätzwerte“', !(await clauseIds()).includes('regie') && (await clauseIds()).includes('zusatz'));
+  await win.check('#kvForm [name=kind][value=unverbindlich]');
+  ok('Zurück auf „unverbindlich“: Baustein wieder da und angehakt', await win.locator('#kvClauses input[data-id=regie]').isChecked());
+  const vu = await win.inputValue('#kvForm [name=validUntil]');
+  const plus30 = new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10);
+  ok('„Gültig bis“ = heute + 30 Tage', Math.abs(new Date(vu) - new Date(plus30)) <= 864e5, vu + ' / ' + plus30);
+  async function createEstimate(customer, kind, price, extra = {}) {
+    await win.click('nav [data-view=kv]'); await win.evaluate(() => { window.confirm = () => true; }); await win.click('#kvReset');
+    await win.check(`#kvForm [name=kind][value=${kind}]`);
+    await win.fill('#kvForm [name=customer]', customer);
+    await win.fill('#kvForm [name=subject]', extra.subject || 'Neubezug <b>Sattel</b>');
+    await win.fill('#kvItems .item .desc', 'Sattel neu beziehen <i>x</i>'); await win.fill('#kvItems .item .qty', '2'); await win.fill('#kvItems .item .price', String(price));
+    if (extra.fee) await win.fill('#kvForm [name=fee]', String(extra.fee));
+    if (extra.anzahlung) await win.check('#kvClauses input[data-id=anzahlung]');
+    await win.click('#kvForm button[type=submit]'); await win.waitForTimeout(300);
+    return win.inputValue('#kvForm [name=number]');
+  }
+  const k1 = await createEstimate('Kunde <script>window.__xss=21</script> K', 'unverbindlich', 100, { fee: 25, anzahlung: true });
+  const k2 = await createEstimate('Kunde Fix', 'verbindlich', 60);
+  ok('Nummer KV-TTMMJJ01 und KV-TTMMJJ02', k1 === 'KV-' + pre + '01' && k2 === 'KV-' + pre + '02', k1 + ' / ' + k2);
+  ok('Kein XSS über Kunde/Betreff/Position', !(await win.evaluate(() => window.__xss)));
+  const es = readE();
+  ok('Beide gespeichert, Status „offen“, docType estimate, gewählte Bausteine als Text gesichert',
+    es.length === 2 && es[0].status === 'offen' && es[0].docType === 'estimate' && es[0].clauses.some((c) => c.id === 'zusatz' && c.text.includes('Rücksprache und Zustimmung')) && es[0].clauses.some((c) => c.id === 'anzahlung') && es[0].fee === 25);
+  await win.click('nav [data-view=kvlist]'); await win.waitForTimeout(300);
+  ok('KV-Archiv zeigt beide', (await win.locator('#kvList tbody tr').count()) === 2);
+  await win.fill('#kvSearch', 'Fix'); await win.waitForTimeout(400);
+  ok('Suche im KV-Archiv', (await win.locator('#kvList tbody tr').count()) === 1);
+  await win.fill('#kvSearch', ''); await win.waitForTimeout(400);
+  const row = (n) => win.locator('#kvList tbody tr').filter({ hasText: n });
+  await set('save', out('kv1.pdf'));
+  await row(k1).getByText('PDF', { exact: true }).click(); await win.waitForTimeout(2500);
+  const t1 = flat(execFileSync('pdftotext', ['-layout', out('kv1.pdf'), '-']).toString());
+  ok('PDF unverbindlich: Titel, § 1170a-Text, Gültigkeit, Rücksprache-Satz, Entgelt, Anzahlung, Unterschriftszeile',
+    /Unverbindlicher\b.{0,80}Kostenvoranschlag/.test(t1) && t1.includes('§ 1170a Abs. 2 ABGB') && t1.includes('Gültig bis') && t1.includes('nur nach vorheriger Rücksprache und Zustimmung des Kunden durchgeführt')
+    && t1.includes('Entgelt von 25,00') && t1.includes('Anzahlung von 30 %') && t1.includes('Unterschrift Kunde') && t1.includes('Voraussichtlicher Gesamtbetrag'), t1.slice(0, 2600));
+  ok('PDF: HTML in Betreff/Position nur als Text', t1.includes('<b>Sattel</b>') && t1.includes('<i>x</i>'));
+  await set('save', out('kv2.pdf'));
+  await row(k2).getByText('PDF', { exact: true }).click(); await win.waitForTimeout(2500);
+  const t2 = flat(execFileSync('pdftotext', ['-layout', out('kv2.pdf'), '-']).toString());
+  ok('PDF verbindlich: Titel + Gewähr, keine Unverbindlich-Erklärung, Fixpreis', /Verbindlicher\b.{0,80}Kostenvoranschlag/.test(t2) && t2.includes('Gewähr geleistet (§ 1170a Abs. 1 ABGB)') && !t2.includes('Kostenvoranschlag ist unverbindlich') && t2.includes('Fixpreis'), t2.slice(0, 500));
+  await row(k1).getByText('Vorschau', { exact: true }).click(); await win.waitForTimeout(1500);
+  const kpv = app.windows().find((w) => w.url().includes('preview.html'));
+  ok('Vorschau-Fenster zeigt Kostenvoranschlag, ohne Code-Ausführung', kpv && (await kpv.locator('#pvTitle').textContent()).startsWith('Kostenvoranschlag KV-') && !(await kpv.evaluate(() => window.__xss)));
+  if (kpv) await kpv.close();
+  await row(k2).locator('select').selectOption('abgelehnt'); await win.waitForTimeout(400);
+  ok('Status „abgelehnt“ gespeichert', readE().find((e) => e.number === k2).status === 'abgelehnt');
+  await win.click('[data-kvstatus=abgelehnt]'); await win.waitForTimeout(300);
+  ok('Statusfilter', (await win.locator('#kvList tbody tr').count()) === 1);
+  await win.click('[data-kvstatus=""]'); await win.waitForTimeout(300);
+  await row(k1).getByText('In Rechnung', { exact: true }).click(); await win.waitForTimeout(500);
+  ok('Rechnung vorausgefüllt: Kunde, Position, Entgelt als Rabatt, Verweis auf KV',
+    (await win.inputValue('#form [name=customer]')).includes('Kunde') && (await win.inputValue('#form [name=discount]')) === '25'
+    && (await win.inputValue('#form [name=notes]')).includes('Gemäß Kostenvoranschlag ' + k1) && (await win.inputValue('#items .item .qty')) === '2');
+  await win.click('#form button[type=submit]'); await win.waitForTimeout(400);
+  ok('Kostenvoranschlag danach „angenommen“, Rechnung gespeichert', readE().find((e) => e.number === k1).status === 'angenommen' && JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8')).some((i) => i.notes.includes(k1)));
+  await win.click('nav [data-view=settings]');
+  await win.locator('.clauserow').first().locator('.cx').fill('GEÄNDERT: nur nach Rücksprache.');
+  await win.click('#addClause');
+  await win.locator('.clauserow').last().locator('.ct').fill('Eigener Baustein');
+  await win.locator('.clauserow').last().locator('.cx').fill('Eigener Text <b>x</b>');
+  await win.locator('.clauserow').last().locator('.co').check();
+  await win.fill('#settingsForm [name=kvValidDays]', '14');
+  await win.click('#settingsForm button[type=submit]'); await win.waitForTimeout(400);
+  const stS = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
+  ok('Bausteine und Gültigkeit in den Einstellungen gespeichert', stS.kvValidDays === 14 && stS.kvClauses[0].text.startsWith('GEÄNDERT') && stS.kvClauses.at(-1).title === 'Eigener Baustein' && stS.kvClauses.at(-1).on === true);
+  await win.click('nav [data-view=kvlist]');
+  await row(k1).getByText('Öffnen', { exact: true }).click(); await win.waitForTimeout(400);
+  ok('Alter Kostenvoranschlag behält seinen gesicherten Text', (await win.locator('#kvClauses input[data-id=zusatz]').getAttribute('data-text')).includes('Rücksprache und Zustimmung'));
+  const k3 = await createEstimate('Kunde Neu', 'unverbindlich', 10);
+  const e3 = readE().find((e) => e.number === k3);
+  ok('Neuer Kostenvoranschlag nutzt geänderte Bausteine und 14 Tage Gültigkeit', e3.clauses.some((c) => c.text.startsWith('GEÄNDERT')) && e3.clauses.some((c) => c.text === 'Eigener Text <b>x</b>')
+    && Math.round((new Date(e3.validUntil) - new Date(e3.date)) / 864e5) === 14);
+  await win.click('nav [data-view=backup]');
+  await set('save', out('backup-kv.json')); await win.click('#bkCreate'); await win.waitForTimeout(600);
+  const bkv = JSON.parse(fs.readFileSync(out('backup-kv.json'), 'utf8'));
+  ok('Sicherung enthält 3 Kostenvoranschläge und die Bausteine', bkv.estimates.length === 3 && bkv.settings.kvClauses.length > 3);
+  bkv.estimates.push({ id: '../evil', number: 'x' }, { id: 'ev1', number: '<svg onload=window.__xss=22>', kind: 'quatsch', status: 'hack', customer: '"><img src=x onerror=window.__xss=23>', date: '2026-01-01',
+    clauses: [{ id: '<x>', text: 'weg' }, { id: 'ok1', text: '<img src=x onerror=window.__xss=24>' }], items: [{ description: '<script>window.__xss=25</script>', qty: 'abc', price: 1 }] });
+  fs.writeFileSync(out('backup-kv2.json'), JSON.stringify(bkv));
+  await set('open', out('backup-kv2.json')); await set('box', 0); await win.click('#bkRestore'); await win.waitForTimeout(800);
+  const after = readE(); const ev = after.find((e) => e.id === 'ev1');
+  ok('Zusammenführen: ungültige ID verworfen, Art/Status bereinigt, ungültiger Baustein entfernt', after.length === 4 && !after.some((e) => e.id === '../evil') && ev.kind === 'unverbindlich' && ev.status === 'offen' && ev.clauses.length === 1);
+  await win.click('nav [data-view=kvlist]'); await win.waitForTimeout(400);
+  await row('svg onload').first().getByText('Vorschau', { exact: true }).click(); await win.waitForTimeout(1500);
+  const evpv = app.windows().filter((w) => w.url().includes('preview.html'));
+  ok('Vorschau des präparierten Kostenvoranschlags führt keinen Code aus', evpv.length > 0 && !(await win.evaluate(() => window.__xss)) && !(await Promise.all(evpv.map((w) => w.evaluate(() => window.__xss)))).some(Boolean));
+  for (const w of evpv) await w.close();
+  await win.evaluate(() => { window.confirm = () => true; });
+  await row('Kunde Neu').first().getByText('Löschen', { exact: true }).click(); await win.waitForTimeout(400);
+  ok('Löschen entfernt den Kostenvoranschlag', readE().length === 3);
+
   ok('Keine JavaScript-Fehler in der Oberfläche', errs.length === 0, errs.join(' | '));
   await app.close();
   console.log('\n' + passed + ' Prüfungen bestanden');

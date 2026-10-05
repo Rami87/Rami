@@ -18,6 +18,7 @@
   <symbol id="i-chev-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
   <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z M9 8h6 M9 12h6 M9 16h3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="i-quote" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z M14 3v5h5 M10 12l1.5 1.5L15 10 M10 17h6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
 </svg>
 
@@ -27,6 +28,8 @@
     <nav aria-label="Hauptnavigation">
       <button data-view="new" class="active"><svg><use href="#i-doc"/></svg>Neue Rechnung</button>
       <button data-view="archive"><svg><use href="#i-archive"/></svg>Archiv</button>
+      <button data-view="kv"><svg><use href="#i-quote"/></svg>Kostenvoranschlag</button>
+      <button data-view="kvlist"><svg><use href="#i-archive"/></svg>KV-Archiv</button>
       <button data-view="expenses"><svg><use href="#i-receipt"/></svg>Ausgaben</button>
       <button data-view="backup"><svg><use href="#i-shield"/></svg>Datensicherung</button>
       <button data-view="settings"><svg><use href="#i-gear"/></svg>Einstellungen</button>
@@ -119,6 +122,107 @@
         <p class="emptytitle">Keine Rechnungen gefunden</p>
         <p>Ändern Sie Zeitraum oder Suche, oder legen Sie eine neue Rechnung an.</p>
         <button type="button" class="primary" data-goto="new">Neue Rechnung</button>
+      </div>
+    </section>
+
+    <!-- ============ Kostenvoranschlag ============ -->
+    <section id="view-kv" hidden>
+      <div class="editor">
+        <form id="kvForm" autocomplete="off">
+          <header class="pagehead split"><div><h1 id="kvTitle">Neuer Kostenvoranschlag</h1><p class="sub">Kunde, Positionen und Bedingungen wählen. Die Vorschau rechts zeigt das fertige PDF.</p></div><button type="button" id="kvReset" class="danger-solid">Neu beginnen</button></header>
+
+          <fieldset>
+            <legend>Art des Kostenvoranschlags</legend>
+            <div class="kvkind" role="radiogroup" aria-label="Art">
+              <label class="kindopt"><input type="radio" name="kind" value="unverbindlich" checked><span><b>Unverbindlich</b> (empfohlen)<small>Preise sind geschätzt. Der Endpreis richtet sich nach dem tatsächlichen Aufwand.</small></span></label>
+              <label class="kindopt"><input type="radio" name="kind" value="verbindlich"><span><b>Verbindlich (Fixpreis)</b><small>Wir leisten Gewähr für den Preis. Danach ist keine Erhöhung möglich (§ 1170a ABGB).</small></span></label>
+            </div>
+            <p class="hint">Gegenüber Verbrauchern gilt ein Kostenvoranschlag als verbindlich, wenn er nicht ausdrücklich als unverbindlich bezeichnet ist (§ 5 KSchG).</p>
+          </fieldset>
+
+          <fieldset>
+            <legend>Kostenvoranschlag</legend>
+            <div class="grid3">
+              <label>Nummer<input name="number" placeholder="automatisch"></label>
+              <label>Datum<input name="date" type="date" required></label>
+              <label>Gültig bis<input name="validUntil" type="date"></label>
+            </div>
+            <div class="grid2">
+              <label>Besichtigung am <span class="opt">optional</span><input name="inspectionDate" type="date"></label>
+              <label>Betreff / Objekt <span class="opt">optional</span><input name="subject" placeholder="z. B. Neubezug Sattel"></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Kunde</legend>
+            <label>Name<input name="customer" required placeholder="Firma oder Person"></label>
+            <label>Adresse<textarea name="customerAddress" rows="2"></textarea></label>
+            <label>UID-Nr. <span class="opt">optional</span><input name="customerUid" placeholder="ATU12345678"></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Positionen</legend>
+            <div class="item head"><span>Bezeichnung</span><span>Menge</span><span>Preis netto</span><span class="r">Betrag</span><span></span></div>
+            <div id="kvItems"></div>
+            <button type="button" id="kvAddItem" class="ghost"><svg><use href="#i-plus"/></svg>Position hinzufügen</button>
+          </fieldset>
+
+          <fieldset>
+            <legend>Steuer</legend>
+            <div class="grid2">
+              <label>Rabatt (netto)<input name="discount" type="number" min="0" step="0.01" value="0"></label>
+              <label>Umsatzsteuer<select name="taxRate"></select></label>
+            </div>
+            <label>Steuerhinweis<textarea name="taxNote" rows="2"></textarea></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Bedingungen (Textbausteine)</legend>
+            <p class="hint">Haken setzen, was auf dem Kostenvoranschlag stehen soll. Die Texte lassen sich unter «Einstellungen» ändern.</p>
+            <div id="kvClauses" class="clauses"></div>
+            <label>Weitere Hinweise <span class="opt">optional</span><textarea name="notes" rows="2"></textarea></label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Entgelt für den Kostenvoranschlag <span class="opt">optional</span></legend>
+            <div class="grid2">
+              <label>Entgelt (netto)<input name="fee" type="number" min="0" step="0.01" value="0"></label>
+              <label class="check"><input type="checkbox" name="creditFee" checked> Bei Auftrag auf die Rechnung anrechnen</label>
+            </div>
+            <p class="hint"><b>Wichtig:</b> Verbraucher müssen vor der Erstellung ausdrücklich auf die Zahlungspflicht hingewiesen werden (§ 5 Abs. 1 KSchG). Sonst ist der Kostenvoranschlag kostenlos.</p>
+          </fieldset>
+
+          <div class="actionbar">
+            <div class="sum"><span class="sumlabel">Gesamt</span><b id="kvTotal">0,00 €</b></div>
+            <div class="btns">
+              <button type="button" id="kvPreviewBtn" class="secondary"><svg><use href="#i-eye"/></svg>Vorschau</button>
+              <button type="button" id="kvPrintBtn" class="secondary"><svg><use href="#i-print"/></svg>Drucken</button>
+              <button type="submit" class="secondary">Speichern</button>
+              <button type="button" id="kvSavePdf" class="primary"><svg><use href="#i-dl"/></svg>Speichern + PDF</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="previewcol">
+          <div class="sheetwrap" id="kvSheetwrap"><iframe id="kvPreview" title="Vorschau des Kostenvoranschlags" sandbox></iframe></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ KV-Archiv ============ -->
+    <section id="view-kvlist" hidden>
+      <header class="pagehead"><h1>KV-Archiv</h1><p class="sub">Alle Kostenvoranschläge. Angenommene lassen sich mit einem Klick in eine Rechnung umwandeln.</p></header>
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Status">
+          <button type="button" data-kvstatus="">Alle</button><button type="button" data-kvstatus="offen">Offen</button><button type="button" data-kvstatus="angenommen">Angenommen</button><button type="button" data-kvstatus="abgelehnt">Abgelehnt</button>
+        </div>
+        <label class="searchbox"><svg><use href="#i-search"/></svg><input id="kvSearch" type="search" placeholder="Suchen: Nummer, Kunde, Betreff oder Position" aria-label="Suche"></label>
+      </div>
+      <table id="kvList"><thead><tr><th>Nr.</th><th>Datum</th><th>Kunde</th><th>Art</th><th class="r">Betrag</th><th>Status</th><th><span class="sr">Aktionen</span></th></tr></thead><tbody></tbody></table>
+      <div id="kvEmpty" class="empty" hidden>
+        <p class="emptytitle">Keine Kostenvoranschläge gefunden</p>
+        <p>Ändern Sie Status oder Suche, oder legen Sie einen neuen Kostenvoranschlag an.</p>
+        <button type="button" class="primary" data-goto="kv">Neuer Kostenvoranschlag</button>
       </div>
     </section>
 
@@ -263,6 +367,14 @@
             </fieldset>
 
             <fieldset>
+              <legend>Kostenvoranschlag</legend>
+              <label>Gültigkeit in Tagen<input name="kvValidDays" type="number" min="1" max="365" step="1"></label>
+              <p class="hint">Textbausteine, die beim Kostenvoranschlag zur Auswahl stehen. «Standard» bedeutet: neu angehakt. Hinweis für Verbraucher: Klauseln, die den Preis nachträglich erhöhen oder gesetzliche Rechte ausschließen, sind oft unwirksam (§ 6 KSchG).</p>
+              <div id="clauseRows"></div>
+              <div class="btns"><button type="button" id="addClause" class="ghost"><svg><use href="#i-plus"/></svg>Textbaustein hinzufügen</button><button type="button" id="resetClauses" class="ghost">Auf Standard zurücksetzen</button></div>
+            </fieldset>
+
+            <fieldset>
               <legend>Positionsliste</legend>
               <p class="hint">Diese Positionen erscheinen als Vorschlag, sobald Sie in der Rechnung eine Bezeichnung eintippen.</p>
               <div id="catalogRows"></div>
@@ -295,5 +407,6 @@
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 <script src="../vendor/qrcode.js"></script>
 <script src="../invoice-html.js"></script>
+<script src="../estimate.js"></script>
 <script src="app.js"></script>
 </body></html>

@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const Ex = require('./expenses');
+const Est = require('./estimate');
 
 const DEFAULT_SETTINGS = {
   companyName: 'Firmenname', address: '', uid: '', bank: '', iban: '', bic: '', phone: '', email: '',
@@ -11,6 +12,8 @@ const DEFAULT_SETTINGS = {
   epcQr: true, // EPC-QR-Code («Zahlen mit Code») auf der Rechnung
   taxRate: 0, taxNote: 'Umsatzsteuerfrei gemäß § 6 Abs. 1 Z 27 UStG.',
   catalog: [], // vordefinierte Positionen: [{ description, price }]
+  kvClauses: Est.DEFAULT_CLAUSES, // Textbausteine für Kostenvoranschläge
+  kvValidDays: Est.DEFAULT_VALID_DAYS, // Gültigkeit eines Kostenvoranschlags in Tagen
 };
 
 class Store {
@@ -20,6 +23,7 @@ class Store {
     this.settingsFile = path.join(dir, 'settings.json');
     this.invoicesFile = path.join(dir, 'invoices.json');
     this.expensesFile = path.join(dir, 'expenses.json');
+    this.estimatesFile = path.join(dir, 'estimates.json');
     this.receiptsDir = path.join(dir, 'belege'); // Belegdateien: <id>.<pdf|png|jpg|webp|gif>
   }
   _read(file, fallback) {
@@ -31,7 +35,12 @@ class Store {
     fs.renameSync(tmp, file); // كتابة آمنة حتى لا يتلف الملف عند انقطاع الكهرباء
   }
   getSettings() { return { ...DEFAULT_SETTINGS, ...this._read(this.settingsFile, {}) }; }
-  saveSettings(s) { const merged = { ...this.getSettings(), ...s }; this._write(this.settingsFile, merged); return merged; }
+  saveSettings(s) {
+    s = { ...s };
+    if ('kvClauses' in s) s.kvClauses = Est.cleanClauses(s.kvClauses);
+    if ('kvValidDays' in s) s.kvValidDays = Math.min(365, Math.max(1, Math.round(Number(s.kvValidDays)) || Est.DEFAULT_VALID_DAYS));
+    const merged = { ...this.getSettings(), ...s }; this._write(this.settingsFile, merged); return merged;
+  }
   // period: '' (alle) | 'JJJJ' | 'JJJJ-MM' | 'JJJJ-MM-TT' (Präfix des ISO-Datums)
   listInvoices(query = '', period = '') {
     const q = String(query).trim().toLowerCase();
@@ -67,6 +76,41 @@ class Store {
     this._write(this.invoicesFile, all);
     return all.find((i) => i.id === inv.id);
   }
+  // ---- Kostenvoranschläge: Nummer KV-TTMMJJ + laufende Nummer des Tages, z. B. KV-05102601 ----
+  allEstimates() { return this._read(this.estimatesFile, []); }
+  replaceEstimates(list) { this._write(this.estimatesFile, list); }
+  getEstimate(id) { return this.allEstimates().find((e) => e.id === id) || null; }
+  nextEstimateNumber(date) {
+    const d = /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : new Date().toISOString().slice(0, 10);
+    const prefix = 'KV-' + d.slice(8, 10) + d.slice(5, 7) + d.slice(2, 4);
+    let max = 0;
+    for (const e of this.allEstimates()) {
+      const m = String(e.number || '').match(/^KV-(\d{6})(\d{2,})$/);
+      if (m && 'KV-' + m[1] === prefix) max = Math.max(max, parseInt(m[2], 10));
+    }
+    return prefix + String(max + 1).padStart(2, '0');
+  }
+  listEstimates(query = '', status = '') {
+    const q = String(query).trim().toLowerCase();
+    let res = this.allEstimates();
+    if (status) res = res.filter((e) => e.status === status);
+    if (q) res = res.filter((e) => [e.number, e.customer, e.date, e.subject, e.notes, ...(e.items || []).map((x) => x.description)].some((v) => String(v || '').toLowerCase().includes(q)));
+    return res.sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.number).localeCompare(String(a.number)));
+  }
+  saveEstimate(x) {
+    x = x && typeof x === 'object' ? x : {};
+    const all = this.allEstimates();
+    const now = new Date().toISOString();
+    const idx = x.id ? all.findIndex((e) => e.id === x.id) : -1;
+    const base = idx >= 0 ? all[idx] : null;
+    const id = base ? base.id : 'kv_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const c = Est.cleanEstimate({ ...x, id, createdAt: base ? base.createdAt : now, updatedAt: now });
+    if (!c.number) c.number = base && base.number ? base.number : this.nextEstimateNumber(c.date);
+    if (idx >= 0) all[idx] = c; else all.push(c);
+    this._write(this.estimatesFile, all);
+    return c;
+  }
+  deleteEstimate(id) { this._write(this.estimatesFile, this.allEstimates().filter((e) => e.id !== id)); }
   // ---- Ausgaben (Belege für den Steuerberater) ----
   allExpenses() { return this._read(this.expensesFile, []); }
   replaceExpenses(list) { this._write(this.expensesFile, list); }
