@@ -483,7 +483,7 @@ def schema_graph(meta, body, url, t):
         "founder": {"@type": "Person", "name": "Rami Horani"},
         "address": {"@type": "PostalAddress", "addressLocality": "Wien", "addressCountry": "AT"},
         "areaServed": [{"@type": "City", "name": "Wien"}, {"@type": "AdministrativeArea", "name": "Wien und Umgebung"}],
-        "knowsLanguage": ["de", "ar", "en"],
+        "knowsLanguage": ["de", "ar"] + (["en"] if ENABLE_EN else []),
         "hasOfferCatalog": {"@type": "OfferCatalog", "name": "Leistungen", "itemListElement": [{"@type": "Offer", "itemOffered": {"@type": "Service", "name": re.sub(r"&amp;", "&", services.SVC[sl][0]), "url": f"{DOMAIN}/{sl}/"}} for _, _, sls in services.GROUPS for sl in sls]},
         "makesOffer": {"@type": "Offer", "description": "Kostenloses Erstgespräch", "itemOffered": {"@type": "Service", "name": "IT-Check"}},
     }
@@ -615,6 +615,7 @@ def main():
         (OUT / "assets" / "icons" / f"{slug}.svg").write_text(icons.standalone(slug), encoding="utf-8")
     shutil.copy(ROOT / "assets" / "favicon.ico", OUT / "favicon.ico")
     sitemap = []
+    sitemap_alt = {}
     pages = [parse(f) for f in sorted(SRC.glob("*.html"))]
     pages = [pg for pg in pages if ENABLE_EN or pg[0].get("lang") != "en"]
     import services_ar
@@ -633,19 +634,24 @@ def main():
     if ENABLE_EN:
       pages.append(({"lang": "en", "path": "/en/leistungen/", "title": "Services: IT, network, security and more in Vienna | HORANiQ", "description": "All HORANiQ services: IT support, Microsoft 365, network, backup, security, smart building, websites and maintenance for businesses in Vienna.", "sector": "en-leistungen", "breadcrumb": "Services", "alt": "de=/leistungen/,en=/en/leistungen/,ar=/ar/leistungen/"}, services_en.render_hub_en()))
     pages.append(({"lang": "ar", "path": "/ar/leistungen/", "title": "كل خدمات HORANiQ: IT وشبكات وأمان ومواقع في فيينا", "description": "كل الخدمات من جهة واحدة: دعم IT وMicrosoft 365 وشبكات ونسخ احتياطي وأمان وكاميرات ومواقع ومتاجر إلكترونية للشركات في فيينا ومحيطها.", "sector": "ar-leistungen", "breadcrumb": "كل الخدمات", "alt": "de=/leistungen/,en=/en/leistungen/,ar=/ar/leistungen/"}, services_ar.render_hub_ar()))
-    pages.append(({"lang": "de", "path": "/leistungen/", "title": "Leistungen: IT, Netzwerk, Sicherheit und mehr in Wien | HORANiQ", "description": "Alle Leistungen von HORANiQ: IT-Betreuung, Microsoft 365, Netzwerk, Backup, Sicherheit, Smart Building, Websites und Wartung für Betriebe in Wien und Umgebung.", "sector": "leistungen", "breadcrumb": "Leistungen", "alt": "de=/leistungen/,en=/en/leistungen/,ar=/ar/leistungen/"}, services.render_hub()))
+    pages.append(({"lang": "de", "path": "/leistungen/", "title": "Leistungen: IT, Netzwerk und Sicherheit in Wien | HORANiQ", "description": "Alle Leistungen von HORANiQ: IT-Betreuung, Microsoft 365, Netzwerk, Backup, Sicherheit, Smart Building, Websites und Wartung für Betriebe in Wien und Umgebung.", "sector": "leistungen", "breadcrumb": "Leistungen", "alt": "de=/leistungen/,en=/en/leistungen/,ar=/ar/leistungen/"}, services.render_hub()))
     for meta, body in pages:
         out = OUT / meta["path"].strip("/") / "index.html"
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(render(meta, body), encoding="utf-8")
         if meta.get("robots", "index") == "index":
             sitemap.append(meta["path"])
+            if meta.get("alt"):
+                sitemap_alt[meta["path"]] = [(c, p) for c, p in (x.split("=", 1) for x in meta["alt"].split(",")) if ENABLE_EN or c != "en"]
         print("built", meta["path"])
     nf = ({"lang": "de", "path": "/404/", "title": "Seite nicht gefunden | HORANiQ", "description": "Diese Seite gibt es nicht.", "sector": "legal", "robots": "noindex, follow"}, '<section class="s"><div class="wrap prose"><h1>Seite nicht gefunden</h1><p>Diese Adresse gibt es nicht (mehr). Hier geht es weiter:</p><div class="btn-row"><a class="btn btn-primary" href="/">Zur Startseite</a><a class="btn btn-ghost" href="/leistungen/">Alle Leistungen</a><a class="btn btn-ghost" href="/#kontakt">Kontakt</a></div></div></section>')
     (OUT / "404.html").write_text(render(*nf), encoding="utf-8")
     (OUT / "llms.txt").write_text(llms_txt(sitemap), encoding="utf-8")
-    urls = "".join(f"  <url><loc>{DOMAIN}{p}</loc></url>\n" for p in sitemap)
-    (OUT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}</urlset>\n', encoding="utf-8")
+    def sitemap_url(p):
+        links = "".join(f'<xhtml:link rel="alternate" hreflang="{c}" href="{DOMAIN}{q}"/>' for c, q in sitemap_alt.get(p, []))
+        return f"  <url><loc>{DOMAIN}{p}</loc>{links}</url>\n"
+    urls = "".join(sitemap_url(p) for p in sitemap)
+    (OUT / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n{urls}</urlset>\n', encoding="utf-8")
     (OUT / "robots.txt").write_text("User-agent: *\nDisallow: /\n" if PREVIEW else f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n", encoding="utf-8")
 
 

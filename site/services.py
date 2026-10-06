@@ -222,7 +222,7 @@ SERVICES["sicherheit"] = dict(
 
 SERVICES["wartung-reparatur"] = dict(
     name="Computer, Geräte &amp; Wartung",
-    title="PC und Laptop Wartung, Reparatur und Aufrüstung in Wien | HORANiQ",
+    title="PC und Laptop: Wartung und Reparatur in Wien | HORANiQ",
     description="Wartung, Reparatur, SSD- und RAM-Upgrades sowie generalüberholte PCs und Laptops für Betriebe in Wien. Geräte länger nutzen, weniger Elektroschrott.",
     h1="Mehr Leben für Ihre Technik",
     lead="Ihre Geräte sollen zuverlässig funktionieren und möglichst lange halten. Wir prüfen, was sich reparieren oder aufrüsten lässt, damit Ihre Technik länger im Einsatz bleibt und weniger Elektroschrott entsteht.",
@@ -294,7 +294,7 @@ SERVICES["smart-building"] = dict(
 
 SERVICES["crm-archivierung"] = dict(
     name="CRM und digitale Ablage",
-    title="CRM und digitale Archivierung für kleine Betriebe in Wien | HORANiQ",
+    title="CRM und Archivierung für kleine Betriebe in Wien | HORANiQ",
     description="Kundenverwaltung, Dokumentenablage und einfache Abläufe für kleine und mittlere Betriebe in Wien. Weniger Suchen, mehr Überblick.",
     h1="Kunden und Dokumente, die man auch wiederfindet",
     lead="Wir helfen kleinen Betrieben, Kundendaten, Dokumente und wiederkehrende Abläufe übersichtlich zu organisieren. Neu in unserem Angebot, und deshalb gemeinsam mit Ihnen Schritt für Schritt aufgebaut.",
@@ -329,7 +329,7 @@ SERVICES["crm-archivierung"] = dict(
 
 SERVICES["it-sicherheit"] = dict(
     name="IT-Sicherheit",
-    title="IT-Sicherheit für Betriebe in Wien: Firewall, Zugriffsrechte, MFA | HORANiQ",
+    title="IT-Sicherheit für Betriebe in Wien: Firewall und MFA | HORANiQ",
     description="Firewall, Benutzerrechte, Zugriffsschutz und sichere Anmeldung mit MFA für kleine und mittlere Betriebe in Wien und Umgebung. Sachlich und verständlich.",
     h1="Klare Zugriffsrechte und sichere Anmeldung für Ihren Betrieb",
     lead="Wir sorgen dafür, dass nur die richtigen Personen auf Ihre Systeme und Daten zugreifen. Mit Firewall, sauberen Benutzerrechten, Zugriffsschutz und sicherer Anmeldung. Sachlich, ohne Angstmache.",
@@ -365,7 +365,7 @@ SERVICES["it-sicherheit"] = dict(
 
 SERVICES["it-beratung"] = dict(
     name="IT-Beratung &amp; Projektumsetzung",
-    title="IT-Beratung und Projektumsetzung für Betriebe in Wien | HORANiQ",
+    title="IT-Beratung und Projekte für Betriebe in Wien | HORANiQ",
     description="IT-Beratung, Planung, Umsetzung und Dokumentation aus einer Hand. Wir stimmen uns mit Ihren Anbietern ab. Für kleine und mittlere Betriebe in Wien und Umgebung.",
     h1="Von der Idee bis zur laufenden Lösung, aus einer Hand",
     lead="Sie wissen, was in Ihrem Betrieb besser laufen soll, aber nicht, wie? Wir beraten, planen, setzen um, dokumentieren und stimmen uns mit Ihren Anbietern ab.",
