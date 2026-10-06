@@ -412,6 +412,10 @@ p { margin: 0 0 1em; max-width: 62ch; }
 .nav .nav-ico-wa { --ico-blue: #25a862; --ico-tint: rgba(37, 168, 98, 0.16); }
 .nav .nav-ico:hover { background: var(--teal-tint); border-color: var(--teal); }
 .nav-ico-t { display: none; }
+.nav a.nav-phone { display: inline-flex; align-items: center; gap: 6px; color: var(--teal-deep); font-weight: 700; padding-inline: 8px; }
+.nav a.nav-phone .ico { width: 24px; height: 24px; }
+.btn-wa-hero { gap: 8px; }
+.btn-wa-hero .ico { width: 26px; height: 26px; flex: none; }
 
 /* Mobile bar icon buttons */
 .btn-icon { flex: 0 0 52px !important; padding: 0 !important; }
@@ -420,6 +424,7 @@ p { margin: 0 0 1em; max-width: 62ch; }
 
 .foot-contact { line-height: 1.7; }
 @media (max-width: 1240px) {
+  .nav a.nav-phone { display: none; }
   .nav .nav-ico { width: auto; height: auto; min-height: 48px; justify-content: flex-start; border: 0; border-block-end: 1px solid var(--line); border-radius: 0; padding: 14px 4px; margin: 0; }
   .nav-ico-t { display: inline; font-weight: 600; color: var(--ink); }
 }

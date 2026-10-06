@@ -404,6 +404,8 @@ def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
             links += services_menu_html(t, label, href, cur)
         else:
             links += f'<a href="{href}"{cur}>{label}</a>'
+    if PHONE:
+        links += f'<a class="nav-phone" href="{tel_url()}" data-track="nav-call" aria-label="{t["call"]} {html.escape(PHONE)}">{icon_svg("kontakt-telefon", "sm")}<span dir="ltr">{html.escape(PHONE)}</span></a>'
     for oc in ("de", "en", "ar"):
         if oc == code or (oc == "en" and not ENABLE_EN):
             continue
@@ -529,6 +531,7 @@ def _render(meta, body):
     body = PHOTO_RE.sub(photo_html, body)
     body = body.replace("{{FORM}}", form_html(t, sector, meta.get("interest", "erstgespraech")))
     body = body.replace("{{CALL}}", call_buttons(t))
+    body = body.replace("{{WA_BTN}}", f'<a class="btn btn-primary btn-wa-hero" href="{wa_url(t)}" target="_blank" rel="noopener" data-track="hero-whatsapp">{icon_svg("kontakt-whatsapp", "sm")}{t["whatsapp"]}</a>' if WHATSAPP else "")
     body = re.sub(r'<a href="mailto:\{\{EMAIL\}\}" data-track="contact-mail"[^>]*>\{\{EMAIL\}\}</a>', lambda m: contact_card("mail", t, "contact-mail"), body)
     body = body.replace("{{EMAIL}}", EMAIL)
     body = body.replace("{{PHONE_LINE}}", contact_card("phone", t, "contact-call") if PHONE else "")
