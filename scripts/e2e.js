@@ -356,9 +356,17 @@ const ok = (name, cond, extra) => { assert(cond, name + (extra ? ' -> ' + extra 
   await win.click('nav [data-view=archive]'); await win.click('.seg [data-mode=all]'); await win.waitForTimeout(300);
   await set('save', out('lock.pdf'));
   await win.locator('#list tbody tr', { hasNotText: '🔒' }).first().getByText('PDF', { exact: true }).click(); await win.waitForTimeout(2500);
+  ok('PDF-Export sperrt NICHT automatisch', !JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8')).some((i) => i.lockedAt));
+  await win.evaluate(() => { window.__ans = false; window.__asked = ''; window.confirm = (m) => { window.__asked = m; return window.__ans; }; });
+  const firstRow = win.locator('#list tbody tr').first();
+  await firstRow.getByText('Sperren', { exact: true }).click(); await win.waitForTimeout(300);
+  ok('Sperren fragt nach (nicht rückgängig); bei Abbrechen bleibt die Rechnung offen', /NICHT rückgängig/.test(await win.evaluate(() => window.__asked)) && !JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8')).some((i) => i.lockedAt));
+  await win.evaluate(() => { window.__ans = true; });
+  await firstRow.getByText('Sperren', { exact: true }).click(); await win.waitForTimeout(500);
+  ok('Nach Bestätigung gesperrt, ohne Entsperren-Funktion', JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8')).filter((i) => i.lockedAt).length === 1 && (await win.evaluate(() => typeof api.unlockInvoice)) === 'undefined');
   // Sperre nach PDF: Löschen/Öffnen weg, Storno möglich, Server verweigert Änderungen
   const lockedRow = win.locator('#list tbody tr', { hasText: '🔒' }).first();
-  ok('Nach PDF-Export ist die Rechnung gesperrt (🔒), ohne Löschen/Öffnen', (await lockedRow.count()) === 1 && (await lockedRow.getByText('Löschen', { exact: true }).count()) === 0 && (await lockedRow.getByText('Öffnen', { exact: true }).count()) === 0 && (await lockedRow.getByText('Stornieren', { exact: true }).count()) === 1);
+  ok('Gesperrte Rechnung zeigt 🔒, ohne Löschen/Öffnen', (await lockedRow.count()) === 1 && (await lockedRow.getByText('Löschen', { exact: true }).count()) === 0 && (await lockedRow.getByText('Öffnen', { exact: true }).count()) === 0 && (await lockedRow.getByText('Stornieren', { exact: true }).count()) === 1);
   const lockedInv = JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8')).find((i) => i.lockedAt);
   const refused = await win.evaluate(async (i) => { try { await api.saveInvoice({ ...i, customer: 'Manipuliert' }); return 'saved'; } catch (e) { return String(e.message); } }, lockedInv);
   const refusedDel = await win.evaluate(async (id) => api.deleteInvoice(id), lockedInv.id);

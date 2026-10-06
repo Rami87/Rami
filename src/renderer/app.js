@@ -163,20 +163,14 @@ async function save() {
   toast('Gespeichert: ' + (saved.type === 'storno' ? 'Stornorechnung ' : 'Rechnung ') + saved.number + (w.length ? ' – Achtung: ' + w.join(' ') : ''), w.length > 0);
   return saved;
 }
-// PDF und Druck sperren die Rechnung: vorher einmal bestätigen lassen
-const confirmLock = () => confirm('Nach dem Speichern als PDF oder Drucken ist die Rechnung gesperrt.\n\nÄnderungen sind danach nur noch mit einer Stornorechnung möglich, und die Rechnung kann nicht mehr gelöscht werden.\n\nFortfahren?');
 $('#form').addEventListener('submit', (e) => { e.preventDefault(); save(); });
 $('#savePdf').onclick = async () => {
-  const cur = readInvoice();
-  if (!currentId && !cur.customer) { toast('Bitte Kunde und mindestens eine Position eingeben.', true); return; }
-  if (!confirmLock()) return;
   const saved = await save(); if (!saved) return;
   const r = await api.exportPdf(saved);
   if (r.ok) toast('PDF gespeichert: ' + r.filePath);
 };
 $('#previewBtn').onclick = () => api.previewInvoice(readInvoice());
 $('#printBtn').onclick = async () => {
-  if (!confirmLock()) return;
   const saved = await save(); if (!saved) return; // gedruckte Rechnungen landen immer im Archiv
   const r = await api.printInvoice(saved);
   if (r && r.ok === false && r.reason && r.reason !== 'cancelled') toast('Drucken nicht möglich: ' + r.reason, true);
@@ -286,7 +280,7 @@ async function loadList() {
     const locked = !!inv.lockedAt;
     if (!locked) mk('Öffnen', 'ghost', () => { show('new'); fillForm(inv); });
     mk('Vorschau', 'ghost', () => api.previewInvoice(inv));
-    mk('PDF', 'secondary', async () => { const r = await api.exportPdf(inv); if (r.ok) { toast('PDF gespeichert: ' + r.filePath); loadList(); } });
+    mk('PDF', 'secondary', async () => { const r = await api.exportPdf(inv); if (r.ok) toast('PDF gespeichert: ' + r.filePath); });
     if (locked && inv.type !== 'storno') {
       mk('Stornieren', 'danger', () => {
         if (!confirm('Zu Rechnung ' + inv.number + ' eine Stornorechnung (Gutschrift über den vollen Betrag) anlegen?\n\nSie bekommt eine neue Nummer und verweist auf die Originalrechnung.')) return;
@@ -298,6 +292,11 @@ async function loadList() {
           notes: 'Storno zu Rechnung ' + inv.number + ' vom ' + deDate(inv.date) + '.' });
       });
     }
+    if (!locked) mk('Sperren', 'secondary', async () => {
+      if (!confirm('Rechnung ' + inv.number + ' endgültig sperren?\n\nDanach kann sie weder geändert noch gelöscht werden. Das lässt sich NICHT rückgängig machen. Korrekturen sind nur noch mit einer Stornorechnung möglich.')) return;
+      const r = await api.lockInvoice(inv.id);
+      if (r && r.ok) { toast('Rechnung ' + inv.number + ' gesperrt.'); loadList(); } else toast('Die Rechnung konnte nicht gesperrt werden.', true);
+    });
     if (!locked) mk('Löschen', 'danger', async () => {
       if (!confirm('Rechnung ' + inv.number + ' wirklich löschen?')) return;
       const r = await api.deleteInvoice(inv.id);
