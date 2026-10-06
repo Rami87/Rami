@@ -34,11 +34,18 @@ function renderRail() {
 }
 
 // ---- Vorschau passend skalieren (A4 = 794 px Breite) ----
+// Kein CSS-Transform auf dem iframe (wurde unter Windows leer dargestellt): Der iframe füllt die Fläche,
+// die Seite darin wird per CSS-zoom verkleinert.
+const previewZoom = (wrap) => Math.max(0.2, ($(wrap).clientWidth || 794) / 794);
+const withZoom = (html, z) => html.replace('</head>', () => '<style>html{zoom:' + z.toFixed(4) + '}</style></head>');
+const pending = {};
+function setPreview(frame, wrap, build) { // gebündelt (alle 120 ms höchstens einmal), damit Tippen flüssig bleibt
+  clearTimeout(pending[frame]);
+  pending[frame] = setTimeout(() => { $(frame).srcdoc = withZoom(build(), previewZoom(wrap)); }, 120);
+}
 function fitPreview() {
-  [['#sheetwrap', '#preview'], ['#kvSheetwrap', '#kvPreview']].forEach(([wrap, frame]) => {
-    const w = $(wrap).clientWidth;
-    if (w) $(frame).style.transform = 'scale(' + w / 794 + ')';
-  });
+  if ($('#sheetwrap').clientWidth && typeof refreshPreview === 'function') refreshPreview();
+  if ($('#kvSheetwrap').clientWidth && typeof refreshKv === 'function') refreshKv();
 }
 new ResizeObserver(fitPreview).observe($('#sheetwrap'));
 new ResizeObserver(fitPreview).observe($('#kvSheetwrap'));
@@ -103,7 +110,7 @@ function readInvoice() {
     customer: f.customer.value.trim(), customerAddress: f.customerAddress.value.trim(), customerUid: f.customerUid.value.trim(),
     discount: +f.discount.value || 0, taxRate: +f.taxRate.value || 0, taxNote: f.taxNote.value.trim(),
     notes: f.notes.value.trim(), currency: settings.currency,
-    items: [...document.querySelectorAll('.item:not(.head)')].map((d) => ({
+    items: [...document.querySelectorAll('#items .item:not(.head)')].map((d) => ({
       description: d.querySelector('.desc').value.trim(), qty: +d.querySelector('.qty').value || 0, price: +d.querySelector('.price').value || 0,
     })).filter((i) => i.description || i.price),
   };
@@ -129,9 +136,9 @@ function fillForm(inv) {
 function refreshPreview() {
   const inv = readInvoice();
   if (!inv.number && !inv.id) inv.number = suggested;
-  document.querySelectorAll('.item:not(.head)').forEach((d) => { d.querySelector('.amt').textContent = eur((+d.querySelector('.qty').value || 0) * (+d.querySelector('.price').value || 0), ''); });
+  document.querySelectorAll('#items .item:not(.head)').forEach((d) => { d.querySelector('.amt').textContent = eur((+d.querySelector('.qty').value || 0) * (+d.querySelector('.price').value || 0), ''); });
   $('#total').textContent = eur(InvoiceHtml.totals(inv).total, settings.currency);
-  $('#preview').srcdoc = InvoiceHtml.build(inv, settings);
+  setPreview('#preview', '#sheetwrap', () => InvoiceHtml.build(inv, settings));
 }
 $('#form').addEventListener('input', refreshPreview);
 $('#form').elements.date.addEventListener('change', updateSuggested);
@@ -389,7 +396,7 @@ function refreshKv() {
   if (!e.number && !e.id) e.number = kvSuggested;
   document.querySelectorAll('#kvItems .item').forEach((d) => { d.querySelector('.amt').textContent = eur((+d.querySelector('.qty').value || 0) * (+d.querySelector('.price').value || 0), ''); });
   $('#kvTotal').textContent = eur(InvoiceHtml.totals(e).total, settings.currency);
-  $('#kvPreview').srcdoc = EstimateHtml.build(e, settings);
+  setPreview('#kvPreview', '#kvSheetwrap', () => EstimateHtml.build(e, settings));
 }
 $('#kvForm').addEventListener('input', refreshKv);
 $('#kvForm').addEventListener('change', (e) => {

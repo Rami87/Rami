@@ -314,7 +314,14 @@ const ok = (name, cond, extra) => { assert(cond, name + (extra ? ' -> ' + extra 
   ok('Rechnung vorausgefüllt: Kunde, Position, Entgelt als Rabatt, Verweis auf KV',
     (await win.inputValue('#form [name=customer]')).includes('Kunde') && (await win.inputValue('#form [name=discount]')) === '25'
     && (await win.inputValue('#form [name=notes]')).includes('Gemäß Kostenvoranschlag ' + k1) && (await win.inputValue('#items .item .qty')) === '2');
+  const kvN = readE().find((e) => e.number === k1).items.length;
+  ok('In Rechnung: Positionen nicht verdoppelt (Formular und Vorschau-Summe)', (await win.locator('#items .item').count()) === kvN && (await win.locator('#kvItems .item').count()) >= 0, String(kvN));
+  await win.waitForTimeout(400);
+  const lf = win.frames().find((f) => f !== win.mainFrame() && f.url() === 'about:srcdoc');
+  ok('Live-Vorschau zeigt die Rechnung (Kunde, Zoom statt Transform)', lf && (await lf.evaluate(() => document.body.innerText)).includes((await win.inputValue('#form [name=customer]')).slice(0, 5)) && (await win.locator('#preview').evaluate((f) => getComputedStyle(f).transform)) === 'none');
   await win.click('#form button[type=submit]'); await win.waitForTimeout(400);
+  const lastInv = JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8')).find((i) => (i.notes || '').includes('Gemäß Kostenvoranschlag ' + k1));
+  ok('Gespeicherte Rechnung hat genau die Positionen des Kostenvoranschlags', lastInv && lastInv.items.length === kvN, lastInv && String(lastInv.items.length));
   ok('Kostenvoranschlag danach „angenommen“, Rechnung gespeichert', readE().find((e) => e.number === k1).status === 'angenommen' && JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8')).some((i) => i.notes.includes(k1)));
   await win.click('nav [data-view=settings]');
   await win.locator('.clauserow').first().locator('.cx').fill('GEÄNDERT: nur nach Rücksprache.');
