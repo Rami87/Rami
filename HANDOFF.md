@@ -58,7 +58,7 @@ Gesprächssprache mit dem Inhaber: Arabisch. Er prüft die Texte selbst online.
 ## Offen
 Inhalt und Recht:
 - Firmendaten für Impressum und Datenschutz (Entwürfe mit noindex, in Österreich Pflicht). Nicht werben oder live gehen, bevor sie vollständig sind.
-- Echte Logo-Datei (SVG/AI/PDF), Social-Handles (Platzhalter `horaniq.at`).
+- Logo als SVG liegt jetzt in `site/assets/img/horaniq-logo.svg` (saubere Vektor-Rekonstruktion des Rasterlogos, nicht die Originaldatei des Designers; die Website nutzt weiter `horaniq-logo.webp`). Original-Quelle (AI/PDF) und Social-Handles (Platzhalter `horaniq.at`) fehlen noch.
 - Druckmaterial und `HORANiQ-Fonts.zip` nutzen noch Instrument Sans / IBM Plex Sans Arabic und müssten auf Manrope / Readex Pro umgestellt werden.
 - Entscheidung des Inhabers: Das Wort "Kostenloses" steht nicht mehr in den deutschen Buttons (nur noch im Kontaktbereich). Bestätigen oder wieder aufnehmen.
 
