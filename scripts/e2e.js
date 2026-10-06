@@ -58,12 +58,13 @@ const ok = (name, cond, extra) => { assert(cond, name + (extra ? ' -> ' + extra 
   await win.fill('#settingsForm [name=bank]', 'BAWAG');
   await win.fill('#settingsForm [name=iban]', 'AT736000040510117567');
   await win.fill('#settingsForm [name=bic]', 'BAWAATWW');
+  await win.fill('#settingsForm [name=footerExtra]', 'FN 123456a · Handelsgericht Wien');
   await win.fill('#colorHex', '#0b7a4b');
   await win.click('#settingsForm button[type=submit]');
   await win.waitForTimeout(300);
   const settingsFile = path.join(out('profile'), 'data', 'settings.json');
   const saved = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
-  ok('Einstellungen als JSON gespeichert', saved.companyName.startsWith('Prince') && saved.color === '#0b7a4b' && saved.iban === 'AT736000040510117567');
+  ok('Einstellungen als JSON gespeichert', saved.companyName.startsWith('Prince') && saved.color === '#0b7a4b' && saved.iban === 'AT736000040510117567' && saved.footerExtra === 'FN 123456a · Handelsgericht Wien');
   ok('Kein XSS über Firmenname (Seitenleiste, Briefkopf)', !(await win.evaluate(() => window.__xss)) && (await win.locator('#railName').textContent()).includes('<img'));
 
   console.log('Rechnungen');
@@ -79,7 +80,7 @@ const ok = (name, cond, extra) => { assert(cond, name + (extra ? ' -> ' + extra 
   await win.evaluate(() => { window.__ans = true; });
   await win.click('#reset');
   ok('Nach Bestätigen ist das Formular leer', (await win.inputValue('#form [name=customer]')) === '');
-  const today = new Date().toISOString().slice(0, 10);
+  const ld = new Date(); const today = ld.getFullYear() + '-' + String(ld.getMonth() + 1).padStart(2, '0') + '-' + String(ld.getDate()).padStart(2, '0');
   const pre = today.slice(8, 10) + today.slice(5, 7) + today.slice(2, 4);
   async function createInvoice(customer, price) {
     await win.click('nav [data-view=new]'); await win.click('#reset');
@@ -351,6 +352,25 @@ const ok = (name, cond, extra) => { assert(cond, name + (extra ? ' -> ' + extra 
   await row('Kunde Neu').first().getByText('Löschen', { exact: true }).click(); await win.waitForTimeout(400);
   ok('Löschen entfernt den Kostenvoranschlag', readE().length === 3);
 
+  console.log('Sperre und Storno');
+  await win.click('nav [data-view=archive]'); await win.click('.seg [data-mode=all]'); await win.waitForTimeout(300);
+  await set('save', out('lock.pdf'));
+  await win.locator('#list tbody tr', { hasNotText: '🔒' }).first().getByText('PDF', { exact: true }).click(); await win.waitForTimeout(2500);
+  // Sperre nach PDF: Löschen/Öffnen weg, Storno möglich, Server verweigert Änderungen
+  const lockedRow = win.locator('#list tbody tr', { hasText: '🔒' }).first();
+  ok('Nach PDF-Export ist die Rechnung gesperrt (🔒), ohne Löschen/Öffnen', (await lockedRow.count()) === 1 && (await lockedRow.getByText('Löschen', { exact: true }).count()) === 0 && (await lockedRow.getByText('Öffnen', { exact: true }).count()) === 0 && (await lockedRow.getByText('Stornieren', { exact: true }).count()) === 1);
+  const lockedInv = JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8')).find((i) => i.lockedAt);
+  const refused = await win.evaluate(async (i) => { try { await api.saveInvoice({ ...i, customer: 'Manipuliert' }); return 'saved'; } catch (e) { return String(e.message); } }, lockedInv);
+  const refusedDel = await win.evaluate(async (id) => api.deleteInvoice(id), lockedInv.id);
+  ok('Gesperrte Rechnung: Ändern und Löschen werden vom Programm verweigert', /gesperrt/.test(refused) && refusedDel.ok === false && JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8')).some((i) => i.id === lockedInv.id && i.customer === lockedInv.customer), refused);
+  await win.evaluate(() => { window.confirm = () => true; });
+  await lockedRow.getByText('Stornieren', { exact: true }).click(); await win.waitForTimeout(500);
+  ok('Storno: neue Stornorechnung mit negativen Mengen und Verweis', (await win.inputValue('#form [name=notes]')).includes('Storno zu Rechnung ' + lockedInv.number) && (await win.locator('.item .qty').first().inputValue()).startsWith('-') && /Stornorechnung/.test(await win.locator('#formTitle').textContent()));
+  await win.click('#form button[type=submit]'); await win.waitForTimeout(400);
+  const stornoInv = JSON.parse(fs.readFileSync(path.join(out('profile'), 'data', 'invoices.json'), 'utf8')).find((i) => i.type === 'storno');
+  ok('Stornorechnung gespeichert: neue Nummer, verweist auf das Original', stornoInv && stornoInv.number !== lockedInv.number && stornoInv.stornoOf === lockedInv.id && stornoInv.items[0].qty < 0 && !stornoInv.lockedAt);
+  await win.click('nav [data-view=archive]'); await win.waitForTimeout(300);
+  ok('Archiv kennzeichnet Storno', (await win.locator('#list tbody tr', { hasText: '(Storno)' }).count()) === 1);
   ok('Keine JavaScript-Fehler in der Oberfläche', errs.length === 0, errs.join(' | '));
   await app.close();
   console.log('\n' + passed + ' Prüfungen bestanden');

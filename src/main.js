@@ -50,6 +50,7 @@ async function exportPdf(win, inv) {
   const filePath = await saveDialog(win, docFileName(inv), [{ name: 'PDF', extensions: ['pdf'] }]);
   if (!filePath) return { ok: false };
   fs.writeFileSync(filePath, pdf);
+  if (inv && inv.id && !isEstimate(inv)) store.lockInvoice(inv.id);
   return { ok: true, filePath };
 }
 
@@ -59,14 +60,17 @@ async function printInvoice(inv) {
   try {
     await win.loadURL(htmlUrl(buildHtml(inv)));
     return await new Promise((resolve) => {
-      win.webContents.print({ printBackground: true, pageSize: 'A4' }, (success, reason) => resolve({ ok: success, reason }));
+      win.webContents.print({ printBackground: true, pageSize: 'A4' }, (success, reason) => {
+        if (success && inv && inv.id && !isEstimate(inv)) store.lockInvoice(inv.id);
+        resolve({ ok: success, reason });
+      });
     });
   } finally { win.destroy(); }
 }
 
 function lockNavigation(win) {
   // Nur die Entwickler-Links dürfen extern geöffnet werden; sonst bleibt die App geschlossen für Navigation.
-  const allowed = (u) => u.startsWith('https://horaniq.at') || u === 'mailto:Rami@horaniq.at';
+  const allowed = (u) => { try { return new URL(u).origin === 'https://horaniq.at' || u === 'mailto:Rami@horaniq.at'; } catch { return false; } };
   win.webContents.setWindowOpenHandler(({ url }) => { if (allowed(url)) shell.openExternal(url); return { action: 'deny' }; });
   win.webContents.on('will-navigate', (e, url) => { if (url !== win.webContents.getURL()) { e.preventDefault(); if (allowed(url)) shell.openExternal(url); } });
 }
@@ -87,7 +91,13 @@ function openPreview(parent, inv) {
   win.loadFile(path.join(__dirname, 'renderer', 'preview.html'));
 }
 
+// Nur eine Programmkopie gleichzeitig: zwei Kopien würden dieselben Dateien überschreiben
+const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) app.quit();
+else app.on('second-instance', () => { const w = BrowserWindow.getAllWindows()[0]; if (w) { if (w.isMinimized()) w.restore(); w.focus(); } });
+
 app.whenReady().then(() => {
+  if (!gotLock) return;
   store = new Store(path.join(app.getPath('userData'), 'data'));
   const winOf = (e) => BrowserWindow.fromWebContents(e.sender);
   ipcMain.handle('settings:get', () => store.getSettings());
@@ -95,7 +105,7 @@ app.whenReady().then(() => {
   ipcMain.handle('invoices:list', (_, q, period) => store.listInvoices(q, period));
   ipcMain.handle('invoices:get', (_, id) => store.getInvoice(id));
   ipcMain.handle('invoices:save', (_, inv) => store.saveInvoice(inv));
-  ipcMain.handle('invoices:delete', (_, id) => store.deleteInvoice(id));
+  ipcMain.handle('invoices:delete', (_, id) => { try { store.deleteInvoice(id); return { ok: true }; } catch (err) { return { ok: false, error: err.message }; } });
   ipcMain.handle('invoices:nextNumber', (_, date) => store.nextNumber(date));
   ipcMain.handle('invoices:csv', async (e, q, period) => {
     const list = store.listInvoices(q, period);

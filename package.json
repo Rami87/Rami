@@ -23,8 +23,8 @@
     "copyright": "© Rami Horani, HoraniQ IT-Lösungen"
   },
   "devDependencies": {
-    "electron": "^33.0.0",
-    "electron-builder": "^25.0.0",
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3",
     "playwright-core": "^1.48.0"
   },
   "license": "MIT",

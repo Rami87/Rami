@@ -50,7 +50,7 @@
             <div class="grid3">
               <label>Rechnungsnummer<input name="number" placeholder="automatisch" inputmode="numeric"></label>
               <label>Rechnungsdatum<input name="date" type="date" required></label>
-              <label>Leistungsdatum<input name="serviceDate" type="date"></label>
+              <label>Leistungsdatum<input name="serviceDate" type="date" title="Leer = Rechnungsdatum"></label>
             </div>
           </fieldset>
 
@@ -72,7 +72,7 @@
           <fieldset>
             <legend>Steuer und Hinweise</legend>
             <div class="grid2">
-              <label>Rabatt (netto)<input name="discount" type="number" min="0" step="0.01" value="0"></label>
+              <label>Rabatt (netto)<input name="discount" type="number" step="0.01" value="0"></label>
               <label>Umsatzsteuer<select name="taxRate"></select></label>
             </div>
             <label>Steuerhinweis<textarea name="taxNote" rows="2"></textarea></label>
@@ -319,6 +319,7 @@
               <label>Firmenname<input name="companyName" required></label>
               <label>Adresse<textarea name="address" rows="3"></textarea></label>
               <label>UID-Nr.<input name="uid" placeholder="ATU12345678"></label>
+              <label>Zusatzzeile in der Fußzeile<textarea name="footerExtra" rows="2" placeholder="z. B. FN 123456a · Handelsgericht Wien · Rechtsform: e. U."></textarea></label>
             </fieldset>
 
             <fieldset>

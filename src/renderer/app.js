@@ -77,7 +77,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 function addItem(it = { description: '', qty: 1, price: 0 }) {
   const d = document.createElement('div');
   d.className = 'item';
-  d.innerHTML = '<input class="desc" list="catalogList" placeholder="Bezeichnung" aria-label="Bezeichnung"><input class="qty" type="number" min="0" step="any" aria-label="Menge"><input class="price" type="number" min="0" step="any" aria-label="Preis netto"><span class="amt">0,00</span><button type="button" class="danger icon" title="Position entfernen" aria-label="Position entfernen"><svg><use href="#i-x"/></svg></button>';
+  d.innerHTML = '<input class="desc" list="catalogList" placeholder="Bezeichnung" aria-label="Bezeichnung"><input class="qty" type="number" step="any" aria-label="Menge"><input class="price" type="number" min="0" step="any" aria-label="Preis netto"><span class="amt">0,00</span><button type="button" class="danger icon" title="Position entfernen" aria-label="Position entfernen"><svg><use href="#i-x"/></svg></button>';
   d.querySelector('.desc').value = it.description;
   d.querySelector('.qty').value = it.qty;
   d.querySelector('.price').value = it.price;
@@ -94,9 +94,11 @@ async function updateSuggested() {
   f.number.placeholder = suggested + ' (automatisch)';
   if (!currentId) refreshPreview();
 }
+let invExtra = {}; // type / stornoOf... einer Stornorechnung
 function readInvoice() {
   const f = $('#form').elements;
   return {
+    ...invExtra,
     id: currentId || undefined, number: f.number.value.trim(), date: f.date.value, serviceDate: f.serviceDate.value,
     customer: f.customer.value.trim(), customerAddress: f.customerAddress.value.trim(), customerUid: f.customerUid.value.trim(),
     discount: +f.discount.value || 0, taxRate: +f.taxRate.value || 0, taxNote: f.taxNote.value.trim(),
@@ -109,7 +111,8 @@ function readInvoice() {
 function fillForm(inv) {
   const f = $('#form').elements;
   currentId = inv.id || null;
-  $('#formTitle').textContent = inv.id ? 'Rechnung ' + inv.number : 'Neue Rechnung';
+  invExtra = inv.type === 'storno' ? { type: 'storno', stornoOf: inv.stornoOf, stornoOfNumber: inv.stornoOfNumber, stornoOfDate: inv.stornoOfDate } : {};
+  $('#formTitle').textContent = inv.id ? (inv.type === 'storno' ? 'Stornorechnung ' : 'Rechnung ') + inv.number : inv.type === 'storno' ? 'Neue Stornorechnung' : 'Neue Rechnung';
   const isNew = !inv.id;
   const rate = inv.taxRate != null ? inv.taxRate : (settings.taxRate || 0);
   fillTaxSelect(f.taxRate, rate);
@@ -141,23 +144,39 @@ $('#form').elements.taxRate.addEventListener('change', (e) => {
 });
 $('#addItem').onclick = () => addItem();
 $('#reset').onclick = () => { if (confirm('Wirklich neu beginnen?\n\nAlle Eingaben dieser Rechnung gehen verloren.')) fillForm({}); };
+// Hinweise nach dem Speichern (verhindern nichts): Pflichtangaben nach § 11 UStG
+function invoiceWarnings(inv) {
+  const gross = Math.abs(InvoiceHtml.totals(inv).total), w = [];
+  if (gross > 400 && !inv.customerAddress) w.push('Über 400 €: Die Anschrift des Kunden ist Pflicht (§ 11 UStG).');
+  if (gross > 10000 && !inv.customerUid) w.push('Über 10.000 €: Die UID-Nr. des Kunden ist Pflicht (§ 11 UStG).');
+  return w;
+}
 async function save() {
   const inv = readInvoice();
   if (!inv.customer || !inv.items.length) { toast('Bitte Kunde und mindestens eine Position eingeben.', true); return null; }
-  const saved = await api.saveInvoice(inv);
+  let saved;
+  try { saved = await api.saveInvoice(inv); } catch (err) { toast(String(err.message || err).replace(/^Error invoking remote method '[^']*': (Error: )?/, ''), true); return null; }
   currentId = saved.id; $('#form').elements.number.value = saved.number;
   settings = await api.getSettings();
-  $('#formTitle').textContent = 'Rechnung ' + saved.number; toast('Gespeichert: Rechnung ' + saved.number);
+  $('#formTitle').textContent = (saved.type === 'storno' ? 'Stornorechnung ' : 'Rechnung ') + saved.number;
+  const w = invoiceWarnings(saved);
+  toast('Gespeichert: ' + (saved.type === 'storno' ? 'Stornorechnung ' : 'Rechnung ') + saved.number + (w.length ? ' – Achtung: ' + w.join(' ') : ''), w.length > 0);
   return saved;
 }
+// PDF und Druck sperren die Rechnung: vorher einmal bestätigen lassen
+const confirmLock = () => confirm('Nach dem Speichern als PDF oder Drucken ist die Rechnung gesperrt.\n\nÄnderungen sind danach nur noch mit einer Stornorechnung möglich, und die Rechnung kann nicht mehr gelöscht werden.\n\nFortfahren?');
 $('#form').addEventListener('submit', (e) => { e.preventDefault(); save(); });
 $('#savePdf').onclick = async () => {
+  const cur = readInvoice();
+  if (!currentId && !cur.customer) { toast('Bitte Kunde und mindestens eine Position eingeben.', true); return; }
+  if (!confirmLock()) return;
   const saved = await save(); if (!saved) return;
   const r = await api.exportPdf(saved);
   if (r.ok) toast('PDF gespeichert: ' + r.filePath);
 };
 $('#previewBtn').onclick = () => api.previewInvoice(readInvoice());
 $('#printBtn').onclick = async () => {
+  if (!confirmLock()) return;
   const saved = await save(); if (!saved) return; // gedruckte Rechnungen landen immer im Archiv
   const r = await api.printInvoice(saved);
   if (r && r.ok === false && r.reason && r.reason !== 'cancelled') toast('Drucken nicht möglich: ' + r.reason, true);
@@ -259,15 +278,32 @@ async function loadList() {
   $('#empty').hidden = list.length > 0;
   for (const inv of list) {
     const tr = document.createElement('tr');
-    [inv.number, deDate(inv.date), inv.customer, eur(InvoiceHtml.totals(inv).total, inv.currency)].forEach((c, i) => {
+    [inv.number + (inv.type === 'storno' ? ' (Storno)' : '') + (inv.lockedAt ? ' 🔒' : ''), deDate(inv.date), inv.customer, eur(InvoiceHtml.totals(inv).total, inv.currency)].forEach((c, i) => {
       const td = document.createElement('td'); td.textContent = c; if (i === 0) td.className = 'num'; if (i === 3) td.className = 'r'; tr.appendChild(td);
     });
     const td = document.createElement('td'); td.className = 'act';
     const mk = (t, cls, fn) => { const b = document.createElement('button'); b.textContent = t; b.className = cls; b.onclick = fn; td.appendChild(b); };
-    mk('Öffnen', 'ghost', () => { show('new'); fillForm(inv); });
+    const locked = !!inv.lockedAt;
+    if (!locked) mk('Öffnen', 'ghost', () => { show('new'); fillForm(inv); });
     mk('Vorschau', 'ghost', () => api.previewInvoice(inv));
-    mk('PDF', 'secondary', async () => { const r = await api.exportPdf(inv); if (r.ok) toast('PDF gespeichert: ' + r.filePath); });
-    mk('Löschen', 'danger', async () => { if (confirm('Rechnung ' + inv.number + ' wirklich löschen?')) { await api.deleteInvoice(inv.id); toast('Rechnung ' + inv.number + ' gelöscht.'); loadList(); } });
+    mk('PDF', 'secondary', async () => { const r = await api.exportPdf(inv); if (r.ok) { toast('PDF gespeichert: ' + r.filePath); loadList(); } });
+    if (locked && inv.type !== 'storno') {
+      mk('Stornieren', 'danger', () => {
+        if (!confirm('Zu Rechnung ' + inv.number + ' eine Stornorechnung (Gutschrift über den vollen Betrag) anlegen?\n\nSie bekommt eine neue Nummer und verweist auf die Originalrechnung.')) return;
+        const t = todayStr();
+        show('new');
+        fillForm({ type: 'storno', stornoOf: inv.id, stornoOfNumber: inv.number, stornoOfDate: inv.date, date: t, serviceDate: inv.serviceDate || inv.date,
+          customer: inv.customer, customerAddress: inv.customerAddress, customerUid: inv.customerUid, taxRate: inv.taxRate, taxNote: inv.taxNote,
+          discount: -(Number(inv.discount) || 0), items: (inv.items || []).map((i) => ({ ...i, qty: -(Number(i.qty) || 0) })),
+          notes: 'Storno zu Rechnung ' + inv.number + ' vom ' + deDate(inv.date) + '.' });
+      });
+    }
+    if (!locked) mk('Löschen', 'danger', async () => {
+      if (!confirm('Rechnung ' + inv.number + ' wirklich löschen?')) return;
+      const r = await api.deleteInvoice(inv.id);
+      if (r && r.ok === false) { toast(r.error, true); return; }
+      toast('Rechnung ' + inv.number + ' gelöscht.'); loadList();
+    });
     tr.appendChild(td); tb.appendChild(tr);
   }
 }
@@ -669,7 +705,7 @@ function renderLetterhead() {
 $('#settingsForm').addEventListener('input', renderLetterhead);
 function fillSettings() {
   const f = $('#settingsForm').elements;
-  ['companyName', 'address', 'uid', 'phone', 'email', 'bank', 'iban', 'bic', 'currency', 'taxNote'].forEach((k) => (f[k].value = settings[k] || ''));
+  ['companyName', 'address', 'uid', 'footerExtra', 'phone', 'email', 'bank', 'iban', 'bic', 'currency', 'taxNote'].forEach((k) => (f[k].value = settings[k] || ''));
   f.epcQr.checked = settings.epcQr !== false;
   fillTaxSelect(f.taxRate, settings.taxRate || 0);
   buildSwatches(); setColor(settings.color);
@@ -696,7 +732,7 @@ $('#settingsForm').addEventListener('submit', async (e) => {
   if (!validHex(color)) { toast('Ungültige Farbe. Beispiel: #0b7a4b', true); return; }
   const catalog = [...document.querySelectorAll('.cat')].map((d) => ({ description: d.querySelector('.cd').value.trim(), price: +d.querySelector('.cp').value || 0 })).filter((c) => c.description);
   settings = await api.saveSettings({
-    companyName: f.companyName.value.trim(), address: f.address.value, uid: f.uid.value.trim(),
+    companyName: f.companyName.value.trim(), address: f.address.value, uid: f.uid.value.trim(), footerExtra: f.footerExtra.value.trim(),
     phone: f.phone.value.trim(), email: f.email.value.trim(), bank: f.bank.value.trim(), iban: f.iban.value.trim(), bic: f.bic.value.trim(),
     color, epcQr: f.epcQr.checked, currency: f.currency.value.trim() || '€', taxRate: +f.taxRate.value || 0,
     taxNote: f.taxNote.value.trim(), logo: settings.logo, catalog,

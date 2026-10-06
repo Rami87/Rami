@@ -22,7 +22,7 @@ assert.deepStrictEqual([a.number, b.number], ['01012601', '01022601']);
 const a2 = s.saveInvoice({ date: '2026-01-01', customer: 'Zweite', items: [] });
 assert.strictEqual(a2.number, '01012602');
 s.deleteInvoice(a2.id);
-assert.strictEqual(s.nextNumber('2026-01-01'), '01012602'); // nach Löschen der letzten wird die Nummer wieder frei
+assert.strictEqual(s.nextNumber('2026-01-01'), '01012603'); // eine vergebene Nummer wird nie wieder vergeben
 assert.strictEqual(s.nextNumber('2026-10-02'), '02102601'); // neuer Tag beginnt wieder bei 01
 const old = new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'inv-')));
 old.saveInvoice({ date: '2026-10-02', customer: 'X', number: '1102604', items: [] }); // alte Nummern stören nicht
@@ -171,5 +171,38 @@ const pbk = BK.parseBackup(BK.createBackup(es.getSettings(), [], new Date(), { e
 assert.strictEqual(pbk.estimates.length, 1); assert.strictEqual(pbk.settings.kvClauses.length, Est.DEFAULT_CLAUSES.length);
 assert.strictEqual(BK.parseBackup(JSON.stringify({ app: 'rechnungen-backup', format: 1, invoices: [] })).estimates, null, 'alte Sicherung ohne Kostenvoranschläge');
 assert.strictEqual(BK.parseBackup(JSON.stringify({ app: 'rechnungen-backup', format: 1, invoices: [], settings: { kvClauses: 'x', kvValidDays: -5 } })).settings.kvValidDays, 1);
+
+// ---- Phase 1: Sperre, Storno-Felder, Rundung, Zähler ----
+{
+  const t = new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'lock-')));
+  const x = t.saveInvoice({ date: '2026-10-06', customer: 'A', items: [{ description: 'x', qty: 1, price: 5 }] });
+  t.lockInvoice(x.id);
+  assert(t.getInvoice(x.id).lockedAt, 'gesperrt');
+  assert.throws(() => t.saveInvoice({ ...x, customer: 'B' }), /gesperrt/);
+  assert.throws(() => t.deleteInvoice(x.id), /esperrt/);
+  assert.strictEqual(t.getInvoice(x.id).customer, 'A');
+  const forged = t.saveInvoice({ date: '2026-10-06', customer: 'C', lockedAt: '2020-01-01', items: [] });
+  assert(!forged.lockedAt, 'lockedAt kommt nie von außen');
+  const y = t.saveInvoice({ date: '2026-10-06', customer: 'D', items: [] });
+  t.deleteInvoice(y.id); t.deleteInvoice(forged.id);
+  assert.strictEqual(t.nextNumber('2026-10-06'), '06102604', 'Zähler sinkt nach dem Löschen nicht');
+  const bk = BK.parseBackup(BK.createBackup(t.getSettings(), t.allInvoices()));
+  assert(bk.invoices[0].lockedAt, 'Sperre bleibt in der Sicherung');
+  const st = BK.parseBackup(BK.createBackup(t.getSettings(), [{ ...x, type: 'storno', stornoOf: x.id, stornoOfNumber: x.number }])).invoices[0];
+  assert.strictEqual(st.type, 'storno'); assert.strictEqual(st.stornoOf, x.id);
+  const r = new Store(fs.mkdtempSync(path.join(os.tmpdir(), 'lock-'))); r.replaceInvoices(bk.invoices);
+  assert.strictEqual(r.nextNumber('2026-10-06'), '06102602', 'Zähler nach Wiederherstellung');
+}
+{
+  const IH = require('../src/invoice-html');
+  const t1 = IH.totals({ items: [{ qty: 1, price: 0.5 }], taxRate: 13 });
+  assert.deepStrictEqual([t1.net, t1.tax, t1.total], [0.5, 0.07, 0.57], 'Rundung: Netto + Steuer = Gesamt');
+  const t2 = IH.totals({ items: [{ qty: -2, price: 10 }], discount: -5, taxRate: 20 });
+  assert.deepStrictEqual([t2.net, t2.tax, t2.total], [-15, -3, -18], 'Stornorechnung negativ');
+  const html = IH.build({ number: '07102601', date: '2026-10-07', type: 'storno', stornoOfNumber: '06102601', stornoOfDate: '2026-10-06', customer: 'K', items: [{ description: 'x', qty: -1, price: 10 }], taxRate: 0, currency: '€' }, { companyName: 'F', footerExtra: 'FN 1a <b>', color: '#112233' });
+  assert(html.includes('Stornorechnung') && html.includes('06102601') && html.includes('FN 1a &lt;b&gt;') && html.includes('Leistungsdatum:</b> 07.10.2026'), 'Storno-Titel, Verweis, Fußzeile, Leistungsdatum');
+  assert(!/Zahlen mit Code/.test(html), 'kein QR bei negativem Betrag');
+  assert.strictEqual(require('../src/store').localDate(new Date(2026, 9, 6, 0, 30)), '2026-10-06', 'lokales Datum');
+}
 
 console.log('Alle Tests bestanden');

@@ -46,12 +46,14 @@
     } catch { return ''; }
   }
 
+  // Beträge auf Cent runden: Netto und Steuer einzeln, Gesamt = Netto + Steuer (Summe der gezeigten Zeilen stimmt immer)
+  const r2 = (n) => Math.round((Number(n) + (Number(n) < 0 ? -1e-9 : 1e-9)) * 100) / 100;
   function totals(inv) {
-    const subtotal = (inv.items || []).reduce((s, it) => s + (Number(it.qty) || 0) * (Number(it.price) || 0), 0);
-    const discount = Number(inv.discount) || 0;
-    const net = Math.max(subtotal - discount, 0);
-    const tax = net * ((Number(inv.taxRate) || 0) / 100);
-    return { subtotal, discount, net, tax, total: net + tax };
+    const subtotal = r2((inv.items || []).reduce((s, it) => s + r2((Number(it.qty) || 0) * (Number(it.price) || 0)), 0));
+    const discount = r2(Number(inv.discount) || 0);
+    const net = subtotal < 0 ? r2(subtotal - discount) : Math.max(r2(subtotal - discount), 0); // Stornorechnung: negative Beträge
+    const tax = r2(net * ((Number(inv.taxRate) || 0) / 100));
+    return { subtotal, discount, net, tax, total: r2(net + tax) };
   }
 
   // Gemeinsames Layout für Rechnung und Kostenvoranschlag (src/estimate.js).
@@ -64,8 +66,8 @@
     const col1 = [settings.companyName, settings.address].filter(Boolean).join('\n');
     const col2 = [settings.bank && `Bank: ${settings.bank}`, settings.iban && `IBAN: ${iban(settings.iban)}`, settings.bic && `BIC: ${settings.bic}`].filter(Boolean).join('\n');
     const col3 = [settings.phone && `Tel.: ${settings.phone}`, settings.email && `E-Mail: ${settings.email}`, settings.uid && `UID-Nr.: ${settings.uid}`].filter(Boolean).join('\n');
-    const footer = [col1, col2, col3].some(Boolean)
-      ? `<footer><div>${esc(col1)}</div><div>${esc(col2)}${o.qr ? epcQr(inv, settings, t.total) : ''}</div><div>${esc(col3)}</div></footer>` : '';
+    const footer = [col1, col2, col3, settings.footerExtra].some(Boolean)
+      ? `<footer><div>${esc(col1)}</div><div>${esc(col2)}${o.qr ? epcQr(inv, settings, t.total) : ''}</div><div>${esc(col3)}</div>${settings.footerExtra ? `<div class="footextra">${esc(settings.footerExtra)}</div>` : ''}</footer>` : '';
     return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>${esc(o.pageTitle)}</title>
 <style>
   @page { size: A4; margin: 14mm; }
@@ -94,6 +96,7 @@
   .page { display: flex; flex-direction: column; min-height: 262mm; }
   .page > .grow { flex: 1; }
   footer { break-inside: avoid; margin-top: 28px; border-top: 1px solid #ccc; padding-top: 10px; color: #444; font-size: 11px; line-height: 1.5; display: grid; grid-template-columns: 1.2fr 1.3fr 1fr; gap: 16px; }
+  footer .footextra { grid-column: 1 / -1; border-top: 1px solid #e1e4e8; padding-top: 6px; }
   .epc { margin-top: 6px; white-space: normal; }
   .epc svg { width: 22mm; height: 22mm; display: block; }
   .epc span { font-size: 9px; color: #666; }
@@ -132,8 +135,8 @@ ${footer}
 
   function build(inv, settings) {
     return layout(inv, settings, {
-      docTitle: 'Rechnung', pageTitle: 'Rechnung ' + inv.number, qr: true, customerLabel: 'Kunde', rows: itemRows(inv), sum: sumBlock(inv, settings, 'Gesamtbetrag'),
-      meta: `<b>Rechnungsnummer:</b> ${esc(inv.number)}<br><b>Rechnungsdatum:</b> ${date(inv.date)}${inv.serviceDate ? `<br><b>Leistungsdatum:</b> ${date(inv.serviceDate)}` : ''}`,
+      docTitle: inv.type === 'storno' ? 'Stornorechnung' : 'Rechnung', pageTitle: (inv.type === 'storno' ? 'Stornorechnung ' : 'Rechnung ') + inv.number, qr: true, customerLabel: 'Kunde', rows: itemRows(inv), sum: sumBlock(inv, settings, 'Gesamtbetrag'),
+      meta: `<b>Rechnungsnummer:</b> ${esc(inv.number)}<br><b>Rechnungsdatum:</b> ${date(inv.date)}<br><b>Leistungsdatum:</b> ${date(inv.serviceDate || inv.date)}${inv.type === 'storno' && inv.stornoOfNumber ? `<br><b>Storno zu Rechnung:</b> ${esc(inv.stornoOfNumber)}${inv.stornoOfDate ? ' vom ' + date(inv.stornoOfDate) : ''}` : ''}`,
       after: inv.notes ? `<div class="notes"><b>Anmerkungen:</b><br>${esc(inv.notes)}</div>` : '',
     });
   }

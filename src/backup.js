@@ -22,7 +22,8 @@ function cleanInvoice(i) {
     customer: str(i.customer, 300), customerAddress: str(i.customerAddress, 1000), customerUid: str(i.customerUid, 50),
     items: (Array.isArray(i.items) ? i.items.slice(0, 1000) : []).map(cleanItem),
     discount: num(i.discount), taxRate: num(i.taxRate), taxNote: str(i.taxNote, 1000), notes: str(i.notes, 3000), currency: str(i.currency, 10),
-    createdAt: str(i.createdAt, 40), updatedAt: str(i.updatedAt, 40),
+    createdAt: str(i.createdAt, 40), updatedAt: str(i.updatedAt, 40), lockedAt: str(i.lockedAt, 40),
+    type: i.type === 'storno' ? 'storno' : '', stornoOf: str(i.stornoOf, 100), stornoOfNumber: str(i.stornoOfNumber, 50), stornoOfDate: isDate(i.stornoOfDate) ? i.stornoOfDate : '',
   };
 }
 function cleanSettings(s) {

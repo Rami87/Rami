@@ -4,8 +4,12 @@ const path = require('path');
 const Ex = require('./expenses');
 const Est = require('./estimate');
 
+// Heutiges Datum in der Ortszeit (nicht UTC), sonst gilt zwischen 00:00 und 02:00 Uhr noch der Vortag
+const localDate = (d = new Date()) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
 const DEFAULT_SETTINGS = {
   companyName: 'Firmenname', address: '', uid: '', bank: '', iban: '', bic: '', phone: '', email: '',
+  footerExtra: '', // Zusatzzeile in der Fußzeile, z. B. Firmenbuchnummer, Rechtsform, Firmenbuchgericht
   color: '#1f6feb', logo: '', currency: '€',
   lastDir: '', // zuletzt benutzter Ordner beim Speichern von PDF/CSV
   lastBackup: '', // ISO-Zeitpunkt der letzten Sicherung
@@ -24,6 +28,7 @@ class Store {
     this.invoicesFile = path.join(dir, 'invoices.json');
     this.expensesFile = path.join(dir, 'expenses.json');
     this.estimatesFile = path.join(dir, 'estimates.json');
+    this.countersFile = path.join(dir, 'counters.json');
     this.receiptsDir = path.join(dir, 'belege'); // Belegdateien: <id>.<pdf|png|jpg|webp|gif>
   }
   _read(file, fallback) {
@@ -52,36 +57,57 @@ class Store {
   }
   // Rechnungsnummer = TTMMJJ + laufende Nummer des Tages, z. B. 02102601, 02102602 ...
   nextNumber(date) {
-    const d = /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : new Date().toISOString().slice(0, 10);
+    const d = /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : localDate();
     const prefix = d.slice(8, 10) + d.slice(5, 7) + d.slice(2, 4);
-    let max = 0;
+    let max = this._counters()[prefix] || 0; // Zähler sinkt nie, auch nicht nach dem Löschen
     for (const i of this._read(this.invoicesFile, [])) {
       const m = String(i.number || '').match(/^(\d{6})(\d{2,})$/);
       if (m && m[1] === prefix) max = Math.max(max, parseInt(m[2], 10));
     }
     return prefix + String(max + 1).padStart(2, '0');
   }
+  // Höchste vergebene laufende Nummer je Tag: { '061026': 2 }. Eine Nummer wird nie ein zweites Mal vergeben.
+  _counters() { return this._read(this.countersFile, {}); }
+  _bump(number) {
+    const m = String(number || '').match(/^(\d{6})(\d{2,})$/);
+    if (!m) return;
+    const c = this._counters(), n = parseInt(m[2], 10);
+    if ((c[m[1]] || 0) < n) { c[m[1]] = n; this._write(this.countersFile, c); }
+  }
   getInvoice(id) { return this._read(this.invoicesFile, []).find((i) => i.id === id) || null; }
   saveInvoice(inv) {
     const all = this._read(this.invoicesFile, []);
     const now = new Date().toISOString();
+    inv = { ...inv };
+    delete inv.lockedAt; // Sperre setzt nur das Programm selbst (lockInvoice)
     if (!inv.id) {
       inv = { ...inv, id: 'inv_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), createdAt: now };
       if (!inv.number) inv.number = this.nextNumber(inv.date);
       all.push({ ...inv, updatedAt: now });
     } else {
       const idx = all.findIndex((i) => i.id === inv.id);
+      if (idx >= 0 && all[idx].lockedAt) throw new Error('Diese Rechnung ist gesperrt, weil sie bereits als PDF gespeichert oder gedruckt wurde. Bitte eine Stornorechnung erstellen.');
       if (idx < 0) all.push({ ...inv, updatedAt: now }); else all[idx] = { ...all[idx], ...inv, updatedAt: now };
     }
     this._write(this.invoicesFile, all);
+    this._bump(all.find((i) => i.id === inv.id).number);
     return all.find((i) => i.id === inv.id);
+  }
+  // Nach PDF-Export oder Druck: Rechnung wird gesperrt (Änderungen nur noch per Stornorechnung, Löschen nicht mehr möglich)
+  lockInvoice(id) {
+    const all = this._read(this.invoicesFile, []);
+    const i = all.find((x) => x.id === id);
+    if (!i || i.lockedAt) return i || null;
+    i.lockedAt = new Date().toISOString();
+    this._write(this.invoicesFile, all);
+    return i;
   }
   // ---- Kostenvoranschläge: Nummer KV-TTMMJJ + laufende Nummer des Tages, z. B. KV-05102601 ----
   allEstimates() { return this._read(this.estimatesFile, []); }
   replaceEstimates(list) { this._write(this.estimatesFile, list); }
   getEstimate(id) { return this.allEstimates().find((e) => e.id === id) || null; }
   nextEstimateNumber(date) {
-    const d = /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : new Date().toISOString().slice(0, 10);
+    const d = /^\d{4}-\d{2}-\d{2}$/.test(date || '') ? date : localDate();
     const prefix = 'KV-' + d.slice(8, 10) + d.slice(5, 7) + d.slice(2, 4);
     let max = 0;
     for (const e of this.allEstimates()) {
@@ -182,7 +208,12 @@ class Store {
     this._write(this.expensesFile, out);
   }
   allInvoices() { return this._read(this.invoicesFile, []); }
-  replaceInvoices(list) { this._write(this.invoicesFile, list); }
-  deleteInvoice(id) { this._write(this.invoicesFile, this._read(this.invoicesFile, []).filter((i) => i.id !== id)); }
+  replaceInvoices(list) { this._write(this.invoicesFile, list); list.forEach((i) => this._bump(i.number)); }
+  deleteInvoice(id) {
+    const all = this._read(this.invoicesFile, []);
+    const i = all.find((x) => x.id === id);
+    if (i && i.lockedAt) throw new Error('Gesperrte Rechnungen können nicht gelöscht werden (Aufbewahrungspflicht, § 132 BAO). Bitte eine Stornorechnung erstellen.');
+    this._write(this.invoicesFile, all.filter((x) => x.id !== id));
+  }
 }
-module.exports = { Store, DEFAULT_SETTINGS };
+module.exports = { Store, DEFAULT_SETTINGS, localDate };
