@@ -62,6 +62,8 @@ Gesprächssprache mit dem Inhaber: Arabisch. Er prüft die Texte selbst online.
 - Kopf: Telefonnummer ab 1241 px; arabische Startseite mit WhatsApp als erster Hero-Aktion (`{{WA_BTN}}`).
 - Ratgeber: 3 neue Artikel in DE und AR (siehe oben), Karten auf den Übersichtsseiten, `llms.txt` ergänzt.
 - Layout: `--section` von 84 auf 64 px, Abstand zwischen aufeinanderfolgenden Sektionen ohne Band etwa 0,4 Sektionen, `.split` 0,7fr/1,3fr, "So arbeiten wir" und FAQ auf der Startseite neben der Überschrift (Klasse `stack` entfernt), kleinere Leistungszeilen auf Mobil.
+- e-card (Arztpraxis-Seiten, Fakten vom Inhaber): Den Dienst beantragt die Ärztin oder der Arzt selbst beim Provider (z. B. A1), nur auf den Namen der Person mit der o-card; HORANiQ kann den Antrag nicht stellen. Danach installiert der Provider ein Gerät am Router; wir verbinden es mit dem von uns installierten Switch und führen die e-card-Anschlüsse ausschließlich per Kabel (nie WLAN) in die Praxis; Verbindung wird mit dem Anbieter der Praxissoftware geprüft. Umgesetzt als Leistungskarte, FAQ-Antwort und Ratgeber `/ratgeber/e-card-anbindung/` (DE, AR). Keine weiteren technischen Details ergänzen, die der Inhaber nicht genannt hat.
+- Layout-Feinschliff: Hero-Abstand unten 0,6 Sektionen; `.wrap.prose` linksbündig zur Überschrift (vorher mittig); einzelne letzte Ratgeber-Karte über die volle Breite.
 - Druck: `print/common.py` nutzt Manrope und Readex Pro; Visitenkarte und Plakat (HTML, PDF, Vorschau-PNGs) neu erzeugt. `HORANiQ-Fonts.zip` enthält jetzt Manrope und Readex Pro (Variable Fonts, OFL). Alte Datei `print/visitenkarte.html` und ihr PDF (nicht die Kampagnenversion) sind unverändert und nutzen noch die alten Schriften; ihr Generator liegt nicht mehr im Repo.
 
 ## Offen
@@ -72,7 +74,7 @@ Inhalt und Recht:
 
 Noch nicht umgesetzt, aus den Prüfungen (SEO und CRO):
 - Startseite H1 enthält kein "Wien"/"IT-Betreuung": Zeile über der H1 wie auf der Arztpraxis-Seite erwägen (Hero nicht überladen, siehe Audit).
-- Mehr Inhalt: weitere Ratgeber, z. B. e-card/Praxissoftware (braucht belastbare Fakten zum österreichischen System, nicht raten; Rami soll Punkte aus der Praxis liefern). Bereits vorhanden: IT-Sicherheit Arztpraxis, Backup testen, Microsoft 365 MFA, Datensicherung und DSGVO, Microsoft 365 im Büro, Phishing erkennen (je DE und AR; Englisch bleibt aus). Den DSGVO-Text (nennt Art. 32) vor dem Livegang selbst prüfen.
+- Mehr Inhalt: weitere Ratgeber nur mit belastbaren Fakten aus der Praxis des Inhabers, nicht raten. Bereits vorhanden: e-card-Anbindung, IT-Sicherheit Arztpraxis, Backup testen, Microsoft 365 MFA, Datensicherung und DSGVO, Microsoft 365 im Büro, Phishing erkennen (je DE und AR; Englisch bleibt aus). Den DSGVO-Text (nennt Art. 32) vor dem Livegang selbst prüfen.
 - JSON-LD `sameAs` bleibt leer, bis es echte Profile gibt.
 - Test mit weniger Pflichtfeldern läuft ohne Messung: erst `PLAUSIBLE_DOMAIN` setzen, dann Wirkung beobachten.
 - Kein Mess-Setup: `dataLayer` wird nur gefüllt. `PLAUSIBLE_DOMAIN` (cookielos) setzen, bevor geworben oder getestet wird.

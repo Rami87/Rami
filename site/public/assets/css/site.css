@@ -143,7 +143,7 @@ p { margin: 0 0 1em; max-width: 62ch; }
 .btn-sm { min-height: 44px; padding: 0 16px; }
 
 /* Hero */
-.hero { padding-block: clamp(28px, 5vw, 64px) var(--section); }
+.hero { padding-block: clamp(28px, 5vw, 64px) calc(var(--section) * .6); }
 .hero-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(32px, 6vw, 72px); align-items: center; }
 .hero h1 { margin-block-end: 20px; max-width: 18ch; }
 .hero .eyebrow { margin: 0 0 14px; font-weight: 600; color: var(--teal-deep); font-size: 1rem; }
@@ -221,6 +221,7 @@ p { margin: 0 0 1em; max-width: 62ch; }
 
 /* Sector tiles on the home page */
 .sectors { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; }
+.sectors > .sector:last-child:nth-child(3n+1) { grid-column: 1 / -1; min-height: 0; }
 .sector { display: flex; flex-direction: column; gap: 10px; padding: 26px; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; color: var(--ink); min-height: 190px; transition: border-color .18s, transform .18s; }
 .sector:hover { border-color: var(--teal); color: var(--ink); }
 .sector h2, .sector h3 { font-size: 1.35rem; letter-spacing: -0.01em; line-height: 1.25; }
@@ -297,6 +298,8 @@ p { margin: 0 0 1em; max-width: 62ch; }
 
 /* Prose pages (Impressum, Datenschutz) */
 .prose { max-width: 720px; }
+.wrap.prose { max-width: 1140px; }
+.wrap.prose > * { max-width: 720px; }
 .prose h2 { font-size: 1.5rem; margin-block: 32px 10px; }
 
 /* Single entrance: the hero report lights up once (see site.js). Nothing else animates on its own. */
