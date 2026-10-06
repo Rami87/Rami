@@ -29,7 +29,7 @@ python3 -m http.server -d site/public 8000
 6. Only keep claims you can honor: "Antwort am selben Werktag" and the Vertraulichkeitsvereinbarung.
 
 ## Brand assets
-The header and footer use the approved logo (`assets/img/horaniq-logo.webp`, a resized copy of the current reference; the original 2000 px file was not redistributed). The favicon is a crop of the H/Q symbol from that same file. Replace both with the original transparent/high-resolution files when available. There is no approved reversed logo, so the footer shows the logo on a white tile.
+The header and footer use the vector logo (`assets/img/horaniq-logo.svg`, a clean reconstruction of the raster reference, not the designer's original source). `horaniq-logo.webp` stays for the JSON-LD `logo` field, because search engines expect a raster image there. The favicon is a crop of the H/Q symbol from that same file. Replace both with the original transparent/high-resolution files when available. There is no approved reversed logo, so the footer shows the logo on a white tile.
 
 ## Contact form
 `FORM_ENDPOINT` (env var or the constant in `build.py`) must point to a receiving service. Until then the form opens a prefilled e-mail and says so; it never shows a success message it cannot confirm.

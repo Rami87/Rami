@@ -373,7 +373,7 @@ def services_menu_html(t, label, href, cur):
 
 def logo_html(t, cls="logo"):
     home = HOME[code_of(t)]
-    return f'<a class="{cls}" href="{home}" aria-label="HORANiQ"><img src="/assets/img/horaniq-logo.webp" alt="HORANiQ" width="145" height="44"></a>'
+    return f'<a class="{cls}" href="{home}" aria-label="HORANiQ"><img src="/assets/img/horaniq-logo.svg" alt="HORANiQ" width="145" height="44"></a>'
 
 
 PHOTO_RE = re.compile(r"\{\{PHOTO:([a-z0-9-]+)\|([^|}]*)\|(\d+)x(\d+)\}\}")
