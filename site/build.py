@@ -71,7 +71,7 @@ I18N = {
         "f_mailto": "Ihr E-Mail-Programm wurde geöffnet. Bitte senden Sie die vorbereitete Nachricht dort ab. Falls sich nichts geöffnet hat, schreiben Sie an %s.",
         "f_sending": "Wird gesendet…", "f_invalid": "Bitte prüfen Sie die markierten Felder.",
         "f_subject": "Anfrage Erstgespräch",
-        "f_choose": "Bitte wählen",
+        "f_choose": "Bitte wählen", "f_opt": " (optional)",
         "e_name": "Bitte geben Sie Ihren Namen an.",
         "e_contact": "Bitte geben Sie eine Telefonnummer oder E-Mail-Adresse an.",
         "e_contact_invalid": "Bitte prüfen Sie Ihre Telefonnummer oder E-Mail-Adresse.",
@@ -123,7 +123,7 @@ I18N = {
         "f_mailto": "فُتح برنامج البريد لديك. يرجى إرسال الرسالة الجاهزة من هناك. وإن لم يُفتح شيء فراسلنا على %s.",
         "f_sending": "جارٍ الإرسال…", "f_invalid": "يرجى مراجعة الحقول المحددة.",
         "f_subject": "طلب استشارة أولى",
-        "f_choose": "اختر",
+        "f_choose": "اختر", "f_opt": " (اختياري)",
         "f_interest": "بماذا أنت مهتم؟",
         "f_praxis": "عيادتك",
         "types_praxis": ["عيادة طبية", "عيادة أسنان", "عيادة علاج", "عيادة جماعية", "منشأة طبية أخرى"],
@@ -175,7 +175,7 @@ I18N = {
         "f_mailto": "Your email program has been opened. Please send the prepared message from there. If nothing opened, write to %s.",
         "f_sending": "Sending…", "f_invalid": "Please check the highlighted fields.",
         "f_subject": "Request first call",
-        "f_choose": "Please choose",
+        "f_choose": "Please choose", "f_opt": " (optional)",
         "f_interest": "What are you interested in?",
         "f_praxis": "Your practice",
         "types_praxis": ["Medical practice", "Dental practice", "Therapy practice", "Group practice", "Other medical facility"],
@@ -321,14 +321,14 @@ def form_html(t, sector, default_interest="erstgespraech"):
                 chosen_hint = h
             io += f'<option value="{v}" data-submit="{esc(s)}" data-hint="{esc(h)}"{sel}>{esc(l)}</option>'
         hint_html = f'<p class="hint" id="interest-hint"{"" if chosen_hint else " hidden"}>{esc(chosen_hint)}</p>'
-        interest = f'''<div class="field" data-error="{esc(t["e_type"])}"><label for="f-interest">{t["f_interest"]}</label><select id="f-interest" name="interest" required aria-describedby="interest-hint err-interest">{io}</select>{hint_html}<p class="err" id="err-interest"></p></div>'''
+        interest = f'''<div class="field"><label for="f-interest">{t["f_interest"]}{t["f_opt"] if praxis else ""}</label><select id="f-interest" name="interest" aria-describedby="interest-hint">{io}</select>{hint_html}</div>'''
     notice = f'<p class="hint" id="msg-hint">{t["f_msg_notice"]}</p>' if praxis else ""
     return f'''<form class="form" id="contact-form" novalidate data-endpoint="{esc(FORM_ENDPOINT)}" data-email="{EMAIL}" data-subject="{esc(t["f_subject"])}" data-msg-ok="{esc(t["f_ok"])}" data-msg-err="{esc(err)}" data-msg-mailto="{esc(mailto)}" data-msg-sending="{esc(t["f_sending"])}" data-msg-invalid="{esc(t["f_invalid"])}" data-e-contact-invalid="{esc(t["e_contact_invalid"])}" data-default-label="{esc(submit_label)}">
   <input type="hidden" name="sector" value="{sector}">
   <div class="hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
   <div class="field" data-error="{esc(t["e_name"])}"><label for="f-name">{t["f_name"]}</label><input type="text" id="f-name" name="name" autocomplete="name" required aria-describedby="err-name"><p class="err" id="err-name"></p></div>
   <div class="field" data-error="{esc(t["e_contact"])}"><label for="f-contact">{t["f_contact"]}</label><input type="text" id="f-contact" name="contact" autocomplete="email" required aria-describedby="hint-contact err-contact"><p class="hint" id="hint-contact">{t["f_contact_hint"]}</p><p class="err" id="err-contact"></p></div>
-  <div class="field" data-error="{esc(t["e_type"])}"><label for="f-type">{label_type}</label><select id="f-type" name="business" required aria-describedby="err-type">{opts}</select><p class="err" id="err-type"></p></div>
+  <div class="field"><label for="f-type">{label_type}{t["f_opt"]}</label><select id="f-type" name="business">{opts}</select></div>
   {interest}
   <div class="field"><label for="f-msg">{t["f_msg"]}</label><textarea id="f-msg" name="message"{' aria-describedby="msg-hint"' if praxis else ''}></textarea>{notice}</div>
   <div class="field consent-wrap" data-error="{esc(t["e_consent"])}"><label class="consent"><input type="checkbox" name="consent" required aria-describedby="err-consent"><span>{t["f_consent"]}</span></label><p class="err" id="err-consent"></p></div>
