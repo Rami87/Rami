@@ -136,7 +136,7 @@ ${footer}
   function build(inv, settings) {
     return layout(inv, settings, {
       docTitle: inv.type === 'storno' ? 'Stornorechnung' : 'Rechnung', pageTitle: (inv.type === 'storno' ? 'Stornorechnung ' : 'Rechnung ') + inv.number, qr: true, customerLabel: 'Kunde', rows: itemRows(inv), sum: sumBlock(inv, settings, 'Gesamtbetrag'),
-      meta: `<b>Rechnungsnummer:</b> ${esc(inv.number)}<br><b>Rechnungsdatum:</b> ${date(inv.date)}<br><b>Leistungsdatum:</b> ${date(inv.serviceDate || inv.date)}${inv.type === 'storno' && inv.stornoOfNumber ? `<br><b>Storno zu Rechnung:</b> ${esc(inv.stornoOfNumber)}${inv.stornoOfDate ? ' vom ' + date(inv.stornoOfDate) : ''}` : ''}`,
+      meta: `<b>Rechnungsnummer:</b> ${esc(inv.number)}<br><b>Rechnungsdatum:</b> ${date(inv.date)}${inv.serviceDate ? `<br><b>Leistungsdatum:</b> ${date(inv.serviceDate)}` : ''}${inv.type === 'storno' && inv.stornoOfNumber ? `<br><b>Storno zu Rechnung:</b> ${esc(inv.stornoOfNumber)}${inv.stornoOfDate ? ' vom ' + date(inv.stornoOfDate) : ''}` : ''}`,
       after: inv.notes ? `<div class="notes"><b>Anmerkungen:</b><br>${esc(inv.notes)}</div>` : '',
     });
   }

@@ -200,7 +200,8 @@ assert.strictEqual(BK.parseBackup(JSON.stringify({ app: 'rechnungen-backup', for
   const t2 = IH.totals({ items: [{ qty: -2, price: 10 }], discount: -5, taxRate: 20 });
   assert.deepStrictEqual([t2.net, t2.tax, t2.total], [-15, -3, -18], 'Stornorechnung negativ');
   const html = IH.build({ number: '07102601', date: '2026-10-07', type: 'storno', stornoOfNumber: '06102601', stornoOfDate: '2026-10-06', customer: 'K', items: [{ description: 'x', qty: -1, price: 10 }], taxRate: 0, currency: '€' }, { companyName: 'F', footerExtra: 'FN 1a <b>', color: '#112233' });
-  assert(html.includes('Stornorechnung') && html.includes('06102601') && html.includes('FN 1a &lt;b&gt;') && html.includes('Leistungsdatum:</b> 07.10.2026'), 'Storno-Titel, Verweis, Fußzeile, Leistungsdatum');
+  assert(html.includes('Stornorechnung') && html.includes('06102601') && html.includes('FN 1a &lt;b&gt;') && !html.includes('Leistungsdatum'), 'Storno-Titel, Verweis, Fußzeile, Leistungsdatum bleibt ohne Eingabe weg');
+  assert(IH.build({ number: '1', date: '2026-10-07', serviceDate: '2026-10-01', customer: 'K', items: [], taxRate: 0 }, { companyName: 'F' }).includes('Leistungsdatum:</b> 01.10.2026'), 'Leistungsdatum erscheint, wenn eingegeben');
   assert(!/Zahlen mit Code/.test(html), 'kein QR bei negativem Betrag');
   assert.strictEqual(require('../src/store').localDate(new Date(2026, 9, 6, 0, 30)), '2026-10-06', 'lokales Datum');
 }
