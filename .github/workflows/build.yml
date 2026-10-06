@@ -32,8 +32,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          NAME="Rechnungen (neueste Version)"
-          for id in $(gh api "repos/${{ github.repository }}/releases" --jq ".[] | select(.draft and .name==\"$NAME\") | .id"); do
+          VER=$(node -p "require('./package.json').version")
+          NAME="Rechnungen V$VER"
+          for id in $(gh api "repos/${{ github.repository }}/releases" --jq ".[] | select(.draft and (.name==\"$NAME\" or .name==\"Rechnungen (neueste Version)\")) | .id"); do
             gh api -X DELETE "repos/${{ github.repository }}/releases/$id"
           done
-          gh release create latest-build dist/*.exe --draft --title "$NAME" --notes "Automatisch gebaut aus dem Branch ${{ github.ref_name }} (Commit ${{ github.sha }})." --target "${{ github.sha }}"
+          gh release create "v$VER" dist/*.exe --draft --title "$NAME" --notes "Automatisch gebaut aus dem Branch ${{ github.ref_name }} (Commit ${{ github.sha }})." --target "${{ github.sha }}"

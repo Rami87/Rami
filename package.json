@@ -1,6 +1,6 @@
 {
   "name": "invoice-app",
-  "version": "0.1.0",
+  "version": "1.1.8",
   "description": "برنامج فواتير بسيط يعمل بدون إنترنت ويحفظ PDF",
   "main": "src/main.js",
   "scripts": {
@@ -18,7 +18,8 @@
       "package.json"
     ],
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "artifactName": "Rechnungen-V${version}.${ext}"
     },
     "copyright": "© Rami Horani, HoraniQ IT-Lösungen"
   },
