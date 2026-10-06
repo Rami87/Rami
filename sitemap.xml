@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://horaniq.at/ar/arztpraxis/</loc></url>
-  <url><loc>https://horaniq.at/ar/it-check/</loc></url>
-  <url><loc>https://horaniq.at/ar/netzwerk/</loc></url>
-  <url><loc>https://horaniq.at/ar/ratgeber/backup-testen/</loc></url>
-  <url><loc>https://horaniq.at/ar/ratgeber/microsoft-365-mfa/</loc></url>
-  <url><loc>https://horaniq.at/ar/ratgeber/it-sicherheit-arztpraxis/</loc></url>
-  <url><loc>https://horaniq.at/ar/ratgeber/</loc></url>
-  <url><loc>https://horaniq.at/ar/ueber-uns/</loc></url>
-  <url><loc>https://horaniq.at/ar/unternehmen/</loc></url>
-  <url><loc>https://horaniq.at/ar/website-shop/</loc></url>
-  <url><loc>https://horaniq.at/ar/wien/</loc></url>
-  <url><loc>https://horaniq.at/ar/</loc></url>
-  <url><loc>https://horaniq.at/arztpraxis/</loc></url>
-  <url><loc>https://horaniq.at/</loc></url>
-  <url><loc>https://horaniq.at/it-check/</loc></url>
-  <url><loc>https://horaniq.at/netzwerk/</loc></url>
-  <url><loc>https://horaniq.at/ratgeber/backup-testen/</loc></url>
-  <url><loc>https://horaniq.at/ratgeber/microsoft-365-mfa/</loc></url>
-  <url><loc>https://horaniq.at/ratgeber/it-sicherheit-arztpraxis/</loc></url>
-  <url><loc>https://horaniq.at/ratgeber/</loc></url>
-  <url><loc>https://horaniq.at/ueber-uns/</loc></url>
-  <url><loc>https://horaniq.at/unternehmen/</loc></url>
-  <url><loc>https://horaniq.at/website-shop/</loc></url>
-  <url><loc>https://horaniq.at/wien/</loc></url>
-  <url><loc>https://horaniq.at/it-betreuung/</loc></url>
-  <url><loc>https://horaniq.at/microsoft-365/</loc></url>
-  <url><loc>https://horaniq.at/backup/</loc></url>
-  <url><loc>https://horaniq.at/voip/</loc></url>
-  <url><loc>https://horaniq.at/sicherheit/</loc></url>
-  <url><loc>https://horaniq.at/wartung-reparatur/</loc></url>
-  <url><loc>https://horaniq.at/smart-building/</loc></url>
-  <url><loc>https://horaniq.at/crm-archivierung/</loc></url>
-  <url><loc>https://horaniq.at/it-sicherheit/</loc></url>
-  <url><loc>https://horaniq.at/it-beratung/</loc></url>
-  <url><loc>https://horaniq.at/care/</loc></url>
-  <url><loc>https://horaniq.at/ar/it-betreuung/</loc></url>
-  <url><loc>https://horaniq.at/ar/microsoft-365/</loc></url>
-  <url><loc>https://horaniq.at/ar/voip/</loc></url>
-  <url><loc>https://horaniq.at/ar/backup/</loc></url>
-  <url><loc>https://horaniq.at/ar/sicherheit/</loc></url>
-  <url><loc>https://horaniq.at/ar/wartung-reparatur/</loc></url>
-  <url><loc>https://horaniq.at/ar/smart-building/</loc></url>
-  <url><loc>https://horaniq.at/ar/crm-archivierung/</loc></url>
-  <url><loc>https://horaniq.at/ar/it-sicherheit/</loc></url>
-  <url><loc>https://horaniq.at/ar/it-beratung/</loc></url>
-  <url><loc>https://horaniq.at/ar/care/</loc></url>
-  <url><loc>https://horaniq.at/ar/leistungen/</loc></url>
-  <url><loc>https://horaniq.at/leistungen/</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url><loc>https://horaniq.at/ar/arztpraxis/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/arztpraxis/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/arztpraxis/"/></url>
+  <url><loc>https://horaniq.at/ar/it-check/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/it-check/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/it-check/"/></url>
+  <url><loc>https://horaniq.at/ar/netzwerk/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/netzwerk/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/netzwerk/"/></url>
+  <url><loc>https://horaniq.at/ar/ratgeber/backup-testen/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/ratgeber/backup-testen/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/ratgeber/backup-testen/"/></url>
+  <url><loc>https://horaniq.at/ar/ratgeber/microsoft-365-mfa/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/ratgeber/microsoft-365-mfa/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/ratgeber/microsoft-365-mfa/"/></url>
+  <url><loc>https://horaniq.at/ar/ratgeber/it-sicherheit-arztpraxis/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/ratgeber/it-sicherheit-arztpraxis/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/ratgeber/it-sicherheit-arztpraxis/"/></url>
+  <url><loc>https://horaniq.at/ar/ratgeber/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/ratgeber/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/ratgeber/"/></url>
+  <url><loc>https://horaniq.at/ar/ueber-uns/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/ueber-uns/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/ueber-uns/"/></url>
+  <url><loc>https://horaniq.at/ar/unternehmen/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/unternehmen/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/unternehmen/"/></url>
+  <url><loc>https://horaniq.at/ar/website-shop/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/website-shop/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/website-shop/"/></url>
+  <url><loc>https://horaniq.at/ar/wien/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/wien/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/wien/"/></url>
+  <url><loc>https://horaniq.at/ar/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/"/></url>
+  <url><loc>https://horaniq.at/arztpraxis/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/arztpraxis/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/arztpraxis/"/></url>
+  <url><loc>https://horaniq.at/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/"/></url>
+  <url><loc>https://horaniq.at/it-check/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/it-check/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/it-check/"/></url>
+  <url><loc>https://horaniq.at/netzwerk/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/netzwerk/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/netzwerk/"/></url>
+  <url><loc>https://horaniq.at/ratgeber/backup-testen/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/ratgeber/backup-testen/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/ratgeber/backup-testen/"/></url>
+  <url><loc>https://horaniq.at/ratgeber/microsoft-365-mfa/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/ratgeber/microsoft-365-mfa/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/ratgeber/microsoft-365-mfa/"/></url>
+  <url><loc>https://horaniq.at/ratgeber/it-sicherheit-arztpraxis/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/ratgeber/it-sicherheit-arztpraxis/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/ratgeber/it-sicherheit-arztpraxis/"/></url>
+  <url><loc>https://horaniq.at/ratgeber/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/ratgeber/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/ratgeber/"/></url>
+  <url><loc>https://horaniq.at/ueber-uns/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/ueber-uns/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/ueber-uns/"/></url>
+  <url><loc>https://horaniq.at/unternehmen/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/unternehmen/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/unternehmen/"/></url>
+  <url><loc>https://horaniq.at/website-shop/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/website-shop/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/website-shop/"/></url>
+  <url><loc>https://horaniq.at/wien/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/wien/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/wien/"/></url>
+  <url><loc>https://horaniq.at/it-betreuung/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/it-betreuung/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/it-betreuung/"/></url>
+  <url><loc>https://horaniq.at/microsoft-365/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/microsoft-365/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/microsoft-365/"/></url>
+  <url><loc>https://horaniq.at/backup/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/backup/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/backup/"/></url>
+  <url><loc>https://horaniq.at/voip/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/voip/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/voip/"/></url>
+  <url><loc>https://horaniq.at/sicherheit/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/sicherheit/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/sicherheit/"/></url>
+  <url><loc>https://horaniq.at/wartung-reparatur/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/wartung-reparatur/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/wartung-reparatur/"/></url>
+  <url><loc>https://horaniq.at/smart-building/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/smart-building/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/smart-building/"/></url>
+  <url><loc>https://horaniq.at/crm-archivierung/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/crm-archivierung/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/crm-archivierung/"/></url>
+  <url><loc>https://horaniq.at/it-sicherheit/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/it-sicherheit/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/it-sicherheit/"/></url>
+  <url><loc>https://horaniq.at/it-beratung/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/it-beratung/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/it-beratung/"/></url>
+  <url><loc>https://horaniq.at/care/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/care/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/care/"/></url>
+  <url><loc>https://horaniq.at/ar/it-betreuung/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/it-betreuung/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/it-betreuung/"/></url>
+  <url><loc>https://horaniq.at/ar/microsoft-365/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/microsoft-365/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/microsoft-365/"/></url>
+  <url><loc>https://horaniq.at/ar/voip/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/voip/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/voip/"/></url>
+  <url><loc>https://horaniq.at/ar/backup/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/backup/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/backup/"/></url>
+  <url><loc>https://horaniq.at/ar/sicherheit/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/sicherheit/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/sicherheit/"/></url>
+  <url><loc>https://horaniq.at/ar/wartung-reparatur/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/wartung-reparatur/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/wartung-reparatur/"/></url>
+  <url><loc>https://horaniq.at/ar/smart-building/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/smart-building/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/smart-building/"/></url>
+  <url><loc>https://horaniq.at/ar/crm-archivierung/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/crm-archivierung/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/crm-archivierung/"/></url>
+  <url><loc>https://horaniq.at/ar/it-sicherheit/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/it-sicherheit/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/it-sicherheit/"/></url>
+  <url><loc>https://horaniq.at/ar/it-beratung/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/it-beratung/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/it-beratung/"/></url>
+  <url><loc>https://horaniq.at/ar/care/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/care/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/care/"/></url>
+  <url><loc>https://horaniq.at/ar/leistungen/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/leistungen/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/leistungen/"/></url>
+  <url><loc>https://horaniq.at/leistungen/</loc><xhtml:link rel="alternate" hreflang="de" href="https://horaniq.at/leistungen/"/><xhtml:link rel="alternate" hreflang="ar" href="https://horaniq.at/ar/leistungen/"/></url>
 </urlset>
