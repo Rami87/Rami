@@ -17,26 +17,24 @@
     return _push(o);
   };
 
-  /* Mobile menu */
+  /* Mobile menu: the nav wipes up full screen (CSS); the button label switches between Menu and Close. */
   var btn = document.querySelector(".menu-btn");
   var nav = document.getElementById("nav");
-  function closeMenu(focusBtn) {
-    if (!nav) return;
-    nav.classList.remove("open");
-    document.body.classList.remove("menu-open");
-    btn.setAttribute("aria-expanded", "false");
-    if (focusBtn) btn.focus();
+  function setMenu(open, focusBtn) {
+    if (!nav || !btn) return;
+    nav.classList.toggle("open", open);
+    document.body.classList.toggle("menu-open", open);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    btn.textContent = open ? btn.dataset.close : btn.dataset.open;
+    if (!open && focusBtn) btn.focus();
   }
   if (btn && nav) {
-    btn.addEventListener("click", function () {
-      var open = nav.classList.toggle("open");
-      document.body.classList.toggle("menu-open", open);
-      btn.setAttribute("aria-expanded", open ? "true" : "false");
-    });
-    nav.addEventListener("click", function (e) { if (e.target.closest("a")) closeMenu(false); });
+    btn.addEventListener("click", function () { setMenu(!nav.classList.contains("open")); });
+    nav.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && nav.classList.contains("open")) closeMenu(true);
+      if (e.key === "Escape" && nav.classList.contains("open")) setMenu(false, true);
     });
+    window.addEventListener("resize", function () { if (window.innerWidth > 1240) setMenu(false); });
   }
 
   /* Leistungen submenu: hover and keyboard focus open it via CSS; the toggle button serves touch and screen readers. */

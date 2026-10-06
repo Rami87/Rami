@@ -48,8 +48,9 @@ I18N = {
         "dir": "ltr",
         "skip": "Zum Inhalt springen",
         "menu": "Menü",
+        "menu_close": "Schließen",
         "nav": [("Leistungen", "/leistungen/"), ("Für Praxen", "/arztpraxis/"), ("Für Büros", "/unternehmen/"), ("IT-Check", "/#it-check"), ("Kontakt", "/#kontakt")],
-        "cta": "Kostenloses Erstgespräch anfragen",
+        "cta": "Erstgespräch anfragen",
         "sub_sr": "Untermenü Leistungen",
         "sub_all": "Alle Leistungen ansehen",
         "l_phone": "Telefon", "h_phone": "Direkt anrufen", "l_wa": "WhatsApp", "h_wa": "Nachricht schreiben", "l_mail": "E-Mail", "h_mail": "Anfrage per E-Mail",
@@ -99,15 +100,16 @@ I18N = {
         "dir": "rtl",
         "skip": "انتقل إلى المحتوى",
         "menu": "القائمة",
+        "menu_close": "إغلاق",
         "nav": [("الخدمات", "/leistungen/"), ("للعيادات", "/arztpraxis/"), ("للمكاتب", "/unternehmen/"), ("فحص IT", "/#it-check"), ("تواصل", "/#kontakt")],
-        "cta": "استشارة مجانية",
+        "cta": "احجز استشارة مجانية",
         "sub_sr": "قائمة الخدمات الفرعية",
         "sub_all": "كل الخدمات",
         "l_phone": "هاتف", "h_phone": "اتصل مباشرة", "l_wa": "واتساب", "h_wa": "أرسل رسالة", "l_mail": "البريد الإلكتروني", "h_mail": "راسلنا بالبريد",
         "wa_text": "مرحباً، لدي استفسار عن خدمات IT.",
         "call": "اتصل بنا",
         "whatsapp": "واتساب",
-        "mbar_cta": "احجز استشارة",
+        "mbar_cta": "احجز استشارة مجانية",
         "crumb_home": "الرئيسية",
         "foot_tag": "خدمات IT والشبكات والأمان للشركات والعيادات في فيينا ومحيطها. شخص واحد مسؤول، بشرح واضح.",
         "legal": "جميع الأسعار صافية دون ضريبة القيمة المضافة. المعلومات غير ملزمة.",
@@ -126,14 +128,14 @@ I18N = {
         "f_praxis": "عيادتك",
         "types_praxis": ["عيادة طبية", "عيادة أسنان", "عيادة علاج", "عيادة جماعية", "منشأة طبية أخرى"],
         "interests_praxis": [
-            ("erstgespraech", "استشارة أولى مجانية", "احجز استشارة أولى", ""),
+            ("erstgespraech", "استشارة أولى مجانية", "احجز استشارة مجانية", ""),
             ("it-check", "فحص IT", "اطلب فحص IT", ""),
             ("betreuung", "دعم IT مستمر", "اطلب الدعم المستمر", ""),
             ("praxiswebsite", "موقع العيادة", "اطلب موقع العيادة", "لا تحتاج إلى فحص IT لموقع العيادة."),
         ],
         "f_msg_notice": "يرجى عدم إرسال بيانات مرضى أو كلمات مرور عبر هذا النموذج.",
         "interests_general": [
-            ("erstgespraech", "استشارة أولى مجانية", "احجز استشارة أولى", ""),
+            ("erstgespraech", "استشارة أولى مجانية", "احجز استشارة مجانية", ""),
             ("it-check", "فحص IT", "اطلب فحص IT", ""),
             ("betreuung", "دعم IT مستمر", "اطلب الدعم المستمر", ""),
             ("website", "موقع إلكتروني", "اطلب مشروع موقع", "لا تحتاج إلى فحص IT لمشاريع المواقع والمتاجر."),
@@ -150,6 +152,7 @@ I18N = {
         "dir": "ltr",
         "skip": "Skip to content",
         "menu": "Menu",
+        "menu_close": "Close",
         "nav": [("Services", "/leistungen/"), ("For practices", "/arztpraxis/"), ("For offices", "/unternehmen/"), ("IT check", "/#it-check"), ("Contact", "/#kontakt")],
         "cta": "Request a free first call",
         "call": "Call",
@@ -350,8 +353,8 @@ def asset_version(name):
 
 
 def icon_svg(slug, size=""):
-    cls = "ico" + (f" ico-{size}" if size else "")
-    return f'<svg class="{cls}" aria-hidden="true" focusable="false"><use href="/assets/img/icons.svg?v={asset_version("icons.svg")}#i-{slug}"/></svg>'
+    """Service and contact icons are inlined so their parts can move on hover, focus and press."""
+    return icons.inline(slug, "ico" + (f" ico-{size}" if size else ""))
 
 
 ICON_RE = re.compile(r"\{\{ICON:([a-z0-9-]+)(?::(sm|lg|xl))?\}\}")
@@ -413,7 +416,7 @@ def header_html(t, path, cta="#kontakt", pairs=None, ids=()):
     return f'''<a class="skip" href="#main">{t["skip"]}</a>
 <header class="site-header"><div class="wrap bar">
   {logo_html(t)}
-  <button class="menu-btn" aria-expanded="false" aria-controls="nav">{t["menu"]}</button>
+  <button class="menu-btn" aria-expanded="false" aria-controls="nav" data-open="{t["menu"]}" data-close="{t["menu_close"]}">{t["menu"]}</button>
   <nav class="nav" id="nav" aria-label="Hauptnavigation">{links}</nav>
 </div></header>'''
 

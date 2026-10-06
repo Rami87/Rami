@@ -1,1 +1,3 @@
 site/offline/
+__pycache__/
+*.pyc
