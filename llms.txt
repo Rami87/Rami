@@ -9,7 +9,7 @@
 - [Netzwerk & WLAN](https://horaniq.at/netzwerk/)
 - [Backup testen in fünf Schritten](https://horaniq.at/ratgeber/backup-testen/)
 - [Datensicherung und DSGVO: Worauf es ankommt](https://horaniq.at/ratgeber/datensicherung-dsgvo/)
-- [e-card-Anbindung: Ablauf und Zuständigkeiten](https://horaniq.at/ratgeber/e-card-anbindung/)
+- [e-card-Anbindung in der Ordination](https://horaniq.at/ratgeber/e-card-anbindung/)
 - [Microsoft 365 absichern mit MFA](https://horaniq.at/ratgeber/microsoft-365-mfa/)
 - [Microsoft 365 im Büro sicher einrichten](https://horaniq.at/ratgeber/microsoft-365-buero/)
 - [Phishing erkennen: Sieben Warnzeichen](https://horaniq.at/ratgeber/phishing-erkennen/)
