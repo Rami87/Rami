@@ -1,8 +1,8 @@
 # HORANiQ: Übergabe für eine neue Claude-Sitzung
 
 Zuerst lesen: `site/README.md`, `.agents/product-marketing.md`, dann diese Datei.
-Repo: Rami87/Rami. Arbeitsbranch: `claude/quirky-franklin-nsyeoq` (21 Commits vor `master`, noch nicht gemerged, kein PR).
-Stand: 2026-10-06. Letzter Commit vor dieser Übergabe `0cbef80`, Vorschau-Build `32360d3` auf `gh-pages`.
+Repo: Rami87/Rami. Einziger Arbeitsbranch: `claude/quirky-franklin-nsyeoq` (31 Commits vor `master`, noch nicht gemerged, kein PR). Der Inhaber will wenige Branches: keine neuen anlegen.
+Stand: 2026-10-06 (Ende der Sitzung). Aktuellen Commit mit `git log -1` prüfen; der letzte Vorschau-Build auf `gh-pages` heißt "Preview build from <sha>".
 
 Startnachricht für die neue Sitzung (kann so eingefügt werden):
 > Lies HANDOFF.md im Repo-Wurzelverzeichnis und mach dort weiter. Wir sprechen Arabisch, Website-Texte sind Deutsch und Arabisch.
@@ -55,22 +55,28 @@ Gesprächssprache mit dem Inhaber: Arabisch. Er prüft die Texte selbst online.
 - Neugestalteter Hero (erst dunkles Halftone, dann helles Netzwerk mit Switches, auch Binär-Zahlen geprüft): "gefällt überhaupt nicht", alles zurückgesetzt. Der ursprüngliche Hero bleibt. Vor jeder neuen Hero-Idee zuerst fragen.
 - Menü als untere Leiste im Stil von littlewebsite.co: nicht umgesetzt.
 
+## Erledigt in der zweiten Hälfte der Sitzung (2026-10-06)
+- Logo: SVG (`site/assets/img/horaniq-logo.svg`) in Kopf und Fuß; JSON-LD nutzt weiter `horaniq-logo.webp`.
+- SEO: Titel gekürzt (alle höchstens 62 Zeichen, nur `/ar/` hat 63), `knowsLanguage` ohne "en" solange Englisch aus ist, hreflang (`xhtml:link`) in `sitemap.xml`, Überschriftenfolge in den Ratgeber-Übersichten (Karten sind H2).
+- Formular: nur Name, Telefon/E-Mail und Einwilligung sind Pflicht; Betriebsart und Anliegen sind optional ("(optional)", `f_opt` in I18N).
+- Kopf: Telefonnummer ab 1241 px; arabische Startseite mit WhatsApp als erster Hero-Aktion (`{{WA_BTN}}`).
+- Ratgeber: 3 neue Artikel in DE und AR (siehe oben), Karten auf den Übersichtsseiten, `llms.txt` ergänzt.
+- Layout: `--section` von 84 auf 64 px, Abstand zwischen aufeinanderfolgenden Sektionen ohne Band etwa 0,4 Sektionen, `.split` 0,7fr/1,3fr, "So arbeiten wir" und FAQ auf der Startseite neben der Überschrift (Klasse `stack` entfernt), kleinere Leistungszeilen auf Mobil.
+- Druck: `print/common.py` nutzt Manrope und Readex Pro; Visitenkarte und Plakat (HTML, PDF, Vorschau-PNGs) neu erzeugt. `HORANiQ-Fonts.zip` enthält jetzt Manrope und Readex Pro (Variable Fonts, OFL). Alte Datei `print/visitenkarte.html` und ihr PDF (nicht die Kampagnenversion) sind unverändert und nutzen noch die alten Schriften; ihr Generator liegt nicht mehr im Repo.
+
 ## Offen
 Inhalt und Recht:
 - Firmendaten für Impressum und Datenschutz (Entwürfe mit noindex, in Österreich Pflicht). Nicht werben oder live gehen, bevor sie vollständig sind.
 - Logo als SVG liegt jetzt in `site/assets/img/horaniq-logo.svg` (saubere Vektor-Rekonstruktion des Rasterlogos, nicht die Originaldatei des Designers; die Website nutzt weiter `horaniq-logo.webp`). Original-Quelle (AI/PDF) und Social-Handles (Platzhalter `horaniq.at`) fehlen noch.
-- Druckmaterial und `HORANiQ-Fonts.zip` nutzen noch Instrument Sans / IBM Plex Sans Arabic und müssten auf Manrope / Readex Pro umgestellt werden.
 - Entscheidung des Inhabers: Das Wort "Kostenloses" steht nicht mehr in den deutschen Buttons (nur noch im Kontaktbereich). Bestätigen oder wieder aufnehmen.
 
 Noch nicht umgesetzt, aus den Prüfungen (SEO und CRO):
-- 8 Titel über 62 Zeichen kürzen (`/it-sicherheit/` 75, `/crm-archivierung/` 67, `/ar/it-sicherheit/` 66, `/wartung-reparatur/` 65, `/ratgeber/`, `/ar/`, `/leistungen/`, `/it-beratung/` je 63 bis 64).
 - Startseite H1 enthält kein "Wien"/"IT-Betreuung": Zeile über der H1 wie auf der Arztpraxis-Seite erwägen (Hero nicht überladen, siehe Audit).
-- JSON-LD: `telephone` ergänzen, `knowsLanguage` "en" entfernen solange Englisch aus ist, `sameAs` leer.
-- Sitemap ohne `xhtml:link`-Hreflang; Überschriften-Sprung in `/ratgeber/` und `/ar/ratgeber/`.
-- Formular von 7 auf weniger Pflichtfelder testen; Telefonnummer im Kopf der Desktop-Ansicht; arabische Seite mit WhatsApp als erster Aktion.
+- Mehr Inhalt: weitere Ratgeber, z. B. e-card/Praxissoftware (braucht belastbare Fakten zum österreichischen System, nicht raten; Rami soll Punkte aus der Praxis liefern). Bereits vorhanden: IT-Sicherheit Arztpraxis, Backup testen, Microsoft 365 MFA, Datensicherung und DSGVO, Microsoft 365 im Büro, Phishing erkennen (je DE und AR; Englisch bleibt aus). Den DSGVO-Text (nennt Art. 32) vor dem Livegang selbst prüfen.
+- JSON-LD `sameAs` bleibt leer, bis es echte Profile gibt.
+- Test mit weniger Pflichtfeldern läuft ohne Messung: erst `PLAUSIBLE_DOMAIN` setzen, dann Wirkung beobachten.
 - Kein Mess-Setup: `dataLayer` wird nur gefüllt. `PLAUSIBLE_DOMAIN` (cookielos) setzen, bevor geworben oder getestet wird.
 - Echtes Porträt von Rami prüfen (`site/assets/photos/rami.webp`, erscheint auf Startseite und "Über uns").
-- Mehr Inhalt: 6 bis 8 weitere Ratgeber (e-card/Praxissoftware, Backup nach DSGVO, Microsoft 365 für Kanzleien u. a.).
 - Noch nicht ausgeführte Skills: `ai-seo`, `schema`, `copy-editing`.
 
 Nicht geprüft auf echtem iPhone (nur Chromium): mobiles Menü, Icon-Interaktion per Tipp, Care-Karten, Formular. Der Inhaber testet auf iPhone 17 Pro mit Chrome und meldet Fehler mit Screenshot.
@@ -80,3 +86,6 @@ Nicht geprüft auf echtem iPhone (nur Chromium): mobiles Menü, Icon-Interaktion
 - Testskripte lagen im Scratchpad der Sitzung und sind nicht im Repo. Nützliche Prüfungen zum Nachbauen: Farben Desktop gegen Mobil über alle Seiten, Kontrast im Hero, Hover-Animationen per `document.getAnimations()` einfrieren, Menü auf 390 px (Scroll, Escape, Beschriftung).
 - Installierte Zusatz-Skills liegen nur im Container unter `~/.claude/skills` (Pakete `Leonxlnx/taste-skill` und `bergside/awesome-design-skills`). In einer neuen Sitzung ggf. neu installieren: `npx skills add <paket> -g -a claude-code -s '*' -y`.
 - Commit-Nachrichten enden mit den Attributionszeilen aus der Sitzung. PRs nur auf ausdrückliche Bitte erstellen.
+- Druck neu bauen: `pip install segno`, dann `python3 print/build_campaign.py` und `NODE_PATH=/opt/node-tools/node_modules node print/render_campaign.js`. Ohne `segno` bricht der Build ab; danach NICHT rendern, sonst entstehen PDFs mit Ersatzschrift (Liberation Sans).
+- Auf dem Remote existiert noch der Branch `claude/handoff-md-update-f5wyfu` (Löschen per Git war nicht möglich). Sein Inhalt steckt vollständig in `claude/quirky-franklin-nsyeoq`; er kann auf GitHub gelöscht werden.
+- Zusatz-Skills (Taste-Skill-Paket u. a.) wurden in dieser Sitzung neu installiert und genutzt. Ihre Regeln ("Abstände verdoppeln", Schrift und Farben tauschen) widersprechen teils den Entscheidungen des Inhabers; Marken- und Inhaltsentscheidungen oben haben Vorrang.

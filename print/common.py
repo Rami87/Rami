@@ -48,21 +48,24 @@ def icon(slug, s=WHITE, tint="rgba(255,255,255,0.14)"):
 
 
 CSS = f'''
-@font-face {{ font-family: "Instrument Sans"; font-weight: 400; src: url("{FONTS}/instrument-sans-latin-400-normal.woff2"); }}
-@font-face {{ font-family: "Instrument Sans"; font-weight: 500; src: url("{FONTS}/instrument-sans-latin-500-normal.woff2"); }}
-@font-face {{ font-family: "Instrument Sans"; font-weight: 600; src: url("{FONTS}/instrument-sans-latin-600-normal.woff2"); }}
-@font-face {{ font-family: "Instrument Sans"; font-weight: 700; src: url("{FONTS}/instrument-sans-latin-700-normal.woff2"); }}
-@font-face {{ font-family: "IBM Plex Sans Arabic"; font-weight: 400; src: url("{FONTS}/ibm-plex-sans-arabic-arabic-400-normal.woff2"); }}
-@font-face {{ font-family: "IBM Plex Sans Arabic"; font-weight: 600; src: url("{FONTS}/ibm-plex-sans-arabic-arabic-600-normal.woff2"); }}
+@font-face {{ font-family: "Manrope"; font-weight: 400; src: url("{FONTS}/manrope-latin-400-normal.woff2"); }}
+@font-face {{ font-family: "Manrope"; font-weight: 500; src: url("{FONTS}/manrope-latin-500-normal.woff2"); }}
+@font-face {{ font-family: "Manrope"; font-weight: 600; src: url("{FONTS}/manrope-latin-600-normal.woff2"); }}
+@font-face {{ font-family: "Manrope"; font-weight: 700; src: url("{FONTS}/manrope-latin-700-normal.woff2"); }}
+@font-face {{ font-family: "Manrope"; font-weight: 800; src: url("{FONTS}/manrope-latin-800-normal.woff2"); }}
+@font-face {{ font-family: "Readex Pro"; font-weight: 400; src: url("{FONTS}/readex-pro-arabic-400-normal.woff2"); }}
+@font-face {{ font-family: "Readex Pro"; font-weight: 500; src: url("{FONTS}/readex-pro-arabic-500-normal.woff2"); }}
+@font-face {{ font-family: "Readex Pro"; font-weight: 600; src: url("{FONTS}/readex-pro-arabic-600-normal.woff2"); }}
+@font-face {{ font-family: "Readex Pro"; font-weight: 700; src: url("{FONTS}/readex-pro-arabic-700-normal.woff2"); }}
 :root {{ --navy: {NAVY}; --blue: {BLUE}; --green: {GREEN}; --soft: #3b4f66; }}
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
 html, body {{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
-body {{ font-family: "Instrument Sans", "IBM Plex Sans Arabic", sans-serif; color: var(--navy); }}
+body {{ font-family: "Manrope", "Readex Pro", sans-serif; color: var(--navy); }}
 .logo {{ display: inline-flex; align-items: center; gap: .18em; line-height: 1; }}
 .logo .mark {{ height: 1.55em; width: 1.55em; flex: none; }}
 .wm {{ font-weight: 700; letter-spacing: -0.01em; }}
 .ic {{ width: 1em; height: 1em; display: block; flex: none; }}
-.ar {{ font-family: "IBM Plex Sans Arabic", sans-serif; direction: rtl; }}
+.ar {{ font-family: "Readex Pro", "Manrope", sans-serif; direction: rtl; }}
 .qr {{ display: block; width: 100%; height: 100%; }}
 '''
 
