@@ -25,8 +25,9 @@ jobs:
       - run: npm run dist
       - uses: actions/upload-artifact@v4
         with: { name: windows-portable, path: dist/*.exe }
-      # Entwurf-Release (Draft): nur für Personen mit Schreibrechte sichtbar, bleibt dauerhaft verfügbar.
-      - name: Draft release with latest exe
+      # Öffentliches Release (Entscheidung von Rami, 2026-10-08): jeder mit dem Link kann die exe herunterladen.
+      # Wird bei jedem Push mit dem neuesten Build ersetzt.
+      - name: Public release with latest exe
         if: github.event_name == 'push'
         shell: bash
         env:
@@ -34,7 +35,8 @@ jobs:
         run: |
           VER=$(node -p "require('./package.json').version")
           NAME="Rechnungen V$VER"
-          for id in $(gh api "repos/${{ github.repository }}/releases" --jq ".[] | select(.draft and (.name==\"$NAME\" or .name==\"Rechnungen (neueste Version)\")) | .id"); do
+          for id in $(gh api "repos/${{ github.repository }}/releases" --jq ".[] | select(.name==\"$NAME\" or .name==\"Rechnungen (neueste Version)\") | .id"); do
             gh api -X DELETE "repos/${{ github.repository }}/releases/$id"
           done
-          gh release create "v$VER" dist/*.exe --draft --title "$NAME" --notes "Automatisch gebaut aus dem Branch ${{ github.ref_name }} (Commit ${{ github.sha }})." --target "${{ github.sha }}"
+          gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/v$VER" || true
+          gh release create "v$VER" dist/*.exe --latest --title "$NAME" --notes "Automatisch gebaut aus dem Branch ${{ github.ref_name }} (Commit ${{ github.sha }})." --target "${{ github.sha }}"
